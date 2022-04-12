@@ -1,5 +1,5 @@
 # mocap-clipper
-Template for a basic Qt tool for DCCs
+Split up mocap, then apply poses with adjustment blending.
 
 ![tool header image](docs/header_image.png)
 
