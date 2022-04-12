@@ -1,4 +1,4 @@
-# mocap-clipper
+# ✂ Mocap Clipper
 Split up mocap, then apply poses with adjustment blending.
 
 ![tool header image](docs/header_image.png)

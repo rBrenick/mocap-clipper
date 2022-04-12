@@ -4,6 +4,7 @@ import sys
 from . import mocap_clipper_constants as k
 from . import mocap_clipper_system as mcs
 from . import ui_utils
+from . import resources
 from .ui import mocap_clipper_widget
 from .ui_utils import QtCore, QtWidgets, QtGui
 
@@ -21,6 +22,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.setupUi(main_ui_widget)
         self.setCentralWidget(main_ui_widget)
         self.setWindowTitle("Mocap Clipper")
+        self.setWindowIcon(QtGui.QIcon(resources.get_image_path("mocap_clipper_icon")))
 
         self.constrain_values = None
 
@@ -185,6 +187,8 @@ def main(refresh=False):
     if standalone_app:
         ui_utils.standalone_app_window = win
         sys.exit(standalone_app.exec_())
+
+    return win
 
 
 if __name__ == "__main__":

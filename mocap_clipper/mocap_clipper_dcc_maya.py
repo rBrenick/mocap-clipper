@@ -22,8 +22,6 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
                 parent_clip_node = parent_attr[0].node()
                 clip_hierarchy[clip_name] = parent_clip_node
 
-        pprint.pprint(clip_hierarchy)
-
         for te_clip in scene_clips:
             # not sure how to handle multiple clips in a clip
             i = te_clip.clip.getArrayIndices()[0]
@@ -38,7 +36,6 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
                 parent_i = parent_clip_node.clip.getArrayIndices()[0]
                 parent_clip_name = parent_clip_node.getAttr(f"clip[{parent_i}].clipName")
                 start_frame_offset += parent_clip_node.getAttr(f"clip[{parent_i}].clipStart")
-                print(clip_name, parent_clip_node, parent_clip_name, start_frame_offset)
                 parent_clip_node = clip_hierarchy.get(parent_clip_name)
 
             clip_data = dict()
