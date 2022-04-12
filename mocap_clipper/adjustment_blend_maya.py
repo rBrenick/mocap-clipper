@@ -2,8 +2,8 @@ import pymel.core as pm
 from maya import cmds
 
 
-def adjustment_blend():
-    anim_layer = pm.PyNode("AnimLayer1")
+def adjustment_blend(layer_name="AnimLayer1"):
+    anim_layer = pm.PyNode(layer_name)
 
     affected_attrs = [
         a.attrName(longName=True, includeNode=True) for a in anim_layer.getAttributes()

@@ -1,8 +1,7 @@
-import pprint
-
-from . import mocap_clipper_dcc_core
-from . import mocap_clipper_constants as k
 import pymel.core as pm
+from . import adjustment_blend_maya
+from . import mocap_clipper_constants as k
+from . import mocap_clipper_dcc_core
 
 
 class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
@@ -60,3 +59,6 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         if not node.hasAttr(attr_name):
             node.addAttr(attr_name, dataType='string')
         node.setAttr(attr_name, value)
+
+    def run_adjustment_blend(self):
+        return adjustment_blend_maya.adjustment_blend(k.SceneConstants.anim_layer_name)

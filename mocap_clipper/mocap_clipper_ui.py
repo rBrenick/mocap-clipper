@@ -31,6 +31,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.main_splitter.setSizes([1, 2])
         self.update_from_project()
         self.update_from_scene()
+        self.ui.refresh_BTN.setIcon(QtGui.QIcon(resources.get_image_path("refresh_icon")))
 
         # connect UI
         self.ui.refresh_BTN.clicked.connect(self.update_from_scene)
@@ -42,6 +43,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.end_pose_same_CHK.stateChanged.connect(self.ui.end_pose_CB.setDisabled)
         self.ui.start_pose_CHK.stateChanged.connect(self.toggle_start_pose)
         self.ui.start_pose_CHK.stateChanged.connect(self.ui.start_pose_CB.setEnabled)
+        self.ui.start_pose_CB.currentIndexChanged.connect(self.match_end_pose_to_start)
 
         self.ui.attach_to_rig_BTN.clicked.connect(self.toggle_mocap_constraint)
         self.ui.bake_BTN.clicked.connect(self.bake_to_rig)
@@ -140,9 +142,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         )
 
     def toggle_end_pose(self):
-        if self.ui.end_pose_same_CHK.isChecked():
-            start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
-            ui_utils.set_combo_box_by_data(self.ui.end_pose_CB, start_pose_path)
+        self.match_end_pose_to_start()
 
         clip_data = self.get_active_clip_data()
         if not clip_data:
@@ -168,6 +168,12 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             self.bind_mocap_to_rig()
             self.constrain_values = None
 
+    def match_end_pose_to_start(self):
+        if not self.ui.end_pose_same_CHK.isChecked():
+            return
+        start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
+        ui_utils.set_combo_box_by_data(self.ui.end_pose_CB, start_pose_path)
+
     def bind_mocap_to_rig(self):
         rig_name = self.ui.scene_actor_CB.currentText()
         self.constrain_values = mcs.dcc.constrain_mocap_to_rig(
@@ -190,12 +196,15 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         start_frame = float(self.ui.frame_start.text())
         end_frame = float(self.ui.frame_end.text())
 
-        mcs.dcc.bake_to_rig(
+        rig_controls = mcs.dcc.bake_to_rig(
             mocap_ns="SomeRandomMocapClip:",
             rig_name=rig_name,
             start_frame=start_frame,
             end_frame=end_frame
         )
+
+        if self.ui.start_pose_CHK.isChecked() or self.ui.end_pose_CHK.isChecked():
+            mcs.dcc.rebuild_pose_anim_layer(rig_controls)
 
         if self.ui.start_pose_CHK.isChecked():
             start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
@@ -204,6 +213,17 @@ class MocapClipperWindow(ui_utils.ToolWindow):
                 rig_name=rig_name,
                 frame=start_frame,
             )
+
+        if self.ui.end_pose_CHK.isChecked():
+            end_pose_path = self.ui.end_pose_CB.currentData(QtCore.Qt.UserRole)
+            mcs.dcc.apply_pose(
+                pose_path=end_pose_path,
+                rig_name=rig_name,
+                frame=end_frame,
+            )
+
+        if self.ui.adjustment_blend_CHK.isChecked():
+            mcs.dcc.run_adjustment_blend()
 
 
 def main(refresh=False):

@@ -10,12 +10,14 @@ def reload_modules():
     else:
         from imp import reload
 
+    from . import adjustment_blend_maya
     from . import mocap_clipper_constants
     from . import mocap_clipper_dcc_core
     from . import mocap_clipper_dcc_maya
     from . import mocap_clipper_system
     from .ui import mocap_clipper_widget
     from . import mocap_clipper_ui
+    reload(adjustment_blend_maya)
     reload(mocap_clipper_constants)
     reload(mocap_clipper_dcc_core)
     reload(mocap_clipper_dcc_maya)

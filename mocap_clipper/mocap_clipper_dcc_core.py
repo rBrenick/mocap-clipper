@@ -20,7 +20,7 @@ class MocapClipperCoreInterface(object):
         return FAKE_DATA.get("pose_files")  # list of paths
 
     def bake_to_rig(self, mocap_ns, rig_name, start_frame, end_frame):
-        return
+        return []
 
     def constrain_mocap_to_rig(self, mocap_ns, rig_name):
         return []
@@ -28,5 +28,11 @@ class MocapClipperCoreInterface(object):
     def disconnect_mocap_from_rig(self, constrain_values):
         return True
 
-    def apply_pose(self, pose_path, rig_name, frame=None, only_apply_to_selection=False):
+    def apply_pose(self, pose_path, rig_name, frame=None, on_selected=False, key_on_layer=True):
         return
+
+    def rebuild_pose_anim_layer(self, controls):
+        return True
+
+    def run_adjustment_blend(self):
+        pass

@@ -65,6 +65,9 @@ class Ui_MocapClipperWidget(object):
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.clip_name_LE = QLineEdit(self.widget)
         self.clip_name_LE.setObjectName(u"clip_name_LE")
+        font = QFont()
+        font.setPointSize(12)
+        self.clip_name_LE.setFont(font)
         self.clip_name_LE.setCursor(QCursor(Qt.BlankCursor))
         self.clip_name_LE.setAlignment(Qt.AlignCenter)
         self.clip_name_LE.setReadOnly(True)
@@ -156,7 +159,7 @@ class Ui_MocapClipperWidget(object):
 
         self.verticalLayout_4.addLayout(self.horizontalLayout_2)
 
-        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_2 = QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout_4.addItem(self.verticalSpacer_2)
 
@@ -230,7 +233,7 @@ class Ui_MocapClipperWidget(object):
 
     def retranslateUi(self, MocapClipperWidget):
         MocapClipperWidget.setWindowTitle(QCoreApplication.translate("MocapClipperWidget", u"Form", None))
-        self.refresh_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Refresh", None))
+        self.refresh_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Refresh Time Editor Clips", None))
 
         __sortingEnabled = self.clips_LW.isSortingEnabled()
         self.clips_LW.setSortingEnabled(False)
