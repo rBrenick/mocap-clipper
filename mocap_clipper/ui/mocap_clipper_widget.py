@@ -21,10 +21,10 @@ class Ui_MocapClipperWidget(object):
         self.verticalLayout_2 = QVBoxLayout(MocapClipperWidget)
         self.verticalLayout_2.setSpacing(2)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.splitter = QSplitter(MocapClipperWidget)
-        self.splitter.setObjectName(u"splitter")
-        self.splitter.setOrientation(Qt.Horizontal)
-        self.widget_2 = QWidget(self.splitter)
+        self.main_splitter = QSplitter(MocapClipperWidget)
+        self.main_splitter.setObjectName(u"main_splitter")
+        self.main_splitter.setOrientation(Qt.Horizontal)
+        self.widget_2 = QWidget(self.main_splitter)
         self.widget_2.setObjectName(u"widget_2")
         self.horizontalLayout_3 = QHBoxLayout(self.widget_2)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
@@ -53,8 +53,8 @@ class Ui_MocapClipperWidget(object):
 
         self.horizontalLayout_3.addLayout(self.verticalLayout_3)
 
-        self.splitter.addWidget(self.widget_2)
-        self.widget = QWidget(self.splitter)
+        self.main_splitter.addWidget(self.widget_2)
+        self.widget = QWidget(self.main_splitter)
         self.widget.setObjectName(u"widget")
         self.horizontalLayout_4 = QHBoxLayout(self.widget)
         self.horizontalLayout_4.setSpacing(2)
@@ -178,9 +178,9 @@ class Ui_MocapClipperWidget(object):
 
         self.horizontalLayout_4.addLayout(self.verticalLayout_4)
 
-        self.splitter.addWidget(self.widget)
+        self.main_splitter.addWidget(self.widget)
 
-        self.verticalLayout_2.addWidget(self.splitter)
+        self.verticalLayout_2.addWidget(self.main_splitter)
 
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setSpacing(3)
