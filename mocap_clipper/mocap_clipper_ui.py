@@ -3,8 +3,8 @@ import sys
 
 from . import mocap_clipper_constants as k
 from . import mocap_clipper_system as mcs
-from . import ui_utils
 from . import resources
+from . import ui_utils
 from .ui import mocap_clipper_widget
 from .ui_utils import QtCore, QtWidgets, QtGui
 
@@ -44,6 +44,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.start_pose_CHK.stateChanged.connect(self.ui.start_pose_CB.setEnabled)
 
         self.ui.attach_to_rig_BTN.clicked.connect(self.toggle_mocap_constraint)
+        self.ui.bake_BTN.clicked.connect(self.bake_to_rig)
 
     def update_from_project(self):
         pose_files = mcs.dcc.get_pose_files()
@@ -142,13 +143,15 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         if self.ui.end_pose_same_CHK.isChecked():
             start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
             ui_utils.set_combo_box_by_data(self.ui.end_pose_CB, start_pose_path)
-            return
 
         clip_data = self.get_active_clip_data()
         if not clip_data:
             return
 
         clip_node = clip_data.get(k.cdc.node)
+        if self.ui.end_pose_same_CHK.isChecked():
+            mcs.dcc.set_attr(node=clip_node, attr_name="end_pose_path", value="")
+            return
 
         self.ui.end_pose_CB.setEnabled(True)
         pose_path = self.ui.end_pose_CB.currentData(QtCore.Qt.UserRole)
@@ -178,6 +181,29 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         mcs.dcc.disconnect_mocap_from_rig(self.constrain_values)
         self.ui.attach_to_rig_BTN.setText("Attach to Rig")
         self.ui.attach_to_rig_BTN.setStyleSheet("")
+
+    def bake_to_rig(self):
+        clip_data = self.get_active_clip_data()
+        if not clip_data:
+            return
+        rig_name = self.ui.scene_actor_CB.currentText()
+        start_frame = float(self.ui.frame_start.text())
+        end_frame = float(self.ui.frame_end.text())
+
+        mcs.dcc.bake_to_rig(
+            mocap_ns="SomeRandomMocapClip:",
+            rig_name=rig_name,
+            start_frame=start_frame,
+            end_frame=end_frame
+        )
+
+        if self.ui.start_pose_CHK.isChecked():
+            start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
+            mcs.dcc.apply_pose(
+                pose_path=start_pose_path,
+                rig_name=rig_name,
+                frame=start_frame,
+            )
 
 
 def main(refresh=False):

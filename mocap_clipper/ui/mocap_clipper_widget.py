@@ -166,6 +166,12 @@ class Ui_MocapClipperWidget(object):
 
         self.verticalLayout_4.addWidget(self.euler_filter_CHK)
 
+        self.adjustment_blend_CHK = QCheckBox(self.widget)
+        self.adjustment_blend_CHK.setObjectName(u"adjustment_blend_CHK")
+        self.adjustment_blend_CHK.setChecked(True)
+
+        self.verticalLayout_4.addWidget(self.adjustment_blend_CHK)
+
         self.selected_controls_CHK = QCheckBox(self.widget)
         self.selected_controls_CHK.setObjectName(u"selected_controls_CHK")
 
@@ -243,6 +249,7 @@ class Ui_MocapClipperWidget(object):
         self.end_pose_same_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Same As Start", None))
         self.end_pose_browse_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Browse", None))
         self.euler_filter_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Euler Filter", None))
+        self.adjustment_blend_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Adjustment Blend", None))
         self.selected_controls_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"On Selected Controls", None))
         self.scene_actor_CB.setItemText(0, QCoreApplication.translate("MocapClipperWidget", u"actor0", None))
 
