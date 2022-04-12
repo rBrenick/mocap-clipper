@@ -116,13 +116,6 @@ class Ui_MocapClipperWidget(object):
 
         self.horizontalLayout_5.addWidget(self.start_pose_CB)
 
-        self.start_pose_browse_BTN = QPushButton(self.widget)
-        self.start_pose_browse_BTN.setObjectName(u"start_pose_browse_BTN")
-        sizePolicy1.setHeightForWidth(self.start_pose_browse_BTN.sizePolicy().hasHeightForWidth())
-        self.start_pose_browse_BTN.setSizePolicy(sizePolicy1)
-
-        self.horizontalLayout_5.addWidget(self.start_pose_browse_BTN)
-
 
         self.verticalLayout_4.addLayout(self.horizontalLayout_5)
 
@@ -149,13 +142,6 @@ class Ui_MocapClipperWidget(object):
 
         self.horizontalLayout_2.addWidget(self.end_pose_CB)
 
-        self.end_pose_browse_BTN = QPushButton(self.widget)
-        self.end_pose_browse_BTN.setObjectName(u"end_pose_browse_BTN")
-        sizePolicy1.setHeightForWidth(self.end_pose_browse_BTN.sizePolicy().hasHeightForWidth())
-        self.end_pose_browse_BTN.setSizePolicy(sizePolicy1)
-
-        self.horizontalLayout_2.addWidget(self.end_pose_browse_BTN)
-
 
         self.verticalLayout_4.addLayout(self.horizontalLayout_2)
 
@@ -171,7 +157,6 @@ class Ui_MocapClipperWidget(object):
 
         self.adjustment_blend_CHK = QCheckBox(self.widget)
         self.adjustment_blend_CHK.setObjectName(u"adjustment_blend_CHK")
-        self.adjustment_blend_CHK.setChecked(True)
 
         self.verticalLayout_4.addWidget(self.adjustment_blend_CHK)
 
@@ -247,10 +232,8 @@ class Ui_MocapClipperWidget(object):
         self.frame_duration.setText("")
         self.frame_duration.setPlaceholderText(QCoreApplication.translate("MocapClipperWidget", u"Duration", None))
         self.start_pose_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Start Pose", None))
-        self.start_pose_browse_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Browse", None))
         self.end_pose_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"End Pose", None))
         self.end_pose_same_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Same As Start", None))
-        self.end_pose_browse_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Browse", None))
         self.euler_filter_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Euler Filter", None))
         self.adjustment_blend_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Adjustment Blend", None))
         self.selected_controls_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"On Selected Controls", None))

@@ -175,9 +175,12 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         ui_utils.set_combo_box_by_data(self.ui.end_pose_CB, start_pose_path)
 
     def bind_mocap_to_rig(self):
+        clip_data = self.get_active_clip_data()
+        if not clip_data:
+            return
         rig_name = self.ui.scene_actor_CB.currentText()
         self.constrain_values = mcs.dcc.constrain_mocap_to_rig(
-            mocap_ns="SomeRandomMocapClip:",
+            mocap_ns=clip_data.get(k.cdc.namespace),
             rig_name=rig_name
         )
         self.ui.attach_to_rig_BTN.setText("Detach from Mocap")
@@ -197,10 +200,11 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         end_frame = float(self.ui.frame_end.text())
 
         rig_controls = mcs.dcc.bake_to_rig(
-            mocap_ns="SomeRandomMocapClip:",
+            mocap_ns=clip_data.get(k.cdc.namespace),
             rig_name=rig_name,
             start_frame=start_frame,
-            end_frame=end_frame
+            end_frame=end_frame,
+            euler_filter=self.ui.euler_filter_CHK.isChecked(),
         )
 
         if self.ui.start_pose_CHK.isChecked() or self.ui.end_pose_CHK.isChecked():

@@ -184,19 +184,6 @@
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QPushButton" name="start_pose_browse_BTN">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Browse</string>
-             </property>
-            </widget>
-           </item>
           </layout>
          </item>
          <item>
@@ -237,19 +224,6 @@
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QPushButton" name="end_pose_browse_BTN">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Browse</string>
-             </property>
-            </widget>
-           </item>
           </layout>
          </item>
          <item>
@@ -279,9 +253,6 @@
           <widget class="QCheckBox" name="adjustment_blend_CHK">
            <property name="text">
             <string>Adjustment Blend</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
            </property>
           </widget>
          </item>

@@ -14,6 +14,7 @@ class ClipDataConstants:
     clip_parent = "clip_parent"
     start_pose = "start_pose"
     end_pose = "end_pose"
+    namespace = "namespace"
 
 
 cdc = ClipDataConstants

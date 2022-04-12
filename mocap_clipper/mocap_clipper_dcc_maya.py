@@ -41,9 +41,9 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             clip_data[k.cdc.start_frame] = te_clip.getAttr(f"clip[{i}].clipStart") + start_frame_offset
             clip_data[k.cdc.frame_duration] = te_clip.getAttr(f"clip[{i}].clipDuration")
             clip_data[k.cdc.end_frame] = clip_data[k.cdc.start_frame] + clip_data[k.cdc.frame_duration]
-            clip_data[k.cdc.end_frame] = clip_data[k.cdc.start_frame] + clip_data[k.cdc.frame_duration]
             clip_data[k.cdc.node] = te_clip
             clip_data[k.cdc.clip_parent] = clip_parent
+            clip_data[k.cdc.namespace] = get_namespace_from_time_clip(te_clip)
             all_clip_data[clip_name] = clip_data
 
         return all_clip_data
@@ -62,3 +62,13 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
 
     def run_adjustment_blend(self):
         return adjustment_blend_maya.adjustment_blend(k.SceneConstants.anim_layer_name)
+
+
+def get_namespace_from_time_clip(te_clip):
+    namespaces = set()
+    for clip_interpolator in te_clip.state.connections(type="timeEditorClipEvaluator"):
+        for roster_item_node in clip_interpolator.rosterItems.connections():
+            namespaces.add(roster_item_node.namespace())
+
+    if namespaces:
+        return list(namespaces)[0]

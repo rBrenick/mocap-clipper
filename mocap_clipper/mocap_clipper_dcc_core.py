@@ -19,7 +19,7 @@ class MocapClipperCoreInterface(object):
     def get_pose_files(self):
         return FAKE_DATA.get("pose_files")  # list of paths
 
-    def bake_to_rig(self, mocap_ns, rig_name, start_frame, end_frame):
+    def bake_to_rig(self, mocap_ns, rig_name, start_frame, end_frame, euler_filter=False):
         return []
 
     def constrain_mocap_to_rig(self, mocap_ns, rig_name):
