@@ -250,6 +250,16 @@
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="align_hips_CHK">
+           <property name="text">
+            <string>Align Hips</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QCheckBox" name="adjustment_blend_CHK">
            <property name="text">
             <string>Adjustment Blend</string>
@@ -306,7 +316,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="attach_to_rig_BTN">
+      <widget class="QPushButton" name="connect_mocap_to_rig_BTN">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
          <horstretch>0</horstretch>
@@ -314,7 +324,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Attach to Rig</string>
+        <string>Preview Mocap On Rig</string>
        </property>
       </widget>
      </item>

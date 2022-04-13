@@ -54,7 +54,7 @@ def adjustment_blend(layer_name="AnimLayer1"):
 
         anim_layer_node = anim_curve
 
-        # please god don't have more than 50 animlayers
+        # please god don't have more than 50 animlayers in a hierarchy
         for i in range(50):
             if anim_layer_node.type() == "animBlendNodeAdditiveRotation":
                 connections = anim_layer_node.outputX.connections(plugs=True)

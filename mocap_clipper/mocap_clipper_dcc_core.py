@@ -22,13 +22,13 @@ class MocapClipperCoreInterface(object):
     def bake_to_rig(self, mocap_ns, rig_name, start_frame, end_frame, euler_filter=False):
         return []
 
-    def constrain_mocap_to_rig(self, mocap_ns, rig_name):
+    def connect_mocap_to_rig(self, mocap_ns, rig_name):
         return []
 
-    def disconnect_mocap_from_rig(self, constrain_values):
+    def disconnect_mocap_from_rig(self, connect_result):
         return True
 
-    def apply_pose(self, pose_path, rig_name, frame=None, on_selected=False, key_on_layer=True):
+    def apply_pose(self, pose_path, rig_name, on_frame=None, on_selected=False, set_key=True):
         return
 
     def rebuild_pose_anim_layer(self, controls):

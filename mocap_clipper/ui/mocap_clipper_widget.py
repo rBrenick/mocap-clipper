@@ -155,6 +155,12 @@ class Ui_MocapClipperWidget(object):
 
         self.verticalLayout_4.addWidget(self.euler_filter_CHK)
 
+        self.align_hips_CHK = QCheckBox(self.widget)
+        self.align_hips_CHK.setObjectName(u"align_hips_CHK")
+        self.align_hips_CHK.setChecked(True)
+
+        self.verticalLayout_4.addWidget(self.align_hips_CHK)
+
         self.adjustment_blend_CHK = QCheckBox(self.widget)
         self.adjustment_blend_CHK.setObjectName(u"adjustment_blend_CHK")
 
@@ -186,15 +192,15 @@ class Ui_MocapClipperWidget(object):
 
         self.horizontalLayout.addWidget(self.scene_actor_CB)
 
-        self.attach_to_rig_BTN = QPushButton(MocapClipperWidget)
-        self.attach_to_rig_BTN.setObjectName(u"attach_to_rig_BTN")
+        self.connect_mocap_to_rig_BTN = QPushButton(MocapClipperWidget)
+        self.connect_mocap_to_rig_BTN.setObjectName(u"connect_mocap_to_rig_BTN")
         sizePolicy2 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.attach_to_rig_BTN.sizePolicy().hasHeightForWidth())
-        self.attach_to_rig_BTN.setSizePolicy(sizePolicy2)
+        sizePolicy2.setHeightForWidth(self.connect_mocap_to_rig_BTN.sizePolicy().hasHeightForWidth())
+        self.connect_mocap_to_rig_BTN.setSizePolicy(sizePolicy2)
 
-        self.horizontalLayout.addWidget(self.attach_to_rig_BTN)
+        self.horizontalLayout.addWidget(self.connect_mocap_to_rig_BTN)
 
         self.bake_BTN = QPushButton(MocapClipperWidget)
         self.bake_BTN.setObjectName(u"bake_BTN")
@@ -235,11 +241,12 @@ class Ui_MocapClipperWidget(object):
         self.end_pose_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"End Pose", None))
         self.end_pose_same_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Same As Start", None))
         self.euler_filter_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Euler Filter", None))
+        self.align_hips_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Align Hips", None))
         self.adjustment_blend_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Adjustment Blend", None))
         self.selected_controls_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"On Selected Controls", None))
         self.scene_actor_CB.setItemText(0, QCoreApplication.translate("MocapClipperWidget", u"actor0", None))
 
-        self.attach_to_rig_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Attach to Rig", None))
+        self.connect_mocap_to_rig_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Preview Mocap On Rig", None))
         self.bake_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Bake to Rig", None))
     # retranslateUi
 
