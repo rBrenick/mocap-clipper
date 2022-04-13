@@ -32,8 +32,14 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.update_from_project()
         self.update_from_scene()
         self.ui.refresh_BTN.setIcon(QtGui.QIcon(resources.get_image_path("refresh_icon")))
+        mocap_icon = mcs.dcc.get_mocap_icon() or QtGui.QIcon()
+        rig_icon = mcs.dcc.get_rig_icon() or QtGui.QIcon()
+        self.ui.import_mocap_BTN.setIcon(mocap_icon)
+        self.ui.connect_mocap_to_rig_BTN.setIcon(rig_icon)
+        self.ui.bake_BTN.setIcon(mocap_icon)
 
         # connect UI
+        self.ui.import_mocap_BTN.clicked.connect(self.import_mocap)
         self.ui.refresh_BTN.clicked.connect(self.update_from_scene)
         self.ui.clips_LW.itemSelectionChanged.connect(self.update_clip_display_info)
 
@@ -50,8 +56,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
     def update_from_project(self):
         pose_files = mcs.dcc.get_pose_files()
-        pose_icon = mcs.dcc.get_pose_icon()
-        pose_icon = pose_icon if pose_icon else QtGui.QIcon()
+        pose_icon = mcs.dcc.get_pose_icon() or QtGui.QIcon()
         for pose_file in pose_files:
             pose_name = os.path.splitext(os.path.basename(pose_file))[0]
             self.ui.start_pose_CB.addItem(pose_icon, pose_name, pose_file)
@@ -69,8 +74,10 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
         # update actor list
         rig_names = mcs.dcc.get_rigs_in_scene().keys()
+        rig_icon = mcs.dcc.get_rig_icon() or QtGui.QIcon()
         self.ui.scene_actor_CB.clear()
-        self.ui.scene_actor_CB.addItems(rig_names)
+        for rig_name in rig_names:
+            self.ui.scene_actor_CB.addItem(rig_icon, rig_name)
 
     def update_clip_display_info(self):
         selected_clips = self.ui.clips_LW.selectedItems()
@@ -167,6 +174,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             mcs.dcc.set_attr(clip_node, "end_pose_path", end_pose_path)
 
     def toggle_mocap_constraint(self):
+        print(self.mocap_bind_result)
         if self.mocap_bind_result:
             self.unbind_mocap_from_rig()
         else:
@@ -195,6 +203,12 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         mcs.dcc.disconnect_mocap_from_rig(self.mocap_bind_result)
         self.ui.connect_mocap_to_rig_BTN.setText("Preview Mocap On Rig")
         self.ui.connect_mocap_to_rig_BTN.setStyleSheet("")
+
+    def import_mocap(self):
+        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(caption="Open picker layout", filter="FBX (*.fbx)")
+        if file_path:
+            mcs.dcc.import_mocap(file_path)
+            self.update_from_scene()
 
     def bake_to_rig(self):
         clip_data = self.get_active_clip_data()

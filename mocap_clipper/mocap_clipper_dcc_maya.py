@@ -1,4 +1,5 @@
 import pymel.core as pm
+from maya import cmds
 from . import adjustment_blend_maya
 from . import mocap_clipper_constants as k
 from . import mocap_clipper_dcc_core
@@ -67,6 +68,34 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         if not node.hasAttr(attr_name):
             node.addAttr(attr_name, dataType='string')
         node.setAttr(attr_name, value, type="string")
+
+    def import_mocap(self, file_path):
+        nspace = 'mocapImport'
+        i = 0
+        while pm.namespace(exists=nspace + str(i)):
+            i += 1
+        nspace += str(i)
+
+        pm.FBXResetImport()
+        pm.mel.eval('FBXImportMode -v add')
+        pm.mel.eval('FBXImportSetTake -ti -1')
+        pm.mel.file(file_path, i=True, type='FBX', ra=True, namespace=nspace, options='fbx', importTimeRange='override')
+        mocap_top_nodes = pm.ls(pm.namespaceInfo(nspace, listNamespace=True, recurse=True), assemblies=True)
+
+        # parent nodes under group
+        mocap_grp = pm.createNode('transform', n=nspace + ':nodes')
+        mocap_grp.overrideEnabled.set(True)
+        pm.parent(mocap_top_nodes, mocap_grp)
+
+        # get all transforms from fbx
+        mocap_nodes = []
+        mocap_nodes.extend(mocap_top_nodes)
+        for mocap_top_node in mocap_top_nodes:
+            for mocap_node in pm.listRelatives(mocap_top_node, ad=True):
+                mocap_nodes.append(mocap_node)
+
+        pm.select(mocap_nodes)
+        cmds.TimeEditorCreateClip()
 
     def run_adjustment_blend(self):
         return adjustment_blend_maya.adjustment_blend(k.SceneConstants.anim_layer_name)

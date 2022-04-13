@@ -42,6 +42,19 @@
           <number>3</number>
          </property>
          <item>
+          <widget class="QPushButton" name="import_mocap_BTN">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Import Mocap</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="refresh_BTN">
            <property name="minimumSize">
             <size>

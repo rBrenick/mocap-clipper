@@ -32,6 +32,12 @@ class Ui_MocapClipperWidget(object):
         self.verticalLayout_3 = QVBoxLayout()
         self.verticalLayout_3.setSpacing(3)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.import_mocap_BTN = QPushButton(self.widget_2)
+        self.import_mocap_BTN.setObjectName(u"import_mocap_BTN")
+        self.import_mocap_BTN.setMinimumSize(QSize(0, 30))
+
+        self.verticalLayout_3.addWidget(self.import_mocap_BTN)
+
         self.refresh_BTN = QPushButton(self.widget_2)
         self.refresh_BTN.setObjectName(u"refresh_BTN")
         self.refresh_BTN.setMinimumSize(QSize(0, 30))
@@ -224,6 +230,7 @@ class Ui_MocapClipperWidget(object):
 
     def retranslateUi(self, MocapClipperWidget):
         MocapClipperWidget.setWindowTitle(QCoreApplication.translate("MocapClipperWidget", u"Form", None))
+        self.import_mocap_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Import Mocap", None))
         self.refresh_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Refresh Time Editor Clips", None))
 
         __sortingEnabled = self.clips_LW.isSortingEnabled()

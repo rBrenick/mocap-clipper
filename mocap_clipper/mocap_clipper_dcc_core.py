@@ -16,11 +16,17 @@ class MocapClipperCoreInterface(object):
     def get_pose_icon(self):
         return None  # qicon
 
+    def get_mocap_icon(self):
+        return None  # qicon
+
+    def get_rig_icon(self):
+        return None  # qicon
+
     def get_pose_files(self):
         return FAKE_DATA.get("pose_files")  # list of paths
 
-    def bake_to_rig(self, mocap_ns, rig_name, start_frame, end_frame, euler_filter=False):
-        return []
+    def import_mocap(self, file_path):
+        return
 
     def connect_mocap_to_rig(self, mocap_ns, rig_name):
         return []
@@ -28,11 +34,14 @@ class MocapClipperCoreInterface(object):
     def disconnect_mocap_from_rig(self, connect_result):
         return True
 
-    def apply_pose(self, pose_path, rig_name, on_frame=None, on_selected=False, set_key=True):
-        return
+    def bake_to_rig(self, mocap_ns, rig_name, start_frame, end_frame, euler_filter=False):
+        return []
 
     def rebuild_pose_anim_layer(self, controls):
         return True
+
+    def apply_pose(self, pose_path, rig_name, on_frame=None, on_selected=False, set_key=True):
+        return
 
     def run_adjustment_blend(self):
         pass
