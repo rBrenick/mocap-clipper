@@ -263,9 +263,19 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="align_hips_CHK">
+          <widget class="QCheckBox" name="align_to_start_pose_CHK">
            <property name="text">
-            <string>Align Hips</string>
+            <string>Align To Start Pose</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="set_time_range_CHK">
+           <property name="text">
+            <string>Set Time Range</string>
            </property>
            <property name="checked">
             <bool>true</bool>

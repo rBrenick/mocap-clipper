@@ -37,6 +37,9 @@ class MocapClipperCoreInterface(object):
     def bake_to_rig(self, mocap_ns, rig_name, start_frame, end_frame, euler_filter=False):
         return []
 
+    def align_mocap_to_rig(self, mocap_ns, rig_name, root_name="root", pelvis_name="pelvis"):
+        return
+
     def rebuild_pose_anim_layer(self, controls):
         return True
 
@@ -45,3 +48,6 @@ class MocapClipperCoreInterface(object):
 
     def run_adjustment_blend(self):
         pass
+
+    def set_time_range(self, time_range):
+        return

@@ -174,12 +174,11 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             mcs.dcc.set_attr(clip_node, "end_pose_path", end_pose_path)
 
     def toggle_mocap_constraint(self):
-        print(self.mocap_bind_result)
         if self.mocap_bind_result:
             self.unbind_mocap_from_rig()
+            self.mocap_bind_result = None
         else:
             self.bind_mocap_to_rig()
-            self.mocap_bind_result = None
 
     def match_end_pose_to_start(self):
         if not self.ui.end_pose_same_CHK.isChecked():
@@ -192,6 +191,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         if not clip_data:
             return
         rig_name = self.ui.scene_actor_CB.currentText()
+
         self.mocap_bind_result = mcs.dcc.connect_mocap_to_rig(
             mocap_ns=clip_data.get(k.cdc.namespace),
             rig_name=rig_name
@@ -225,6 +225,11 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         start_frame = clip_data.get(k.cdc.start_frame)
         end_frame = clip_data.get(k.cdc.end_frame)
 
+        if self.ui.align_to_start_pose_CHK.isChecked():
+            start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
+            mcs.dcc.apply_pose(start_pose_path, rig_name)
+            mcs.dcc.align_mocap_to_rig(mocap_namespace, rig_name)
+
         rig_controls = mcs.dcc.bake_to_rig(
             mocap_ns=mocap_namespace,
             rig_name=rig_name,
@@ -254,6 +259,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
         if self.ui.adjustment_blend_CHK.isChecked():
             mcs.dcc.run_adjustment_blend()
+
+        if self.ui.set_time_range_CHK.isChecked():
+            mcs.dcc.set_time_range((start_frame, end_frame))
 
 
 def main(refresh=False):

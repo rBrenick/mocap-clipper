@@ -83,7 +83,8 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         mocap_top_nodes = pm.ls(pm.namespaceInfo(nspace, listNamespace=True, recurse=True), assemblies=True)
 
         # parent nodes under group
-        mocap_grp = pm.createNode('transform', n=nspace + ':nodes')
+        mocap_grp_name = "{}:{}".format(nspace, k.SceneConstants.mocap_top_grp_name)
+        mocap_grp = pm.createNode('transform', n=mocap_grp_name)
         mocap_grp.overrideEnabled.set(True)
         pm.parent(mocap_top_nodes, mocap_grp)
 
@@ -94,11 +95,48 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             for mocap_node in pm.listRelatives(mocap_top_node, ad=True):
                 mocap_nodes.append(mocap_node)
 
+        print(mocap_nodes)
         pm.select(mocap_nodes)
         cmds.TimeEditorCreateClip()
 
+    def align_mocap_to_rig(self, mocap_ns, rig_name, root_name="root", pelvis_name="pelvis"):
+        target_rig = self.get_rigs_in_scene().get(rig_name)
+        rig_ns = target_rig.namespace()
+
+        top_grp = pm.PyNode(mocap_ns + k.SceneConstants.mocap_top_grp_name)
+        root = mocap_ns + root_name
+        pelvis = mocap_ns + pelvis_name
+        rig_root = rig_ns + root_name
+        rig_pelvis = rig_ns + pelvis_name
+
+        # reset top node
+        top_grp.setMatrix(pm.dt.Matrix.identity)
+
+        # align with rig hips
+        pelvis_matrix = pm.dt.Matrix(pm.xform(pelvis, q=True, matrix=True, worldSpace=True))
+        rig_pelvis_matrix = pm.dt.Matrix(pm.xform(rig_pelvis, q=True, matrix=True, worldSpace=True))
+
+        diff_pos = rig_pelvis_matrix.translate - pelvis_matrix.translate
+        top_grp.setTranslation(diff_pos)
+
+        # create new root that's aligned with the rig (since the mocap one might be a bit off)
+        imported_root_name = root + "_RAW_IMPORT"
+
+        if not pm.objExists(imported_root_name):
+            rig_root_matrix = pm.dt.Matrix(pm.xform(rig_root, q=True, matrix=True, worldSpace=True))
+            imported_root = pm.rename(root, imported_root_name)
+            new_root = pm.createNode("transform", name=root)
+            new_root.setMatrix(rig_root_matrix, worldSpace=True)
+            new_root.setParent(imported_root)
+
     def run_adjustment_blend(self):
         return adjustment_blend_maya.adjustment_blend(k.SceneConstants.anim_layer_name)
+
+    def set_time_range(self, time_range):
+        pm.playbackOptions(animationStartTime=time_range[0])
+        pm.playbackOptions(animationEndTime=time_range[1])
+        pm.playbackOptions(minTime=time_range[0])
+        pm.playbackOptions(maxTime=time_range[1])
 
 
 def get_namespace_from_time_clip(te_clip):
