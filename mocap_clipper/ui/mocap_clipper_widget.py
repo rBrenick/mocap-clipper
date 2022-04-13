@@ -17,7 +17,7 @@ class Ui_MocapClipperWidget(object):
     def setupUi(self, MocapClipperWidget):
         if not MocapClipperWidget.objectName():
             MocapClipperWidget.setObjectName(u"MocapClipperWidget")
-        MocapClipperWidget.resize(717, 366)
+        MocapClipperWidget.resize(632, 337)
         self.verticalLayout_2 = QVBoxLayout(MocapClipperWidget)
         self.verticalLayout_2.setSpacing(2)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
@@ -35,6 +35,7 @@ class Ui_MocapClipperWidget(object):
         self.import_mocap_BTN = QPushButton(self.widget_2)
         self.import_mocap_BTN.setObjectName(u"import_mocap_BTN")
         self.import_mocap_BTN.setMinimumSize(QSize(0, 30))
+        self.import_mocap_BTN.setStyleSheet(u"background-color:rgb(80, 80, 120)")
 
         self.verticalLayout_3.addWidget(self.import_mocap_BTN)
 
@@ -187,24 +188,19 @@ class Ui_MocapClipperWidget(object):
 
         self.verticalLayout_4.addItem(self.verticalSpacer)
 
-
-        self.horizontalLayout_4.addLayout(self.verticalLayout_4)
-
-        self.main_splitter.addWidget(self.widget)
-
-        self.verticalLayout_2.addWidget(self.main_splitter)
-
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setSpacing(3)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.scene_actor_CB = QComboBox(MocapClipperWidget)
+        self.scene_actor_CB = QComboBox(self.widget)
         self.scene_actor_CB.addItem("")
         self.scene_actor_CB.setObjectName(u"scene_actor_CB")
+        sizePolicy1.setHeightForWidth(self.scene_actor_CB.sizePolicy().hasHeightForWidth())
+        self.scene_actor_CB.setSizePolicy(sizePolicy1)
         self.scene_actor_CB.setMinimumSize(QSize(0, 30))
 
         self.horizontalLayout.addWidget(self.scene_actor_CB)
 
-        self.connect_mocap_to_rig_BTN = QPushButton(MocapClipperWidget)
+        self.connect_mocap_to_rig_BTN = QPushButton(self.widget)
         self.connect_mocap_to_rig_BTN.setObjectName(u"connect_mocap_to_rig_BTN")
         sizePolicy2 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         sizePolicy2.setHorizontalStretch(0)
@@ -214,19 +210,36 @@ class Ui_MocapClipperWidget(object):
 
         self.horizontalLayout.addWidget(self.connect_mocap_to_rig_BTN)
 
-        self.bake_BTN = QPushButton(MocapClipperWidget)
+        self.bake_BTN = QPushButton(self.widget)
         self.bake_BTN.setObjectName(u"bake_BTN")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        sizePolicy3 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
         sizePolicy3.setHorizontalStretch(0)
         sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.bake_BTN.sizePolicy().hasHeightForWidth())
         self.bake_BTN.setSizePolicy(sizePolicy3)
         self.bake_BTN.setMinimumSize(QSize(0, 30))
+        self.bake_BTN.setStyleSheet(u"background-color:rgb(80, 80, 80)")
 
         self.horizontalLayout.addWidget(self.bake_BTN)
 
 
-        self.verticalLayout_2.addLayout(self.horizontalLayout)
+        self.verticalLayout_4.addLayout(self.horizontalLayout)
+
+        self.verticalSpacer_3 = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+
+        self.verticalLayout_4.addItem(self.verticalSpacer_3)
+
+        self.project_widgets_layout = QVBoxLayout()
+        self.project_widgets_layout.setObjectName(u"project_widgets_layout")
+
+        self.verticalLayout_4.addLayout(self.project_widgets_layout)
+
+
+        self.horizontalLayout_4.addLayout(self.verticalLayout_4)
+
+        self.main_splitter.addWidget(self.widget)
+
+        self.verticalLayout_2.addWidget(self.main_splitter)
 
 
         self.retranslateUi(MocapClipperWidget)
@@ -258,7 +271,7 @@ class Ui_MocapClipperWidget(object):
         self.set_time_range_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Set Time Range", None))
         self.adjustment_blend_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Adjustment Blend", None))
         self.selected_controls_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"On Selected Controls", None))
-        self.scene_actor_CB.setItemText(0, QCoreApplication.translate("MocapClipperWidget", u"actor0", None))
+        self.scene_actor_CB.setItemText(0, QCoreApplication.translate("MocapClipperWidget", u"actor0:Rig", None))
 
         self.connect_mocap_to_rig_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Preview Mocap On Rig", None))
         self.bake_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Bake to Rig", None))

@@ -95,8 +95,8 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             for mocap_node in pm.listRelatives(mocap_top_node, ad=True):
                 mocap_nodes.append(mocap_node)
 
-        print(mocap_nodes)
         pm.select(mocap_nodes)
+        pm.optionVar["ctePopulateIncludeRoot"] = 0
         cmds.TimeEditorCreateClip()
 
     def align_mocap_to_rig(self, mocap_ns, rig_name, root_name="root", pelvis_name="pelvis"):

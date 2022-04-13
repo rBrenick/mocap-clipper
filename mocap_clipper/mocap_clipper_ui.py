@@ -35,7 +35,6 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         mocap_icon = mcs.dcc.get_mocap_icon() or QtGui.QIcon()
         rig_icon = mcs.dcc.get_rig_icon() or QtGui.QIcon()
         self.ui.import_mocap_BTN.setIcon(mocap_icon)
-        self.ui.connect_mocap_to_rig_BTN.setIcon(rig_icon)
         self.ui.bake_BTN.setIcon(mocap_icon)
 
         # connect UI
@@ -62,6 +61,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             self.ui.start_pose_CB.addItem(pose_icon, pose_name, pose_file)
             self.ui.end_pose_CB.addItem(pose_icon, pose_name, pose_file)
 
+        for project_widget in mcs.dcc.get_project_widgets():
+            self.ui.project_widgets_layout.addWidget(project_widget)
+
     def update_from_scene(self):
         self.scene_data = mcs.dcc.get_scene_time_editor_data()
 
@@ -81,10 +83,13 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
     def update_clip_display_info(self):
         selected_clips = self.ui.clips_LW.selectedItems()
+
+        valid_selection = False
         if len(selected_clips) == 1:
             clip_lw = selected_clips[0]  # type: QtWidgets.QListWidgetItem
             clip_name = clip_lw.text()
             clip_data = self.scene_data.get(clip_name)
+            valid_selection = True
 
         elif len(selected_clips) > 1:
             clip_name = "[Multiple Clips Selected]"
@@ -92,6 +97,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             clip_data[k.cdc.start_frame] = "[...]"
             clip_data[k.cdc.end_frame] = "[...]"
             clip_data[k.cdc.frame_duration] = "[...]"
+            valid_selection = True
 
         else:
             clip_name = ""
@@ -126,6 +132,11 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
             if end_pose_path:
                 ui_utils.set_combo_box_by_data(self.ui.end_pose_CB, end_pose_path)
+
+        if valid_selection:
+            self.ui.bake_BTN.setStyleSheet("background-color:rgb(80, 120, 80)")
+        else:
+            self.ui.bake_BTN.setStyleSheet("background-color:rgb(80, 80, 80)")
 
     def get_active_clip_data(self):
         selected_clips = self.ui.clips_LW.selectedItems()
@@ -177,8 +188,16 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         if self.mocap_bind_result:
             self.unbind_mocap_from_rig()
             self.mocap_bind_result = None
+
+            # update UI display
+            self.ui.connect_mocap_to_rig_BTN.setText("Preview Mocap On Rig")
+            self.ui.connect_mocap_to_rig_BTN.setStyleSheet("")
+            self.ui.bake_BTN.setEnabled(True)
         else:
-            self.bind_mocap_to_rig()
+            if self.bind_mocap_to_rig():
+                self.ui.connect_mocap_to_rig_BTN.setText("Detach from Mocap")
+                self.ui.connect_mocap_to_rig_BTN.setStyleSheet("background-color:rgb(150, 100, 80)")
+                self.ui.bake_BTN.setEnabled(False)
 
     def match_end_pose_to_start(self):
         if not self.ui.end_pose_same_CHK.isChecked():
@@ -189,20 +208,20 @@ class MocapClipperWindow(ui_utils.ToolWindow):
     def bind_mocap_to_rig(self):
         clip_data = self.get_active_clip_data()
         if not clip_data:
+            print("No Mocap found in selection")
             return
+
         rig_name = self.ui.scene_actor_CB.currentText()
 
         self.mocap_bind_result = mcs.dcc.connect_mocap_to_rig(
             mocap_ns=clip_data.get(k.cdc.namespace),
             rig_name=rig_name
         )
-        self.ui.connect_mocap_to_rig_BTN.setText("Detach from Mocap")
-        self.ui.connect_mocap_to_rig_BTN.setStyleSheet("background-color:rgb(150, 100, 80)")
+
+        return True
 
     def unbind_mocap_from_rig(self):
         mcs.dcc.disconnect_mocap_from_rig(self.mocap_bind_result)
-        self.ui.connect_mocap_to_rig_BTN.setText("Preview Mocap On Rig")
-        self.ui.connect_mocap_to_rig_BTN.setStyleSheet("")
 
     def import_mocap(self):
         file_path, _ = QtWidgets.QFileDialog.getOpenFileName(caption="Open picker layout", filter="FBX (*.fbx)")
