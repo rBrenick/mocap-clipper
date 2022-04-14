@@ -288,13 +288,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="selected_controls_CHK">
-           <property name="text">
-            <string>On Selected Controls</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <layout class="QVBoxLayout" name="project_settings_layout"/>
          </item>
          <item>

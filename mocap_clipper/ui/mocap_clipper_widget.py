@@ -178,11 +178,6 @@ class Ui_MocapClipperWidget(object):
 
         self.verticalLayout_4.addWidget(self.adjustment_blend_CHK)
 
-        self.selected_controls_CHK = QCheckBox(self.widget)
-        self.selected_controls_CHK.setObjectName(u"selected_controls_CHK")
-
-        self.verticalLayout_4.addWidget(self.selected_controls_CHK)
-
         self.project_settings_layout = QVBoxLayout()
         self.project_settings_layout.setObjectName(u"project_settings_layout")
 
@@ -267,7 +262,6 @@ class Ui_MocapClipperWidget(object):
         self.align_to_start_pose_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Align To Start Pose", None))
         self.set_time_range_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Set Time Range", None))
         self.adjustment_blend_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Adjustment Blend", None))
-        self.selected_controls_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"On Selected Controls", None))
         self.scene_actor_CB.setItemText(0, QCoreApplication.translate("MocapClipperWidget", u"actor0:Rig", None))
 
         self.connect_mocap_to_rig_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Preview Mocap On Rig", None))
