@@ -42,6 +42,9 @@ class MocapClipperCoreInterface(object):
     def disconnect_mocap_from_rig(self, connect_result):
         pass
 
+    def pre_bake(self):
+        pass  # optional method that runs before baking to the rig
+
     def bake_to_rig(self, mocap_ns, rig_name, start_frame, end_frame, euler_filter=False):
         return []  # rig controls, gets sent to rebuild_pose_anim_layer
 

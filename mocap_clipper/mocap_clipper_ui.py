@@ -251,6 +251,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         start_frame = clip_data.get(k.cdc.start_frame)
         end_frame = clip_data.get(k.cdc.end_frame)
 
+        mcs.dcc.pre_bake()
+
         if self.ui.align_to_start_pose_CHK.isChecked():
             start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
             mcs.dcc.apply_pose(start_pose_path, rig_name)

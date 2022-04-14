@@ -106,7 +106,11 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             pm.delete(pose_layer_name)
 
         pm.select(controls, replace=True)
-        pm.animLayer(pose_layer_name, addSelectedObjects=True, selected=True)
+        new_anim_layer = pm.animLayer(pose_layer_name, addSelectedObjects=True)
+
+        # select the new anim layer
+        [pm.animLayer(al, edit=True, selected=False) for al in pm.ls(type="animLayer")]
+        pm.animLayer(new_anim_layer, edit=True, selected=True)
 
     def align_mocap_to_rig(self, mocap_ns, rig_name, root_name="root", pelvis_name="pelvis"):
         target_rig = self.get_rigs_in_scene().get(rig_name)
