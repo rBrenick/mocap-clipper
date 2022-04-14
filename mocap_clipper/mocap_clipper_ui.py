@@ -218,7 +218,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             print("No Mocap found in selection")
             return
 
-        rig_name = self.ui.scene_actor_CB.currentText()
+        rig_name = self.get_active_rig()
 
         self.mocap_bind_result = mcs.dcc.connect_mocap_to_rig(
             mocap_ns=clip_data.get(k.cdc.namespace),
@@ -247,7 +247,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             print("WARNING: could not find namespace of driven objects of clip.")
             return
 
-        rig_name = self.ui.scene_actor_CB.currentText()
+        rig_name = self.get_active_rig()
         start_frame = clip_data.get(k.cdc.start_frame)
         end_frame = clip_data.get(k.cdc.end_frame)
 
