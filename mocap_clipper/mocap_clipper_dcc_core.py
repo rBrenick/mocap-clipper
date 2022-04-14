@@ -54,7 +54,7 @@ class MocapClipperCoreInterface(object):
     def rebuild_pose_anim_layer(self, controls):
         pass
 
-    def apply_pose(self, pose_path, rig_name, on_frame=None, on_selected=False, set_key=True):
+    def apply_pose(self, pose_path, rig_name, on_frame=None, on_selected=False, set_key=False):
         pass
 
     def run_adjustment_blend(self):

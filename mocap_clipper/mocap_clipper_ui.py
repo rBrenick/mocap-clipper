@@ -1,5 +1,6 @@
 import os.path
 import sys
+from functools import partial
 
 from . import mocap_clipper_constants as k
 from . import mocap_clipper_system as mcs
@@ -56,6 +57,28 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
         self.ui.connect_mocap_to_rig_BTN.clicked.connect(self.toggle_mocap_constraint)
         self.ui.bake_BTN.clicked.connect(self.bake_to_rig)
+
+        # right click menus
+        widget_run_actions = {
+            self.ui.start_pose_CB: self.apply_start_pose,
+            self.ui.start_pose_CHK: self.apply_start_pose,
+            self.ui.end_pose_CB: self.apply_end_pose,
+            self.ui.end_pose_CHK: self.apply_end_pose,
+            self.ui.end_pose_same_CHK: self.apply_end_pose,
+            self.ui.align_to_start_pose_CHK: self.align_mocap_with_rig,
+            self.ui.set_time_range_CHK: self.set_time_range,
+            self.ui.adjustment_blend_CHK: mcs.dcc.run_adjustment_blend,
+        }
+        for widget, run_action in widget_run_actions.items():
+            action_list = [
+                {"Apply": run_action}
+            ]
+            widget_ctx_menu = partial(self.build_widget_ctx_menu, action_list)
+            widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+            widget.customContextMenuRequested.connect(widget_ctx_menu)
+
+    def build_widget_ctx_menu(self, action_list, *args, **kwargs):
+        return ui_utils.build_menu_from_action_list(action_list)
 
     def update_from_project(self):
         pose_files = mcs.dcc.get_pose_files()
@@ -278,6 +301,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
                 pose_path=start_pose_path,
                 rig_name=rig_name,
                 on_frame=start_frame,
+                set_key=True,
             )
 
         if self.ui.end_pose_CHK.isChecked():
@@ -286,6 +310,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
                 pose_path=end_pose_path,
                 rig_name=rig_name,
                 on_frame=end_frame,
+                set_key=True,
             )
 
         if self.ui.adjustment_blend_CHK.isChecked():
@@ -293,6 +318,33 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
         if self.ui.set_time_range_CHK.isChecked():
             mcs.dcc.set_time_range((start_frame, end_frame))
+
+    def apply_start_pose(self):
+        start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
+        mcs.dcc.apply_pose(start_pose_path, rig_name=self.get_active_rig())
+
+    def apply_end_pose(self):
+        end_pose_path = self.ui.end_pose_CB.currentData(QtCore.Qt.UserRole)
+        mcs.dcc.apply_pose(end_pose_path, rig_name=self.get_active_rig())
+
+    def align_mocap_with_rig(self):
+        clip_data = self.get_active_clip_data()
+        if not clip_data:
+            print("Clip not found in selection")
+            return
+        mocap_namespace = clip_data.get(k.cdc.namespace)
+        rig_name = self.get_active_rig()
+        mcs.dcc.align_mocap_to_rig(mocap_namespace, rig_name)
+
+    def set_time_range(self):
+        clip_data = self.get_active_clip_data()
+        if not clip_data:
+            print("Clip not found in selection")
+            return
+        mcs.dcc.set_time_range((
+            clip_data.get(k.cdc.start_frame),
+            clip_data.get(k.cdc.end_frame),
+        ))
 
 
 def main(refresh=False):
