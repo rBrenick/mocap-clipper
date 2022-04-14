@@ -24,6 +24,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.setWindowTitle("Mocap Clipper")
         self.setWindowIcon(QtGui.QIcon(resources.get_image_path("mocap_clipper_icon")))
 
+        mcs.dcc.tool_window = self
+
         self.mocap_bind_result = None
 
         # set UI
@@ -185,6 +187,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
                 end_pose_path = start_pose_path
                 self.match_end_pose_to_start()
             mcs.dcc.set_attr(clip_node, "end_pose_path", end_pose_path)
+
+    def get_active_rig(self):
+        return self.ui.scene_actor_CB.currentText()
 
     def toggle_mocap_constraint(self):
         if self.mocap_bind_result:

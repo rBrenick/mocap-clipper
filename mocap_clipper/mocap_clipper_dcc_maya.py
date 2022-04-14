@@ -99,6 +99,15 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         pm.optionVar["ctePopulateIncludeRoot"] = 0
         cmds.TimeEditorCreateClip()
 
+    def rebuild_pose_anim_layer(self, controls):
+        pose_layer_name = k.SceneConstants.anim_layer_name
+
+        if pm.objExists(pose_layer_name):
+            pm.delete(pose_layer_name)
+
+        pm.select(controls, replace=True)
+        pm.animLayer(pose_layer_name, addSelectedObjects=True, selected=True)
+
     def align_mocap_to_rig(self, mocap_ns, rig_name, root_name="root", pelvis_name="pelvis"):
         target_rig = self.get_rigs_in_scene().get(rig_name)
         rig_ns = target_rig.namespace()
