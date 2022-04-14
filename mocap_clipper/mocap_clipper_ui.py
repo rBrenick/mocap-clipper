@@ -49,6 +49,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.start_pose_CHK.stateChanged.connect(self.set_active_clip_data)
         self.ui.start_pose_CHK.stateChanged.connect(self.ui.start_pose_CB.setEnabled)
         self.ui.start_pose_CB.currentIndexChanged.connect(self.match_end_pose_to_start)
+        self.ui.start_pose_CB.currentIndexChanged.connect(self.set_active_clip_data)
+        self.ui.end_pose_CB.currentIndexChanged.connect(self.set_active_clip_data)
 
         self.ui.connect_mocap_to_rig_BTN.clicked.connect(self.toggle_mocap_constraint)
         self.ui.bake_BTN.clicked.connect(self.bake_to_rig)
@@ -165,9 +167,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         clip_data = self.scene_data.get(clip_name)
         clip_node = clip_data.get(k.cdc.node)
 
-        start_pose_path = self.ui.end_pose_CB.currentData(QtCore.Qt.UserRole)
-        end_pose_path = self.ui.end_pose_CB.currentData(QtCore.Qt.UserRole)
+        start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
         start_pose_enabled = self.ui.start_pose_CHK.isChecked()
+        end_pose_path = self.ui.end_pose_CB.currentData(QtCore.Qt.UserRole)
         end_pose_enabled = self.ui.end_pose_CHK.isChecked()
         end_pose_same_as_start = self.ui.end_pose_same_CHK.isChecked()
 

@@ -121,13 +121,15 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
 
         # create new root that's aligned with the rig (since the mocap one might be a bit off)
         imported_root_name = root + "_RAW_IMPORT"
-
-        if not pm.objExists(imported_root_name):
-            rig_root_matrix = pm.dt.Matrix(pm.xform(rig_root, q=True, matrix=True, worldSpace=True))
+        if pm.objExists(imported_root_name):
+            new_root = pm.PyNode(root)
+        else:
             imported_root = pm.rename(root, imported_root_name)
             new_root = pm.createNode("transform", name=root)
-            new_root.setMatrix(rig_root_matrix, worldSpace=True)
             new_root.setParent(imported_root)
+
+        rig_root_matrix = pm.dt.Matrix(pm.xform(rig_root, q=True, matrix=True, worldSpace=True))
+        new_root.setMatrix(rig_root_matrix, worldSpace=True)
 
     def run_adjustment_blend(self):
         return adjustment_blend_maya.adjustment_blend(k.SceneConstants.anim_layer_name)
