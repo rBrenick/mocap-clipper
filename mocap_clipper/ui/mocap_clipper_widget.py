@@ -69,6 +69,8 @@ class Ui_MocapClipperWidget(object):
         self.verticalLayout_4 = QVBoxLayout()
         self.verticalLayout_4.setSpacing(3)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.clip_info_layout = QVBoxLayout()
+        self.clip_info_layout.setObjectName(u"clip_info_layout")
         self.clip_name_LE = QLineEdit(self.widget)
         self.clip_name_LE.setObjectName(u"clip_name_LE")
         font = QFont()
@@ -78,7 +80,7 @@ class Ui_MocapClipperWidget(object):
         self.clip_name_LE.setAlignment(Qt.AlignCenter)
         self.clip_name_LE.setReadOnly(True)
 
-        self.verticalLayout_4.addWidget(self.clip_name_LE)
+        self.clip_info_layout.addWidget(self.clip_name_LE)
 
         self.horizontalLayout_7 = QHBoxLayout()
         self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
@@ -105,7 +107,7 @@ class Ui_MocapClipperWidget(object):
         self.horizontalLayout_7.addWidget(self.frame_duration)
 
 
-        self.verticalLayout_4.addLayout(self.horizontalLayout_7)
+        self.clip_info_layout.addLayout(self.horizontalLayout_7)
 
         self.horizontalLayout_5 = QHBoxLayout()
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
@@ -123,7 +125,7 @@ class Ui_MocapClipperWidget(object):
         self.horizontalLayout_5.addWidget(self.start_pose_CB)
 
 
-        self.verticalLayout_4.addLayout(self.horizontalLayout_5)
+        self.clip_info_layout.addLayout(self.horizontalLayout_5)
 
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
@@ -149,34 +151,42 @@ class Ui_MocapClipperWidget(object):
         self.horizontalLayout_2.addWidget(self.end_pose_CB)
 
 
-        self.verticalLayout_4.addLayout(self.horizontalLayout_2)
+        self.clip_info_layout.addLayout(self.horizontalLayout_2)
+
+
+        self.verticalLayout_4.addLayout(self.clip_info_layout)
 
         self.verticalSpacer_2 = QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout_4.addItem(self.verticalSpacer_2)
 
+        self.bake_settings_layout = QVBoxLayout()
+        self.bake_settings_layout.setObjectName(u"bake_settings_layout")
         self.euler_filter_CHK = QCheckBox(self.widget)
         self.euler_filter_CHK.setObjectName(u"euler_filter_CHK")
         self.euler_filter_CHK.setChecked(True)
 
-        self.verticalLayout_4.addWidget(self.euler_filter_CHK)
+        self.bake_settings_layout.addWidget(self.euler_filter_CHK)
 
         self.align_to_start_pose_CHK = QCheckBox(self.widget)
         self.align_to_start_pose_CHK.setObjectName(u"align_to_start_pose_CHK")
         self.align_to_start_pose_CHK.setChecked(True)
 
-        self.verticalLayout_4.addWidget(self.align_to_start_pose_CHK)
+        self.bake_settings_layout.addWidget(self.align_to_start_pose_CHK)
 
         self.set_time_range_CHK = QCheckBox(self.widget)
         self.set_time_range_CHK.setObjectName(u"set_time_range_CHK")
         self.set_time_range_CHK.setChecked(True)
 
-        self.verticalLayout_4.addWidget(self.set_time_range_CHK)
+        self.bake_settings_layout.addWidget(self.set_time_range_CHK)
 
         self.adjustment_blend_CHK = QCheckBox(self.widget)
         self.adjustment_blend_CHK.setObjectName(u"adjustment_blend_CHK")
 
-        self.verticalLayout_4.addWidget(self.adjustment_blend_CHK)
+        self.bake_settings_layout.addWidget(self.adjustment_blend_CHK)
+
+
+        self.verticalLayout_4.addLayout(self.bake_settings_layout)
 
         self.project_settings_layout = QVBoxLayout()
         self.project_settings_layout.setObjectName(u"project_settings_layout")
@@ -187,9 +197,9 @@ class Ui_MocapClipperWidget(object):
 
         self.verticalLayout_4.addItem(self.verticalSpacer)
 
-        self.horizontalLayout = QHBoxLayout()
-        self.horizontalLayout.setSpacing(3)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.bake_actions_layout = QHBoxLayout()
+        self.bake_actions_layout.setSpacing(3)
+        self.bake_actions_layout.setObjectName(u"bake_actions_layout")
         self.scene_actor_CB = QComboBox(self.widget)
         self.scene_actor_CB.addItem("")
         self.scene_actor_CB.setObjectName(u"scene_actor_CB")
@@ -197,7 +207,7 @@ class Ui_MocapClipperWidget(object):
         self.scene_actor_CB.setSizePolicy(sizePolicy1)
         self.scene_actor_CB.setMinimumSize(QSize(0, 30))
 
-        self.horizontalLayout.addWidget(self.scene_actor_CB)
+        self.bake_actions_layout.addWidget(self.scene_actor_CB)
 
         self.connect_mocap_to_rig_BTN = QPushButton(self.widget)
         self.connect_mocap_to_rig_BTN.setObjectName(u"connect_mocap_to_rig_BTN")
@@ -207,7 +217,7 @@ class Ui_MocapClipperWidget(object):
         sizePolicy2.setHeightForWidth(self.connect_mocap_to_rig_BTN.sizePolicy().hasHeightForWidth())
         self.connect_mocap_to_rig_BTN.setSizePolicy(sizePolicy2)
 
-        self.horizontalLayout.addWidget(self.connect_mocap_to_rig_BTN)
+        self.bake_actions_layout.addWidget(self.connect_mocap_to_rig_BTN)
 
         self.bake_BTN = QPushButton(self.widget)
         self.bake_BTN.setObjectName(u"bake_BTN")
@@ -219,14 +229,10 @@ class Ui_MocapClipperWidget(object):
         self.bake_BTN.setMinimumSize(QSize(0, 30))
         self.bake_BTN.setStyleSheet(u"background-color:rgb(80, 80, 80)")
 
-        self.horizontalLayout.addWidget(self.bake_BTN)
+        self.bake_actions_layout.addWidget(self.bake_BTN)
 
 
-        self.verticalLayout_4.addLayout(self.horizontalLayout)
-
-        self.verticalSpacer_3 = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
-
-        self.verticalLayout_4.addItem(self.verticalSpacer_3)
+        self.verticalLayout_4.addLayout(self.bake_actions_layout)
 
         self.project_widgets_layout = QVBoxLayout()
         self.project_widgets_layout.setObjectName(u"project_widgets_layout")
