@@ -63,5 +63,8 @@ class MocapClipperCoreInterface(object):
     def set_time_range(self, time_range):
         pass
 
+    def get_project_settings_widgets(self):
+        return []  # optional list of qwidgets
+
     def get_project_widgets(self):
         return []  # optional list of qwidgets

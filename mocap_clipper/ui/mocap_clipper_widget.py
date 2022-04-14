@@ -46,7 +46,6 @@ class Ui_MocapClipperWidget(object):
         self.verticalLayout_3.addWidget(self.refresh_BTN)
 
         self.clips_LW = QListWidget(self.widget_2)
-        QListWidgetItem(self.clips_LW)
         self.clips_LW.setObjectName(u"clips_LW")
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
@@ -184,7 +183,12 @@ class Ui_MocapClipperWidget(object):
 
         self.verticalLayout_4.addWidget(self.selected_controls_CHK)
 
-        self.verticalSpacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.project_settings_layout = QVBoxLayout()
+        self.project_settings_layout.setObjectName(u"project_settings_layout")
+
+        self.verticalLayout_4.addLayout(self.project_settings_layout)
+
+        self.verticalSpacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout_4.addItem(self.verticalSpacer)
 
@@ -251,13 +255,6 @@ class Ui_MocapClipperWidget(object):
         MocapClipperWidget.setWindowTitle(QCoreApplication.translate("MocapClipperWidget", u"Form", None))
         self.import_mocap_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Import Mocap", None))
         self.refresh_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Refresh Time Editor Clips", None))
-
-        __sortingEnabled = self.clips_LW.isSortingEnabled()
-        self.clips_LW.setSortingEnabled(False)
-        ___qlistwidgetitem = self.clips_LW.item(0)
-        ___qlistwidgetitem.setText(QCoreApplication.translate("MocapClipperWidget", u"Clip_01", None));
-        self.clips_LW.setSortingEnabled(__sortingEnabled)
-
         self.clip_name_LE.setPlaceholderText(QCoreApplication.translate("MocapClipperWidget", u"Clip Name", None))
         self.frame_start.setPlaceholderText(QCoreApplication.translate("MocapClipperWidget", u"Start Frame", None))
         self.frame_end.setPlaceholderText(QCoreApplication.translate("MocapClipperWidget", u"End Frame", None))

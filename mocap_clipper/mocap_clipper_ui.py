@@ -65,6 +65,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             self.ui.start_pose_CB.addItem(pose_icon, pose_name, pose_file)
             self.ui.end_pose_CB.addItem(pose_icon, pose_name, pose_file)
 
+        for project_settings_widget in mcs.dcc.get_project_settings_widgets():
+            self.ui.project_settings_layout.addWidget(project_settings_widget)
+
         for project_widget in mcs.dcc.get_project_widgets():
             self.ui.project_widgets_layout.addWidget(project_widget)
 
