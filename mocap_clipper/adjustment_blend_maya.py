@@ -25,10 +25,7 @@ def get_time_ranges(anim_curve):
         if i == 0:
             continue
 
-        range_info = (
-            (curve_keys[i - 1], frame), i  # key index of curve
-        )
-        time_ranges.append(range_info)
+        time_ranges.append((curve_keys[i - 1], frame))
 
     return time_ranges
 
@@ -64,19 +61,17 @@ def adjustment_blend(layer_name="AnimLayer1", allow_ui=False):
 
     curve_attr_map = get_curve_attr_map(anim_layer)
 
-    # get start and end values for all the key intervals
+    # parse the animCurve data for the values at the specified start/end points
     start_and_end_values = {}
-    for time_range_info in time_ranges:
-        key_index = time_range_info[1]
+    for key_index, time_range in enumerate(time_ranges):
         start_and_end_values[key_index] = dict()
         for anim_curve in anim_layer.getAnimCurves():
-            start_value, end_value = anim_curve.getValue(key_index - 1), anim_curve.getValue(key_index)
-            start_and_end_values[key_index][anim_curve] = (start_value, end_value)
+            start_and_end_values[key_index][anim_curve] = (
+                anim_curve.getValue(key_index),
+                anim_curve.getValue(key_index + 1)
+            )
 
-    for time_range_info in time_ranges:
-        time_range = time_range_info[0]
-        key_index = time_range_info[1]
-
+    for key_index, time_range in enumerate(time_ranges):
         frames_to_modify = range(time_range[0] + 1, time_range[1])
 
         # calculate some values
@@ -117,7 +112,7 @@ def adjustment_blend(layer_name="AnimLayer1", allow_ui=False):
 
         # create final attribute setting on curves
         for anim_curve in anim_layer.getAnimCurves():
-            start_value, end_value = start_and_end_values.get(key_index).get(anim_curve)
+            start_value, end_value = start_and_end_values[key_index][anim_curve]
             if start_value == end_value:
                 continue
 
