@@ -339,7 +339,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
         if self.ui.adjustment_blend_CHK.isChecked():
             log.info("Running Adjustment Blend")
-            mcs.dcc.run_adjustment_blend()
+            mcs.dcc.run_adjustment_blend(k.SceneConstants.pose_anim_layer_name)
 
         if self.ui.set_time_range_CHK.isChecked():
             log.info("Setting time range to '{} - {}'".format(start_frame, end_frame))

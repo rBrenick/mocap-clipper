@@ -142,8 +142,11 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         rig_root_matrix = pm.dt.Matrix(pm.xform(rig_root, q=True, matrix=True, worldSpace=True))
         new_root.setMatrix(rig_root_matrix, worldSpace=True)
 
-    def run_adjustment_blend(self):
-        return adjustment_blend_maya.adjustment_blend(k.SceneConstants.pose_anim_layer_name)
+    def run_adjustment_blend(self, layer_name=None):
+        # ignore layer_name variable value when called via the right click menu
+        if isinstance(layer_name, bool):
+            layer_name = None
+        return adjustment_blend_maya.run_adjustment_blend(layer_name, allow_ui=True)
 
     def set_time_range(self, time_range):
         pm.playbackOptions(animationStartTime=time_range[0])
