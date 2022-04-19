@@ -61,7 +61,7 @@ if active_dcc_is_maya:
         dcc = extension_sub_classes[0]()  # type: dcc_module.MocapClipperMaya
     else:
         dcc = dcc_module.MocapClipperMaya()
-    log.info("Mocap Clipper DCC class: {}".format(dcc))
+    log.info("DCC class: {}".format(dcc))
 else:
     from . import mocap_clipper_dcc_core as dcc_module
 

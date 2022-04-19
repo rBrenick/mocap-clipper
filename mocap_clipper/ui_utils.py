@@ -2,6 +2,7 @@ import os
 import sys
 import traceback
 from functools import partial
+import logging
 
 from PySide2 import QtCore, QtWidgets, QtGui
 from shiboken2 import wrapInstance
@@ -223,3 +224,27 @@ def set_combo_box_by_data(cb, data):
     index = cb.findData(data, QtCore.Qt.UserRole)
     if index != -1:
         cb.setCurrentIndex(index)
+
+
+def build_log_level_menu(menu_bar, log_cls):
+    log_levels = {
+        logging.getLevelName(logging.DEBUG): logging.DEBUG,
+        logging.getLevelName(logging.INFO): logging.INFO,
+        logging.getLevelName(logging.WARNING): logging.WARNING,
+    }
+
+    log_menu = menu_bar.addMenu("Log Level")  # type: QtWidgets.QMenu
+    ag = QtWidgets.QActionGroup(log_menu, exclusive=True)
+
+    for level_name, log_level in log_levels.items():
+        action = QtWidgets.QAction(level_name, log_menu, checkable=True)
+
+        if log_level == log_cls.level:
+            action.setChecked(True)
+
+        # connect signal
+        set_level = partial(log_cls.setLevel, log_level)
+        action.triggered.connect(set_level)
+
+        ag.addAction(action)
+        log_menu.addAction(action)

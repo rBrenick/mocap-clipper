@@ -19,6 +19,7 @@ log = mocap_clipper_logger.get_logger()
 class MocapClipperWindow(ui_utils.ToolWindow):
     def __init__(self):
         super(MocapClipperWindow, self).__init__()
+        log.debug("Window __init__")
 
         self.ui = mocap_clipper_widget.Ui_MocapClipperWidget()
         main_ui_widget = QtWidgets.QWidget()
@@ -79,6 +80,11 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
             widget.customContextMenuRequested.connect(widget_ctx_menu)
 
+        # Menu bar
+        menu_bar = QtWidgets.QMenuBar()
+        ui_utils.build_log_level_menu(menu_bar, log_cls=log)
+        self.setMenuBar(menu_bar)
+
     def build_widget_ctx_menu(self, action_list, *args, **kwargs):
         return ui_utils.build_menu_from_action_list(action_list)
 
@@ -98,6 +104,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
     def update_from_scene(self):
         self.scene_data = mcs.dcc.get_scene_time_editor_data()
+        log.debug("Scene data refresh: {}".format(self.scene_data))
 
         # update clip list
         self.ui.clips_LW.clear()
@@ -140,6 +147,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             self.ui.start_pose_CHK.setChecked(False)
             self.ui.end_pose_CHK.setChecked(False)
             self.ui.end_pose_same_CHK.setChecked(True)
+            log.debug("No clips found in selection, resetting data")
 
         self.ui.clip_name_LE.setText(clip_name)
         self.ui.frame_start.setText(str(clip_data.get(k.cdc.start_frame)))
@@ -148,6 +156,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
         clip_node = clip_data.get(k.cdc.node)
         if clip_node:
+            log.debug("Parsing data from: {}".format(clip_node))
+
             mcs.dcc.select_node(clip_node)
             start_pose_enabled = mcs.dcc.get_attr(clip_node, "start_pose_enabled", default=False)
             start_pose_path = mcs.dcc.get_attr(clip_node, "start_pose_path")
@@ -280,16 +290,21 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         rig_name = self.get_active_rig()
         start_frame = clip_data.get(k.cdc.start_frame)
         end_frame = clip_data.get(k.cdc.end_frame)
+        log.info("Baking range: '{} - {}' to rig: '{}'".format(start_frame, end_frame, rig_name))
 
+        log.debug("Running PreBake: {}".format(mcs.dcc.pre_bake))
         mcs.dcc.pre_bake()
 
         if self.ui.align_to_start_pose_CHK.isChecked():
             start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
+            log.info("Applying pose for alignment: {}".format(start_pose_path))
             mcs.dcc.apply_pose(start_pose_path, rig_name)
             mcs.dcc.align_mocap_to_rig(mocap_namespace, rig_name)
 
+        log.debug("Removing existing pose anim layer(s)")
         mcs.dcc.remove_pose_anim_layer()
 
+        log.info("Baking mocap: '{}', to rig: '{}'".format(mocap_namespace, rig_name))
         rig_controls = mcs.dcc.bake_to_rig(
             mocap_ns=mocap_namespace,
             rig_name=rig_name,
@@ -299,10 +314,12 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         )
 
         if self.ui.start_pose_CHK.isChecked() or self.ui.end_pose_CHK.isChecked():
+            log.info("Re-building pose anim layer for: '{}' control(s)".format(len(rig_controls)))
             mcs.dcc.rebuild_pose_anim_layer(rig_controls)
 
         if self.ui.start_pose_CHK.isChecked():
             start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
+            log.info("Applying start pose: {}".format(start_pose_path))
             mcs.dcc.apply_pose(
                 pose_path=start_pose_path,
                 rig_name=rig_name,
@@ -312,6 +329,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
         if self.ui.end_pose_CHK.isChecked():
             end_pose_path = self.ui.end_pose_CB.currentData(QtCore.Qt.UserRole)
+            log.info("Applying start pose: {}".format(end_pose_path))
             mcs.dcc.apply_pose(
                 pose_path=end_pose_path,
                 rig_name=rig_name,
@@ -320,9 +338,11 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             )
 
         if self.ui.adjustment_blend_CHK.isChecked():
+            log.info("Running Adjustment Blend")
             mcs.dcc.run_adjustment_blend()
 
         if self.ui.set_time_range_CHK.isChecked():
+            log.info("Setting time range to '{} - {}'".format(start_frame, end_frame))
             mcs.dcc.set_time_range((start_frame, end_frame))
 
     def apply_start_pose(self):
@@ -354,6 +374,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
 
 def main(refresh=False):
+    log.debug("Main function triggered")
+
     win = MocapClipperWindow()
     win.main(refresh=refresh)
 

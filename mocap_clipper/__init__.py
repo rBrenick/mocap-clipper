@@ -12,6 +12,7 @@ def reload_modules():
 
     from . import adjustment_blend_maya
     from . import mocap_clipper_constants
+    from . import mocap_clipper_logger
     from . import mocap_clipper_dcc_core
     from . import mocap_clipper_dcc_maya
     from . import mocap_clipper_system
@@ -19,6 +20,7 @@ def reload_modules():
     from . import mocap_clipper_ui
     reload(adjustment_blend_maya)
     reload(mocap_clipper_constants)
+    reload(mocap_clipper_logger)
     reload(mocap_clipper_dcc_core)
     reload(mocap_clipper_dcc_maya)
     reload(mocap_clipper_system)
