@@ -56,7 +56,7 @@ class MocapClipperCoreInterface(object):
     def get_project_settings_widgets(self):
         return []  # optional list of qwidgets
 
-    def get_project_widgets(self):
+    def get_project_action_widgets(self):
         return []  # optional list of qwidgets
 
     def get_pose_icon(self):

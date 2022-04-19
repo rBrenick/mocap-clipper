@@ -93,8 +93,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         for project_settings_widget in mcs.dcc.get_project_settings_widgets():
             self.ui.project_settings_layout.addWidget(project_settings_widget)
 
-        for project_widget in mcs.dcc.get_project_widgets():
-            self.ui.project_widgets_layout.addWidget(project_widget)
+        for project_action_widget in mcs.dcc.get_project_action_widgets():
+            self.ui.project_widgets_layout.addWidget(project_action_widget)
 
     def update_from_scene(self):
         self.scene_data = mcs.dcc.get_scene_time_editor_data()
