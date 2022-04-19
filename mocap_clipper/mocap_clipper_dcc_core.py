@@ -19,32 +19,33 @@ class MocapClipperCoreInterface(object):
             from . import mocap_clipper_ui
             self.tool_window = mocap_clipper_ui.MocapClipperWindow()  # for auto complete
 
+    def log_missing_implementation(self, func):
+        log.error("'{}.{}()' has not been implemented".format(self.__class__.__name__, func.__name__))
+
     ######################################################################################
     # Required Project/Studio implementations
 
     def get_rigs_in_scene(self):
-        log.error(f"'{self.__class__.__name__}.{self.get_rigs_in_scene.__name__}' has not been implemented")
+        self.log_missing_implementation(self.get_rigs_in_scene)
         return {}  # {rig_name: rig_node}
 
     def get_pose_files(self):
-        log.error(f"'{self.__class__.__name__}.{self.get_pose_files.__name__}' has not been implemented")
+        self.log_missing_implementation(self.get_pose_files)
         return FAKE_DATA.get("pose_files")  # list of paths
 
     def bake_to_rig(self, mocap_ns, rig_name, start_frame, end_frame, euler_filter=False):
-        log.error(f"'{self.__class__.__name__}.{self.bake_to_rig.__name__}' has not been implemented")
+        self.log_missing_implementation(self.bake_to_rig)
         return []  # rig controls, gets sent to rebuild_pose_anim_layer
 
     def apply_pose(self, pose_path, rig_name, on_frame=None, on_selected=False, set_key=False):
-        log.error(f"'{self.__class__.__name__}.{self.apply_pose.__name__}' has not been implemented")
-        pass
+        self.log_missing_implementation(self.apply_pose)
 
     def connect_mocap_to_rig(self, mocap_ns, rig_name):
-        log.error(f"'{self.__class__.__name__}.{self.connect_mocap_to_rig.__name__}' has not been implemented")
+        self.log_missing_implementation(self.connect_mocap_to_rig)
         return []  # this return value gets sent to disconnect_mocap_from_rig
 
     def disconnect_mocap_from_rig(self, connect_result):
-        log.error(f"'{self.__class__.__name__}.{self.disconnect_mocap_from_rig.__name__}' has not been implemented")
-        pass
+        self.log_missing_implementation(self.disconnect_mocap_from_rig)
 
     ######################################################################################
     # Optional Project/Studio implementations
@@ -71,33 +72,33 @@ class MocapClipperCoreInterface(object):
     # Implementations comes pre-built
 
     def get_scene_time_editor_data(self):
-        log.error(f"'{self.__class__.__name__}.{self.get_scene_time_editor_data.__name__}' has not been implemented")
+        self.log_missing_implementation(self.get_scene_time_editor_data)
         return {}  # {example in 'MocapClipperMaya'}
 
     def import_mocap(self, file_path):
-        log.error(f"'{self.__class__.__name__}.{self.import_mocap.__name__}' has not been implemented")
+        self.log_missing_implementation(self.import_mocap)
 
     def align_mocap_to_rig(self, mocap_ns, rig_name, root_name="root", pelvis_name="pelvis"):
-        log.error(f"'{self.__class__.__name__}.{self.align_mocap_to_rig.__name__}' has not been implemented")
+        self.log_missing_implementation(self.align_mocap_to_rig)
 
     def remove_pose_anim_layer(self):
-        log.error(f"'{self.__class__.__name__}.{self.remove_pose_anim_layer.__name__}' has not been implemented")
+        self.log_missing_implementation(self.remove_pose_anim_layer)
 
     def rebuild_pose_anim_layer(self, controls):
-        log.error(f"'{self.__class__.__name__}.{self.rebuild_pose_anim_layer.__name__}' has not been implemented")
+        self.log_missing_implementation(self.rebuild_pose_anim_layer)
 
     def run_adjustment_blend(self):
-        log.error(f"'{self.__class__.__name__}.{self.run_adjustment_blend.__name__}' has not been implemented")
+        self.log_missing_implementation(self.run_adjustment_blend)
 
     def set_time_range(self, time_range):
-        log.error(f"'{self.__class__.__name__}.{self.set_time_range.__name__}' has not been implemented")
+        self.log_missing_implementation(self.set_time_range)
 
     def select_node(self, node):
-        log.error(f"'{self.__class__.__name__}.{self.select_node.__name__}' has not been implemented")
+        self.log_missing_implementation(self.select_node)
 
     def set_attr(self, node, attr_name, value):
-        log.error(f"'{self.__class__.__name__}.{self.set_attr.__name__}' has not been implemented")
+        self.log_missing_implementation(self.set_attr)
 
     def get_attr(self, node, attr_name, default=None):
-        log.error(f"'{self.__class__.__name__}.{self.get_attr.__name__}' has not been implemented")
+        self.log_missing_implementation(self.get_attr)
         return  # some value

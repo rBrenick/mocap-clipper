@@ -104,10 +104,7 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
 
         pm.select(controls, replace=True)
         new_anim_layer = pm.animLayer(k.SceneConstants.pose_anim_layer_name, addSelectedObjects=True)
-
-        # select the new anim layer
-        [pm.animLayer(al, edit=True, selected=False) for al in pm.ls(type="animLayer")]
-        pm.animLayer(new_anim_layer, edit=True, selected=True)
+        select_anim_layer(new_anim_layer)
 
     def remove_pose_anim_layer(self):
         if pm.objExists(k.SceneConstants.pose_anim_layer_name):
@@ -169,3 +166,8 @@ def get_namespace_from_time_clip(te_clip):
 
 def get_namespace(node):
     return ":".join(node.split(":")[:-1]) + ":"
+
+
+def select_anim_layer(layer_name):
+    [pm.animLayer(al, edit=True, selected=False) for al in pm.ls(type="animLayer")]
+    pm.animLayer(layer_name, edit=True, selected=True)
