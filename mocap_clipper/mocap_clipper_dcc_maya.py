@@ -100,17 +100,18 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         cmds.TimeEditorCreateClip()
 
     def rebuild_pose_anim_layer(self, controls):
-        pose_layer_name = k.SceneConstants.anim_layer_name
-
-        if pm.objExists(pose_layer_name):
-            pm.delete(pose_layer_name)
+        self.remove_pose_anim_layer()
 
         pm.select(controls, replace=True)
-        new_anim_layer = pm.animLayer(pose_layer_name, addSelectedObjects=True)
+        new_anim_layer = pm.animLayer(k.SceneConstants.pose_anim_layer_name, addSelectedObjects=True)
 
         # select the new anim layer
         [pm.animLayer(al, edit=True, selected=False) for al in pm.ls(type="animLayer")]
         pm.animLayer(new_anim_layer, edit=True, selected=True)
+
+    def remove_pose_anim_layer(self):
+        if pm.objExists(k.SceneConstants.pose_anim_layer_name):
+            pm.delete(k.SceneConstants.pose_anim_layer_name)
 
     def align_mocap_to_rig(self, mocap_ns, rig_name, root_name="root", pelvis_name="pelvis"):
         target_rig = self.get_rigs_in_scene().get(rig_name)
@@ -145,7 +146,7 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         new_root.setMatrix(rig_root_matrix, worldSpace=True)
 
     def run_adjustment_blend(self):
-        return adjustment_blend_maya.adjustment_blend(k.SceneConstants.anim_layer_name)
+        return adjustment_blend_maya.adjustment_blend(k.SceneConstants.pose_anim_layer_name)
 
     def set_time_range(self, time_range):
         pm.playbackOptions(animationStartTime=time_range[0])

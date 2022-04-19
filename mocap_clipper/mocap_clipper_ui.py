@@ -3,6 +3,7 @@ import sys
 from functools import partial
 
 from . import mocap_clipper_constants as k
+from . import mocap_clipper_logger
 from . import mocap_clipper_system as mcs
 from . import resources
 from . import ui_utils
@@ -12,6 +13,7 @@ from .ui_utils import QtCore, QtWidgets, QtGui
 standalone_app = None
 if not QtWidgets.QApplication.instance():
     standalone_app = QtWidgets.QApplication(sys.argv)
+log = mocap_clipper_logger.get_logger()
 
 
 class MocapClipperWindow(ui_utils.ToolWindow):
@@ -27,7 +29,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
         mcs.dcc.tool_window = self
 
-        self.mocap_bind_result = None
+        self.mocap_connect_result = None
 
         # set UI
         self.scene_data = None
@@ -218,16 +220,16 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         return self.ui.scene_actor_CB.currentText()
 
     def toggle_mocap_constraint(self):
-        if self.mocap_bind_result:
-            self.unbind_mocap_from_rig()
-            self.mocap_bind_result = None
+        if self.mocap_connect_result:
+            self.disconnect_mocap_from_rig()
+            self.mocap_connect_result = None
 
             # update UI display
             self.ui.connect_mocap_to_rig_BTN.setText("Preview Mocap On Rig")
             self.ui.connect_mocap_to_rig_BTN.setStyleSheet("")
             self.ui.bake_BTN.setEnabled(True)
         else:
-            if self.bind_mocap_to_rig():
+            if self.connect_mocap_to_rig():
                 self.ui.connect_mocap_to_rig_BTN.setText("Detach from Mocap")
                 self.ui.connect_mocap_to_rig_BTN.setStyleSheet("background-color:rgb(150, 100, 80)")
                 self.ui.bake_BTN.setEnabled(False)
@@ -238,39 +240,41 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
         ui_utils.set_combo_box_by_data(self.ui.end_pose_CB, start_pose_path)
 
-    def bind_mocap_to_rig(self):
+    def connect_mocap_to_rig(self):
         clip_data = self.get_active_clip_data()
         if not clip_data:
-            print("No Mocap found in selection")
+            log.warning("No Mocap found in selection")
             return
 
         rig_name = self.get_active_rig()
 
-        self.mocap_bind_result = mcs.dcc.connect_mocap_to_rig(
+        self.mocap_connect_result = mcs.dcc.connect_mocap_to_rig(
             mocap_ns=clip_data.get(k.cdc.namespace),
             rig_name=rig_name
         )
 
         return True
 
-    def unbind_mocap_from_rig(self):
-        mcs.dcc.disconnect_mocap_from_rig(self.mocap_bind_result)
+    def disconnect_mocap_from_rig(self):
+        mcs.dcc.disconnect_mocap_from_rig(self.mocap_connect_result)
 
     def import_mocap(self):
-        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(caption="Open picker layout", filter="FBX (*.fbx)")
-        if file_path:
+        file_paths, _ = QtWidgets.QFileDialog.getOpenFileNames(caption="Choose .FBX file(s)", filter="FBX (*.fbx)")
+        if not file_paths:
+            return
+        for file_path in file_paths:
             mcs.dcc.import_mocap(file_path)
-            self.update_from_scene()
+        self.update_from_scene()
 
     def bake_to_rig(self):
         clip_data = self.get_active_clip_data()
         if not clip_data:
-            print("Clip not found in selection")
+            log.warning("Clip not found in selection")
             return
 
         mocap_namespace = clip_data.get(k.cdc.namespace)
         if not mocap_namespace:
-            print("WARNING: could not find namespace of driven objects of clip.")
+            log.warning("Could not find namespace of driven objects of clip.")
             return
 
         rig_name = self.get_active_rig()
@@ -283,6 +287,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
             mcs.dcc.apply_pose(start_pose_path, rig_name)
             mcs.dcc.align_mocap_to_rig(mocap_namespace, rig_name)
+
+        mcs.dcc.remove_pose_anim_layer()
 
         rig_controls = mcs.dcc.bake_to_rig(
             mocap_ns=mocap_namespace,
@@ -330,7 +336,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
     def align_mocap_with_rig(self):
         clip_data = self.get_active_clip_data()
         if not clip_data:
-            print("Clip not found in selection")
+            log.warning("Clip not found in selection")
             return
         mocap_namespace = clip_data.get(k.cdc.namespace)
         rig_name = self.get_active_rig()
@@ -339,7 +345,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
     def set_time_range(self):
         clip_data = self.get_active_clip_data()
         if not clip_data:
-            print("Clip not found in selection")
+            log.warning("Clip not found in selection")
             return
         mcs.dcc.set_time_range((
             clip_data.get(k.cdc.start_frame),

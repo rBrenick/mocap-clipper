@@ -3,7 +3,7 @@ class ModuleConstants:
 
 
 class SceneConstants:
-    anim_layer_name = "PoseLayer"
+    pose_anim_layer_name = "PoseLayer"
     mocap_top_grp_name = "nodes"
 
 

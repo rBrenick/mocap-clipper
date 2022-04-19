@@ -4,6 +4,9 @@ import sys
 import traceback
 
 from . import mocap_clipper_constants as k
+from . import mocap_clipper_logger
+
+log = mocap_clipper_logger.get_logger()
 
 
 def import_extensions(refresh=False):
@@ -38,7 +41,7 @@ def import_extensions(refresh=False):
 
         try:
             importlib.import_module(module_import_str)
-            print("Imported extension: {}".format(module_import_str))
+            log.info("Imported extension: {}".format(module_import_str))
         except Exception as e:
             traceback.print_exc()
 
@@ -58,4 +61,8 @@ if active_dcc_is_maya:
         dcc = extension_sub_classes[0]()  # type: dcc_module.MocapClipperMaya
     else:
         dcc = dcc_module.MocapClipperMaya()
-    print("Mocap Clipper DCC class: {}".format(dcc))
+    log.info("Mocap Clipper DCC class: {}".format(dcc))
+else:
+    from . import mocap_clipper_dcc_core as dcc_module
+
+    dcc = dcc_module.MocapClipperCoreInterface()  # type: dcc_module.MocapClipperCoreInterface
