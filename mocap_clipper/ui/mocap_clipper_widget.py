@@ -17,7 +17,7 @@ class Ui_MocapClipperWidget(object):
     def setupUi(self, MocapClipperWidget):
         if not MocapClipperWidget.objectName():
             MocapClipperWidget.setObjectName(u"MocapClipperWidget")
-        MocapClipperWidget.resize(632, 337)
+        MocapClipperWidget.resize(630, 327)
         self.verticalLayout_2 = QVBoxLayout(MocapClipperWidget)
         self.verticalLayout_2.setSpacing(2)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
@@ -162,17 +162,37 @@ class Ui_MocapClipperWidget(object):
 
         self.bake_settings_layout = QVBoxLayout()
         self.bake_settings_layout.setObjectName(u"bake_settings_layout")
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.align_mocap_CHK = QCheckBox(self.widget)
+        self.align_mocap_CHK.setObjectName(u"align_mocap_CHK")
+        self.align_mocap_CHK.setChecked(True)
+
+        self.horizontalLayout.addWidget(self.align_mocap_CHK)
+
+        self.align_to_start_pose_RB = QRadioButton(self.widget)
+        self.align_to_start_pose_RB.setObjectName(u"align_to_start_pose_RB")
+        self.align_to_start_pose_RB.setChecked(True)
+
+        self.horizontalLayout.addWidget(self.align_to_start_pose_RB)
+
+        self.align_to_end_pose_RB = QRadioButton(self.widget)
+        self.align_to_end_pose_RB.setObjectName(u"align_to_end_pose_RB")
+
+        self.horizontalLayout.addWidget(self.align_to_end_pose_RB)
+
+        self.horizontalSpacer = QSpacerItem(0, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer)
+
+
+        self.bake_settings_layout.addLayout(self.horizontalLayout)
+
         self.euler_filter_CHK = QCheckBox(self.widget)
         self.euler_filter_CHK.setObjectName(u"euler_filter_CHK")
         self.euler_filter_CHK.setChecked(True)
 
         self.bake_settings_layout.addWidget(self.euler_filter_CHK)
-
-        self.align_to_start_pose_CHK = QCheckBox(self.widget)
-        self.align_to_start_pose_CHK.setObjectName(u"align_to_start_pose_CHK")
-        self.align_to_start_pose_CHK.setChecked(True)
-
-        self.bake_settings_layout.addWidget(self.align_to_start_pose_CHK)
 
         self.set_time_range_CHK = QCheckBox(self.widget)
         self.set_time_range_CHK.setObjectName(u"set_time_range_CHK")
@@ -264,8 +284,10 @@ class Ui_MocapClipperWidget(object):
         self.start_pose_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Start Pose", None))
         self.end_pose_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"End Pose", None))
         self.end_pose_same_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Same As Start", None))
+        self.align_mocap_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Align Mocap to:", None))
+        self.align_to_start_pose_RB.setText(QCoreApplication.translate("MocapClipperWidget", u"Start Pose", None))
+        self.align_to_end_pose_RB.setText(QCoreApplication.translate("MocapClipperWidget", u"End Pose", None))
         self.euler_filter_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Euler Filter", None))
-        self.align_to_start_pose_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Align To Start Pose", None))
         self.set_time_range_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Set Time Range", None))
         self.adjustment_blend_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Adjustment Blend", None))
         self.scene_actor_CB.setItemText(0, QCoreApplication.translate("MocapClipperWidget", u"actor0:Rig", None))

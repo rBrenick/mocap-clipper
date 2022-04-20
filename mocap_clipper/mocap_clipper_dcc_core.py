@@ -81,7 +81,7 @@ class MocapClipperCoreInterface(object):
     def import_mocap(self, file_path):
         self.log_missing_implementation(self.import_mocap)
 
-    def align_mocap_to_rig(self, mocap_ns, rig_name, root_name="root", pelvis_name="pelvis"):
+    def align_mocap_to_rig(self, mocap_ns, rig_name, root_name="root", pelvis_name="pelvis", on_frame=None):
         self.log_missing_implementation(self.align_mocap_to_rig)
 
     def remove_pose_anim_layer(self):

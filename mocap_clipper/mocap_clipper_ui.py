@@ -58,6 +58,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.start_pose_CB.currentIndexChanged.connect(self.set_active_clip_data)
         self.ui.end_pose_CB.currentIndexChanged.connect(self.set_active_clip_data)
 
+        self.ui.align_mocap_CHK.stateChanged.connect(self.ui.align_to_start_pose_RB.setEnabled)
+        self.ui.align_mocap_CHK.stateChanged.connect(self.ui.align_to_end_pose_RB.setEnabled)
+
         self.ui.connect_mocap_to_rig_BTN.clicked.connect(self.toggle_mocap_constraint)
         self.ui.bake_BTN.clicked.connect(self.bake_to_rig)
 
@@ -68,7 +71,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             self.ui.end_pose_CB: self.apply_end_pose,
             self.ui.end_pose_CHK: self.apply_end_pose,
             self.ui.end_pose_same_CHK: self.apply_end_pose,
-            self.ui.align_to_start_pose_CHK: self.align_mocap_with_rig,
+            self.ui.align_mocap_CHK: self.align_mocap_with_rig,
+            self.ui.align_to_start_pose_RB: self.align_mocap_with_rig,
+            self.ui.align_to_end_pose_RB: self.align_mocap_with_rig,
             self.ui.set_time_range_CHK: self.set_time_range,
             self.ui.adjustment_blend_CHK: mcs.dcc.run_adjustment_blend,
         }
@@ -295,11 +300,17 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         log.debug("Running PreBake: {}".format(mcs.dcc.pre_bake))
         mcs.dcc.pre_bake()
 
-        if self.ui.align_to_start_pose_CHK.isChecked():
-            start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
-            log.info("Applying pose for alignment: {}".format(start_pose_path))
-            mcs.dcc.apply_pose(start_pose_path, rig_name)
-            mcs.dcc.align_mocap_to_rig(mocap_namespace, rig_name)
+        align_mocap_to_pose = self.ui.align_mocap_CHK.isChecked()
+        if align_mocap_to_pose:
+            if self.ui.align_to_start_pose_RB.isChecked():
+                pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
+                alignment_frame = start_frame
+            else:
+                pose_path = self.ui.end_pose_CB.currentData(QtCore.Qt.UserRole)
+                alignment_frame = end_frame
+            log.info("Applying pose for alignment: {}".format(pose_path))
+            mcs.dcc.apply_pose(pose_path, rig_name)
+            mcs.dcc.align_mocap_to_rig(mocap_namespace, rig_name, on_frame=alignment_frame)
 
         log.debug("Removing existing pose anim layer(s)")
         mcs.dcc.remove_pose_anim_layer()

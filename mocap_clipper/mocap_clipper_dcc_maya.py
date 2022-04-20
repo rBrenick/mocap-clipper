@@ -110,7 +110,7 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         if pm.objExists(k.SceneConstants.pose_anim_layer_name):
             pm.delete(k.SceneConstants.pose_anim_layer_name)
 
-    def align_mocap_to_rig(self, mocap_ns, rig_name, root_name="root", pelvis_name="pelvis"):
+    def align_mocap_to_rig(self, mocap_ns, rig_name, root_name="root", pelvis_name="pelvis", on_frame=None):
         target_rig = self.get_rigs_in_scene().get(rig_name)
         rig_ns = target_rig.namespace()
 
@@ -124,8 +124,11 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         top_grp.setMatrix(pm.dt.Matrix.identity)
 
         # align with rig hips
-        pelvis_matrix = pm.dt.Matrix(pm.xform(pelvis, q=True, matrix=True, worldSpace=True))
-        rig_pelvis_matrix = pm.dt.Matrix(pm.xform(rig_pelvis, q=True, matrix=True, worldSpace=True))
+        if on_frame:
+            pelvis_matrix = pm.getAttr(pelvis + ".worldMatrix", time=on_frame)
+        else:
+            pelvis_matrix = pm.getAttr(pelvis + ".worldMatrix")
+        rig_pelvis_matrix = pm.getAttr(rig_pelvis + ".worldMatrix")
 
         diff_pos = rig_pelvis_matrix.translate - pelvis_matrix.translate
         top_grp.setTranslation(diff_pos)
@@ -139,7 +142,7 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             new_root = pm.createNode("transform", name=root)
             new_root.setParent(imported_root)
 
-        rig_root_matrix = pm.dt.Matrix(pm.xform(rig_root, q=True, matrix=True, worldSpace=True))
+        rig_root_matrix = pm.getAttr(rig_root + ".worldMatrix")
         new_root.setMatrix(rig_root_matrix, worldSpace=True)
 
     def run_adjustment_blend(self, layer_name=None):
