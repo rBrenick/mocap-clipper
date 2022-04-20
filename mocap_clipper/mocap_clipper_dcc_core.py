@@ -37,7 +37,7 @@ class MocapClipperCoreInterface(object):
         self.log_missing_implementation(self.bake_to_rig)
         return []  # rig controls, gets sent to rebuild_pose_anim_layer
 
-    def apply_pose(self, pose_path, rig_name, on_frame=None, on_selected=False, set_key=False):
+    def apply_pose(self, pose_path, rig_name, on_frame=None, on_selected=False):
         self.log_missing_implementation(self.apply_pose)
 
     def connect_mocap_to_rig(self, mocap_ns, rig_name):
@@ -52,6 +52,9 @@ class MocapClipperCoreInterface(object):
 
     def pre_bake(self):
         pass  # method that runs before baking to the rig
+
+    def post_bake(self):
+        pass  # method that runs after everything has been baked
 
     def get_project_settings_widgets(self):
         return []  # optional list of qwidgets
@@ -92,6 +95,9 @@ class MocapClipperCoreInterface(object):
 
     def set_time_range(self, time_range):
         self.log_missing_implementation(self.set_time_range)
+
+    def set_key_on_pose_layer(self, controls, on_frame=None):
+        self.log_missing_implementation(self.set_key_on_pose_layer)
 
     def select_node(self, node):
         self.log_missing_implementation(self.select_node)

@@ -313,9 +313,15 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             euler_filter=self.ui.euler_filter_CHK.isChecked(),
         )
 
-        if self.ui.start_pose_CHK.isChecked() or self.ui.end_pose_CHK.isChecked():
+        create_pose_layer = self.ui.start_pose_CHK.isChecked() or self.ui.end_pose_CHK.isChecked()
+
+        if create_pose_layer:
             log.info("Re-building pose anim layer for: '{}' control(s)".format(len(rig_controls)))
             mcs.dcc.rebuild_pose_anim_layer(rig_controls)
+
+            # create border keys on either end. might get overridden by poses below
+            mcs.dcc.set_key_on_pose_layer(rig_controls, on_frame=start_frame)
+            mcs.dcc.set_key_on_pose_layer(rig_controls, on_frame=end_frame)
 
         if self.ui.start_pose_CHK.isChecked():
             start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
@@ -324,8 +330,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
                 pose_path=start_pose_path,
                 rig_name=rig_name,
                 on_frame=start_frame,
-                set_key=True,
             )
+            mcs.dcc.set_key_on_pose_layer(rig_controls)
 
         if self.ui.end_pose_CHK.isChecked():
             end_pose_path = self.ui.end_pose_CB.currentData(QtCore.Qt.UserRole)
@@ -334,8 +340,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
                 pose_path=end_pose_path,
                 rig_name=rig_name,
                 on_frame=end_frame,
-                set_key=True,
             )
+            mcs.dcc.set_key_on_pose_layer(rig_controls)
 
         if self.ui.adjustment_blend_CHK.isChecked():
             log.info("Running Adjustment Blend")
@@ -344,6 +350,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         if self.ui.set_time_range_CHK.isChecked():
             log.info("Setting time range to '{} - {}'".format(start_frame, end_frame))
             mcs.dcc.set_time_range((start_frame, end_frame))
+
+        mcs.dcc.post_bake()
 
     def apply_start_pose(self):
         start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)

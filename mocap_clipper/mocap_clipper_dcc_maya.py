@@ -154,6 +154,11 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         pm.playbackOptions(minTime=time_range[0])
         pm.playbackOptions(maxTime=time_range[1])
 
+    def set_key_on_pose_layer(self, controls, on_frame=None):
+        if on_frame:
+            pm.currentTime(on_frame)
+        pm.setKeyframe(controls, animLayer=k.SceneConstants.pose_anim_layer_name)
+
 
 def get_namespace_from_time_clip(te_clip):
     i = te_clip.clip.getArrayIndices()[0]
