@@ -18,9 +18,10 @@ class Ui_MocapClipperWidget(object):
         if not MocapClipperWidget.objectName():
             MocapClipperWidget.setObjectName(u"MocapClipperWidget")
         MocapClipperWidget.resize(630, 327)
-        self.verticalLayout_2 = QVBoxLayout(MocapClipperWidget)
-        self.verticalLayout_2.setSpacing(2)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.main_layout = QVBoxLayout(MocapClipperWidget)
+        self.main_layout.setSpacing(2)
+        self.main_layout.setObjectName(u"main_layout")
+        self.main_layout.setContentsMargins(3, 3, 3, 3)
         self.main_splitter = QSplitter(MocapClipperWidget)
         self.main_splitter.setObjectName(u"main_splitter")
         self.main_splitter.setOrientation(Qt.Horizontal)
@@ -264,7 +265,7 @@ class Ui_MocapClipperWidget(object):
 
         self.main_splitter.addWidget(self.widget)
 
-        self.verticalLayout_2.addWidget(self.main_splitter)
+        self.main_layout.addWidget(self.main_splitter)
 
 
         self.retranslateUi(MocapClipperWidget)
