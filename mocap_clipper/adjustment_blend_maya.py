@@ -180,7 +180,8 @@ def run_adjustment_blend(layer_name=None, allow_ui=False):
     Run adjustment blend on selected anim layer
 
     Args:
-        layer_name:
+        layer_name (str): optional
+        allow_ui (bool):
 
     Returns:
 

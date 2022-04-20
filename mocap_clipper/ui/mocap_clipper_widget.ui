@@ -50,7 +50,7 @@
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">background-color:rgb(80, 80, 120)</string>
+            <string notr="true">background-color:rgb(160, 100, 60)</string>
            </property>
            <property name="text">
             <string>Import Mocap</string>

@@ -29,6 +29,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.setWindowIcon(QtGui.QIcon(resources.get_image_path("mocap_clipper_icon")))
 
         mcs.dcc.tool_window = self
+        mcs.dcc.allow_ui = True
 
         self.mocap_connect_result = None
 

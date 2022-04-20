@@ -13,6 +13,7 @@ class MocapClipperCoreInterface(object):
 
     def __init__(self):
         self.tool_window = None
+        self.allow_ui = False
 
         # noinspection PyUnreachableCode
         if 0:

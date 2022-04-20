@@ -35,7 +35,7 @@ class Ui_MocapClipperWidget(object):
         self.import_mocap_BTN = QPushButton(self.widget_2)
         self.import_mocap_BTN.setObjectName(u"import_mocap_BTN")
         self.import_mocap_BTN.setMinimumSize(QSize(0, 30))
-        self.import_mocap_BTN.setStyleSheet(u"background-color:rgb(80, 80, 120)")
+        self.import_mocap_BTN.setStyleSheet(u"background-color:rgb(160, 100, 60)")
 
         self.verticalLayout_3.addWidget(self.import_mocap_BTN)
 
