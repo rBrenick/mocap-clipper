@@ -112,11 +112,14 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.scene_data = mcs.dcc.get_scene_time_editor_data()
         log.debug("Scene data refresh: {}".format(self.scene_data))
 
+        clip_icon = mcs.dcc.get_clip_icon() or None
+
         # update clip list
         self.ui.clips_LW.clear()
         for clip_name in self.scene_data.keys():
             lw = QtWidgets.QListWidgetItem()
             lw.setText(clip_name)
+            lw.setIcon(clip_icon)
             self.ui.clips_LW.addItem(lw)
 
         # update actor list
@@ -131,17 +134,25 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
         valid_selection = False
         if len(selected_clips) == 1:
-            clip_lw = selected_clips[0]  # type: QtWidgets.QListWidgetItem
-            clip_name = clip_lw.text()
+            clip_lwi = selected_clips[0]  # type: QtWidgets.QListWidgetItem
+            clip_name = clip_lwi.text()
             clip_data = self.scene_data.get(clip_name)
             valid_selection = True
 
         elif len(selected_clips) > 1:
+            all_clip_data = []
+            for clip_lwi in selected_clips:
+                clip_name = clip_lwi.text()
+                all_clip_data.append(self.scene_data.get(clip_name))
+
+            smallest_start_frame = min([cd.get(k.cdc.start_frame) for cd in all_clip_data])
+            highest_start_frame = max([cd.get(k.cdc.end_frame) for cd in all_clip_data])
+
             clip_name = "[Multiple Clips Selected]"
             clip_data = dict()
-            clip_data[k.cdc.start_frame] = "[...]"
-            clip_data[k.cdc.end_frame] = "[...]"
-            clip_data[k.cdc.frame_duration] = "[...]"
+            clip_data[k.cdc.start_frame] = smallest_start_frame
+            clip_data[k.cdc.end_frame] = highest_start_frame
+            clip_data[k.cdc.frame_duration] = highest_start_frame - smallest_start_frame
             valid_selection = True
 
         else:

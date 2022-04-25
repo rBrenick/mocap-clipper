@@ -75,6 +75,9 @@ class MocapClipperCoreInterface(object):
     ######################################################################################
     # Implementations comes pre-built
 
+    def get_clip_icon(self):
+        return None  # qicon
+
     def get_scene_time_editor_data(self):
         self.log_missing_implementation(self.get_scene_time_editor_data)
         return {}  # {example in 'MocapClipperMaya'}

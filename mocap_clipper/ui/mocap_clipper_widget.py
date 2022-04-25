@@ -53,6 +53,7 @@ class Ui_MocapClipperWidget(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.clips_LW.sizePolicy().hasHeightForWidth())
         self.clips_LW.setSizePolicy(sizePolicy)
+        self.clips_LW.setStyleSheet(u"QListView::item {height: 30px;}")
         self.clips_LW.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
         self.verticalLayout_3.addWidget(self.clips_LW)

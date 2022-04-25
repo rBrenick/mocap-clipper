@@ -5,7 +5,7 @@ from maya import cmds
 from . import adjustment_blend_maya
 from . import mocap_clipper_constants as k
 from . import mocap_clipper_dcc_core
-
+from PySide2 import QtGui
 
 class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
     def get_scene_time_editor_data(self):
@@ -166,6 +166,9 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         if on_frame:
             pm.currentTime(on_frame)
         pm.setKeyframe(controls, animLayer=k.SceneConstants.pose_anim_layer_name)
+
+    def get_clip_icon(self):
+        return QtGui.QIcon(":adjustTimeline.png")
 
 
 def get_namespace_from_time_clip(te_clip):
