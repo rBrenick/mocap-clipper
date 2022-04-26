@@ -333,8 +333,11 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             rig_name=rig_name,
             start_frame=start_frame,
             end_frame=end_frame,
-            euler_filter=self.ui.euler_filter_CHK.isChecked(),
         )
+
+        if self.ui.euler_filter_CHK.isChecked():
+            log.debug("Running Euler Filter on {} control(s)".format(len(rig_controls)))
+            mcs.dcc.run_euler_filter(rig_controls)
 
         create_pose_layer = self.ui.start_pose_CHK.isChecked() or self.ui.end_pose_CHK.isChecked()
 

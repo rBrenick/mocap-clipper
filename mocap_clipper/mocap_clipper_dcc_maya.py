@@ -7,6 +7,7 @@ from . import mocap_clipper_constants as k
 from . import mocap_clipper_dcc_core
 from PySide2 import QtGui
 
+
 class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
     def get_scene_time_editor_data(self):
         all_clip_data = dict()
@@ -149,6 +150,10 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
 
         rig_root_matrix = pm.getAttr(rig_root + ".worldMatrix")
         new_root.setMatrix(rig_root_matrix, worldSpace=True)
+
+    def run_euler_filter(self, controls):
+        pm.select(controls)
+        pm.filterCurve()
 
     def run_adjustment_blend(self, layer_name=None):
         # ignore layer_name variable value when called via the right click menu
