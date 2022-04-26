@@ -100,14 +100,13 @@ if active_dcc_is_maya:
                 return self
 
             if refresh:
-                removed_workspaces = []
-                for workspace_name in self.WORKSPACE_NAMES:
+                opened_workspaces = list(self.WORKSPACE_NAMES)
+                for workspace_name in opened_workspaces:
                     try:
                         remove_workspace(workspace_name)
-                        removed_workspaces.append(workspace_name)
+                        self.WORKSPACE_NAMES.remove(workspace_name)
                     except Exception as e:
                         print(e)
-                [self.WORKSPACE_NAMES.remove(w) for w in removed_workspaces]
 
             launch_ui_script = "import {module}; {module}.{class_name}().main(restore=True)".format(
                 module=self.__class__.__module__,
