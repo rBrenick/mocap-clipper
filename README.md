@@ -1,6 +1,8 @@
 # ✂ Mocap Clipper
 Split up mocap, then apply poses with adjustment blending.
 
+Basically a simple implementation of [The Animate Button](https://youtu.be/eeWBlMJHR14)
+
 ![tool header image](docs/header_image.png)
 
 
