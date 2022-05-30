@@ -12,12 +12,14 @@ from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
+from mocap_clipper.ui_utils import QtPathWidget
+
 
 class Ui_MocapClipperWidget(object):
     def setupUi(self, MocapClipperWidget):
         if not MocapClipperWidget.objectName():
             MocapClipperWidget.setObjectName(u"MocapClipperWidget")
-        MocapClipperWidget.resize(630, 327)
+        MocapClipperWidget.resize(697, 580)
         self.main_layout = QVBoxLayout(MocapClipperWidget)
         self.main_layout.setSpacing(2)
         self.main_layout.setObjectName(u"main_layout")
@@ -158,9 +160,32 @@ class Ui_MocapClipperWidget(object):
 
         self.verticalLayout_4.addLayout(self.clip_info_layout)
 
-        self.verticalSpacer_2 = QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.bake_configuration_label_layout = QHBoxLayout()
+        self.bake_configuration_label_layout.setObjectName(u"bake_configuration_label_layout")
+        self.bake_configuration_label_layout.setContentsMargins(-1, 10, -1, -1)
+        self.label_2 = QLabel(self.widget)
+        self.label_2.setObjectName(u"label_2")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
+        self.label_2.setSizePolicy(sizePolicy2)
+        font1 = QFont()
+        font1.setItalic(True)
+        self.label_2.setFont(font1)
 
-        self.verticalLayout_4.addItem(self.verticalSpacer_2)
+        self.bake_configuration_label_layout.addWidget(self.label_2)
+
+        self.line = QFrame(self.widget)
+        self.line.setObjectName(u"line")
+        self.line.setMinimumSize(QSize(0, 20))
+        self.line.setFrameShape(QFrame.HLine)
+        self.line.setFrameShadow(QFrame.Sunken)
+
+        self.bake_configuration_label_layout.addWidget(self.line)
+
+
+        self.verticalLayout_4.addLayout(self.bake_configuration_label_layout)
 
         self.bake_settings_layout = QVBoxLayout()
         self.bake_settings_layout.setObjectName(u"bake_settings_layout")
@@ -219,35 +244,62 @@ class Ui_MocapClipperWidget(object):
 
         self.verticalLayout_4.addItem(self.verticalSpacer)
 
+        self.horizontalLayout_6 = QHBoxLayout()
+        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.save_clip_CHK = QCheckBox(self.widget)
+        self.save_clip_CHK.setObjectName(u"save_clip_CHK")
+        sizePolicy1.setHeightForWidth(self.save_clip_CHK.sizePolicy().hasHeightForWidth())
+        self.save_clip_CHK.setSizePolicy(sizePolicy1)
+
+        self.horizontalLayout_6.addWidget(self.save_clip_CHK)
+
+        self.output_path_W = QtPathWidget(self.widget)
+        self.output_path_W.setObjectName(u"output_path_W")
+        self.output_path_W.setEnabled(False)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.output_path_W.sizePolicy().hasHeightForWidth())
+        self.output_path_W.setSizePolicy(sizePolicy3)
+        self.output_path_W.setMinimumSize(QSize(0, 24))
+
+        self.horizontalLayout_6.addWidget(self.output_path_W)
+
+
+        self.verticalLayout_4.addLayout(self.horizontalLayout_6)
+
         self.bake_actions_layout = QHBoxLayout()
         self.bake_actions_layout.setSpacing(3)
         self.bake_actions_layout.setObjectName(u"bake_actions_layout")
         self.scene_actor_CB = QComboBox(self.widget)
         self.scene_actor_CB.addItem("")
         self.scene_actor_CB.setObjectName(u"scene_actor_CB")
-        sizePolicy1.setHeightForWidth(self.scene_actor_CB.sizePolicy().hasHeightForWidth())
-        self.scene_actor_CB.setSizePolicy(sizePolicy1)
+        sizePolicy4 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        sizePolicy4.setHorizontalStretch(0)
+        sizePolicy4.setVerticalStretch(0)
+        sizePolicy4.setHeightForWidth(self.scene_actor_CB.sizePolicy().hasHeightForWidth())
+        self.scene_actor_CB.setSizePolicy(sizePolicy4)
         self.scene_actor_CB.setMinimumSize(QSize(0, 30))
 
         self.bake_actions_layout.addWidget(self.scene_actor_CB)
 
         self.connect_mocap_to_rig_BTN = QPushButton(self.widget)
         self.connect_mocap_to_rig_BTN.setObjectName(u"connect_mocap_to_rig_BTN")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.connect_mocap_to_rig_BTN.sizePolicy().hasHeightForWidth())
-        self.connect_mocap_to_rig_BTN.setSizePolicy(sizePolicy2)
+        sizePolicy5 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        sizePolicy5.setHorizontalStretch(0)
+        sizePolicy5.setVerticalStretch(0)
+        sizePolicy5.setHeightForWidth(self.connect_mocap_to_rig_BTN.sizePolicy().hasHeightForWidth())
+        self.connect_mocap_to_rig_BTN.setSizePolicy(sizePolicy5)
 
         self.bake_actions_layout.addWidget(self.connect_mocap_to_rig_BTN)
 
         self.bake_BTN = QPushButton(self.widget)
         self.bake_BTN.setObjectName(u"bake_BTN")
-        sizePolicy3 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.bake_BTN.sizePolicy().hasHeightForWidth())
-        self.bake_BTN.setSizePolicy(sizePolicy3)
+        sizePolicy6 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+        sizePolicy6.setHorizontalStretch(0)
+        sizePolicy6.setVerticalStretch(0)
+        sizePolicy6.setHeightForWidth(self.bake_BTN.sizePolicy().hasHeightForWidth())
+        self.bake_BTN.setSizePolicy(sizePolicy6)
         self.bake_BTN.setMinimumSize(QSize(0, 30))
         self.bake_BTN.setStyleSheet(u"background-color:rgb(80, 80, 80)")
 
@@ -255,6 +307,28 @@ class Ui_MocapClipperWidget(object):
 
 
         self.verticalLayout_4.addLayout(self.bake_actions_layout)
+
+        self.project_widgets_label_layout = QHBoxLayout()
+        self.project_widgets_label_layout.setObjectName(u"project_widgets_label_layout")
+        self.project_widgets_label_layout.setContentsMargins(-1, 10, -1, -1)
+        self.label = QLabel(self.widget)
+        self.label.setObjectName(u"label")
+        sizePolicy2.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
+        self.label.setSizePolicy(sizePolicy2)
+        self.label.setFont(font1)
+
+        self.project_widgets_label_layout.addWidget(self.label)
+
+        self.line_2 = QFrame(self.widget)
+        self.line_2.setObjectName(u"line_2")
+        self.line_2.setMinimumSize(QSize(0, 20))
+        self.line_2.setFrameShape(QFrame.HLine)
+        self.line_2.setFrameShadow(QFrame.Sunken)
+
+        self.project_widgets_label_layout.addWidget(self.line_2)
+
+
+        self.verticalLayout_4.addLayout(self.project_widgets_label_layout)
 
         self.project_widgets_layout = QVBoxLayout()
         self.project_widgets_layout.setObjectName(u"project_widgets_layout")
@@ -286,15 +360,51 @@ class Ui_MocapClipperWidget(object):
         self.start_pose_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Start Pose", None))
         self.end_pose_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"End Pose", None))
         self.end_pose_same_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Same As Start", None))
+#if QT_CONFIG(tooltip)
+        self.label_2.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Settings to run before and after baking", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_2.setText(QCoreApplication.translate("MocapClipperWidget", u"Bake Configuration", None))
+#if QT_CONFIG(tooltip)
+        self.align_mocap_CHK.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Move the Mocap skeleton to match the rig at a certain pose", None))
+#endif // QT_CONFIG(tooltip)
         self.align_mocap_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Align Mocap to:", None))
         self.align_to_start_pose_RB.setText(QCoreApplication.translate("MocapClipperWidget", u"Start Pose", None))
         self.align_to_end_pose_RB.setText(QCoreApplication.translate("MocapClipperWidget", u"End Pose", None))
+#if QT_CONFIG(tooltip)
+        self.euler_filter_CHK.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Run an euler filter on the keys after baking", None))
+#endif // QT_CONFIG(tooltip)
         self.euler_filter_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Euler Filter", None))
+#if QT_CONFIG(tooltip)
+        self.set_time_range_CHK.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Set the scene time range to match the clip after bake", None))
+#endif // QT_CONFIG(tooltip)
         self.set_time_range_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Set Time Range", None))
-        self.adjustment_blend_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Adjustment Blend", None))
+#if QT_CONFIG(tooltip)
+        self.adjustment_blend_CHK.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Blend the Start and End pose layer using the intensity of the base animation", None))
+#endif // QT_CONFIG(tooltip)
+        self.adjustment_blend_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Run Adjustment Blend", None))
+#if QT_CONFIG(tooltip)
+        self.save_clip_CHK.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Enable this to automatically save the clip into the selected folder", None))
+#endif // QT_CONFIG(tooltip)
+        self.save_clip_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Save As Clip", None))
+#if QT_CONFIG(tooltip)
+        self.output_path_W.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Output folder for the clips", None))
+#endif // QT_CONFIG(tooltip)
         self.scene_actor_CB.setItemText(0, QCoreApplication.translate("MocapClipperWidget", u"actor0:Rig", None))
 
+#if QT_CONFIG(tooltip)
+        self.scene_actor_CB.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Name of the target rig", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.connect_mocap_to_rig_BTN.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Constrain the rig to the mocap skeleton", None))
+#endif // QT_CONFIG(tooltip)
         self.connect_mocap_to_rig_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Preview Mocap On Rig", None))
+#if QT_CONFIG(tooltip)
+        self.bake_BTN.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Bake the selected clip to the rig using the above configuration", None))
+#endif // QT_CONFIG(tooltip)
         self.bake_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Bake to Rig", None))
+#if QT_CONFIG(tooltip)
+        self.label.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Widgets defined for the studio/project using class overrides", None))
+#endif // QT_CONFIG(tooltip)
+        self.label.setText(QCoreApplication.translate("MocapClipperWidget", u"Project Action Widgets", None))
     # retranslateUi
 

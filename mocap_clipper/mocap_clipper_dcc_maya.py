@@ -47,6 +47,7 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             clip_data[k.cdc.node] = te_clip
             clip_data[k.cdc.clip_parent] = clip_parent
             clip_data[k.cdc.namespace] = get_namespace_from_time_clip(te_clip)
+            clip_data[k.cdc.clip_name] = clip_name
             all_clip_data[clip_name] = clip_data
 
         return all_clip_data

@@ -44,6 +44,12 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.import_mocap_BTN.setIcon(mocap_icon)
         self.ui.bake_BTN.setIcon(mocap_icon)
 
+        # set output folder
+        self.ui.output_path_W.path_dialog.setFileMode(QtWidgets.QFileDialog.DirectoryOnly)
+        default_project_folder = mcs.dcc.get_default_output_folder()
+        if not self.ui.output_path_W.path() and default_project_folder:
+            self.ui.output_path_W.set_path(default_project_folder)
+
         # connect UI
         self.ui.import_mocap_BTN.clicked.connect(self.import_mocap)
         self.ui.refresh_BTN.clicked.connect(self.update_from_scene)
@@ -61,6 +67,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
         self.ui.align_mocap_CHK.stateChanged.connect(self.ui.align_to_start_pose_RB.setEnabled)
         self.ui.align_mocap_CHK.stateChanged.connect(self.ui.align_to_end_pose_RB.setEnabled)
+
+        self.ui.save_clip_CHK.stateChanged.connect(self.ui.output_path_W.setEnabled)
 
         self.ui.connect_mocap_to_rig_BTN.clicked.connect(self.toggle_mocap_constraint)
         self.ui.bake_BTN.clicked.connect(self.bake_to_rig)
@@ -208,6 +216,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             if len(selected_clips) == 1:
                 clip_data[k.cdc.start_frame] = float(self.ui.frame_start.text())
                 clip_data[k.cdc.end_frame] = float(self.ui.frame_end.text())
+            clip_data[k.cdc.target_rig] = self.get_active_rig()
 
             return clip_data
 
@@ -378,6 +387,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             mcs.dcc.set_time_range((start_frame, end_frame))
 
         mcs.dcc.post_bake()
+
+        if self.ui.save_clip_CHK.isChecked():
+            mcs.dcc.save_clip(clip_data, output_folder=self.ui.output_path_W.path())
 
     def apply_start_pose(self):
         start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)

@@ -17,5 +17,9 @@ class ClipDataConstants:
     end_pose = "end_pose"
     namespace = "namespace"
 
+    # derive from ui
+    clip_name = "clip_name"
+    target_rig = "target_rig"
+
 
 cdc = ClipDataConstants

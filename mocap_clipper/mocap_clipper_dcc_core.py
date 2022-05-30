@@ -57,6 +57,9 @@ class MocapClipperCoreInterface(object):
     def post_bake(self):
         pass  # method that runs after everything has been baked
 
+    def save_clip(self, clip_data, output_folder):
+        self.log_missing_implementation(self.save_clip)
+
     def get_project_settings_widgets(self):
         return []  # optional list of qwidgets
 
@@ -71,6 +74,9 @@ class MocapClipperCoreInterface(object):
 
     def get_rig_icon(self):
         return None  # qicon
+
+    def get_default_output_folder(self):
+        return ""
 
     ######################################################################################
     # Implementations comes pre-built
