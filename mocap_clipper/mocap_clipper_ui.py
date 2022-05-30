@@ -55,6 +55,10 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.refresh_BTN.clicked.connect(self.update_from_scene)
         self.ui.clips_LW.itemSelectionChanged.connect(self.update_clip_display_info)
 
+        self.ui.clips_LW.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.ui.clips_LW.customContextMenuRequested.connect(self.build_clip_list_ctx_menu)
+
+        self.ui.rename_clip_BTN.clicked.connect(self.rename_selected_clip)
         self.ui.end_pose_CHK.stateChanged.connect(self.set_active_clip_data)
         self.ui.end_pose_CB.currentIndexChanged.connect(self.set_active_clip_data)
         self.ui.end_pose_same_CHK.stateChanged.connect(self.set_active_clip_data)
@@ -101,6 +105,22 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
     def build_widget_ctx_menu(self, action_list, *args, **kwargs):
         return ui_utils.build_menu_from_action_list(action_list)
+
+    def build_clip_list_ctx_menu(self):
+        action_list = [
+            {"Rename Clip": self.rename_selected_clip}
+        ]
+        ui_utils.build_menu_from_action_list(action_list)
+
+    def rename_selected_clip(self):
+        clip_data = self.get_active_clip_data()
+        if not clip_data:
+            return
+
+        clip_node = clip_data.get(k.cdc.node)
+        rename_success = mcs.dcc.rename_clip(clip_node)
+        if rename_success:
+            self.update_from_scene()
 
     def update_from_project(self):
         pose_files = mcs.dcc.get_pose_files()

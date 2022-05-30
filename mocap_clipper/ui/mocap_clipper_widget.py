@@ -19,7 +19,7 @@ class Ui_MocapClipperWidget(object):
     def setupUi(self, MocapClipperWidget):
         if not MocapClipperWidget.objectName():
             MocapClipperWidget.setObjectName(u"MocapClipperWidget")
-        MocapClipperWidget.resize(697, 580)
+        MocapClipperWidget.resize(697, 364)
         self.main_layout = QVBoxLayout(MocapClipperWidget)
         self.main_layout.setSpacing(2)
         self.main_layout.setObjectName(u"main_layout")
@@ -75,6 +75,8 @@ class Ui_MocapClipperWidget(object):
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.clip_info_layout = QVBoxLayout()
         self.clip_info_layout.setObjectName(u"clip_info_layout")
+        self.horizontalLayout_8 = QHBoxLayout()
+        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
         self.clip_name_LE = QLineEdit(self.widget)
         self.clip_name_LE.setObjectName(u"clip_name_LE")
         font = QFont()
@@ -84,7 +86,21 @@ class Ui_MocapClipperWidget(object):
         self.clip_name_LE.setAlignment(Qt.AlignCenter)
         self.clip_name_LE.setReadOnly(True)
 
-        self.clip_info_layout.addWidget(self.clip_name_LE)
+        self.horizontalLayout_8.addWidget(self.clip_name_LE)
+
+        self.rename_clip_BTN = QPushButton(self.widget)
+        self.rename_clip_BTN.setObjectName(u"rename_clip_BTN")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.rename_clip_BTN.sizePolicy().hasHeightForWidth())
+        self.rename_clip_BTN.setSizePolicy(sizePolicy1)
+        self.rename_clip_BTN.setMaximumSize(QSize(70, 16777215))
+
+        self.horizontalLayout_8.addWidget(self.rename_clip_BTN)
+
+
+        self.clip_info_layout.addLayout(self.horizontalLayout_8)
 
         self.horizontalLayout_7 = QHBoxLayout()
         self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
@@ -100,9 +116,6 @@ class Ui_MocapClipperWidget(object):
 
         self.frame_duration = QLineEdit(self.widget)
         self.frame_duration.setObjectName(u"frame_duration")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.frame_duration.sizePolicy().hasHeightForWidth())
         self.frame_duration.setSizePolicy(sizePolicy1)
         self.frame_duration.setMaximumSize(QSize(70, 16777215))
@@ -353,6 +366,7 @@ class Ui_MocapClipperWidget(object):
         self.import_mocap_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Import Mocap", None))
         self.refresh_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Refresh Time Editor Clips", None))
         self.clip_name_LE.setPlaceholderText(QCoreApplication.translate("MocapClipperWidget", u"Clip Name", None))
+        self.rename_clip_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Rename", None))
         self.frame_start.setPlaceholderText(QCoreApplication.translate("MocapClipperWidget", u"Start Frame", None))
         self.frame_end.setPlaceholderText(QCoreApplication.translate("MocapClipperWidget", u"End Frame", None))
         self.frame_duration.setText("")

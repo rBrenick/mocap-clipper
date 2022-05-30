@@ -5,7 +5,10 @@ from maya import cmds
 from . import adjustment_blend_maya
 from . import mocap_clipper_constants as k
 from . import mocap_clipper_dcc_core
-from PySide2 import QtGui
+from . import mocap_clipper_logger
+from PySide2 import QtWidgets, QtGui
+
+log = mocap_clipper_logger.get_logger()
 
 
 class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
@@ -105,6 +108,32 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
 
     def create_time_editor_clip(self, mocap_nodes, clip_name):
         return create_time_editor_clip(mocap_nodes, clip_name)
+
+    def rename_clip(self, node, new_clip_name=None):
+        if not new_clip_name:
+            current_clip_name = self.get_attr(node, "clip[0].clipName")
+            new_clip_name = self.get_new_clip_name_from_dialog(current_clip_name)
+
+        if not new_clip_name:
+            return
+
+        if not node.hasAttr("clip[0].clipName"):
+            log.warning("Unable to find clipName attribute on node: {}".format(node))
+            return
+
+        node.setAttr("clip[0].clipName", new_clip_name, type="string")
+        return True
+
+    def get_new_clip_name_from_dialog(self, current_clip_name):
+        from . import ui_utils
+        clip_name, _ = QtWidgets.QInputDialog.getText(
+            ui_utils.get_app_window(),
+            "New Clip Name",
+            "Enter the new name of the clip: ",
+            QtWidgets.QLineEdit.Normal,
+            current_clip_name,
+        )
+        return clip_name
 
     def rebuild_pose_anim_layer(self, controls):
         self.remove_pose_anim_layer()
