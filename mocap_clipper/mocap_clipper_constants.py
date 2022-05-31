@@ -13,13 +13,31 @@ class ClipDataConstants:
     frame_duration = "frame_duration"
     node = "node"
     clip_parent = "clip_parent"
-    start_pose = "start_pose"
-    end_pose = "end_pose"
     namespace = "namespace"
+
+    # mocap_clipper attributes
+    start_pose_path = "start_pose"
+    start_pose_enabled = "start_pose_enabled"
+    end_pose_path = "end_pose"
+    end_pose_enabled = "end_pose_enabled"
+    end_pose_same_as_start = "end_pose_same_as_start"
 
     # derive from ui
     clip_name = "clip_name"
     target_rig = "target_rig"
+    output_folder = "output_folder"
+
+
+class BakeConfig:
+    def __init__(self):
+        self.align_mocap_to_pose = False
+        self.align_mocap_to_start_pose = False
+        self.align_mocap_to_end_pose = False
+
+        self.run_euler_filter = False
+        self.set_time_range = False
+        self.run_adjustment_blend = False
+        self.save_clip = False
 
 
 cdc = ClipDataConstants

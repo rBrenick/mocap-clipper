@@ -1,6 +1,6 @@
 import os.path
 import sys
-from functools import partial
+from functools import partial, wraps
 
 from . import mocap_clipper_constants as k
 from . import mocap_clipper_logger
@@ -32,6 +32,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         mcs.dcc.allow_ui = True
 
         self.mocap_connect_result = None
+        self.clip_data_refresh_is_active = False
 
         # set UI
         self.scene_data = None
@@ -103,6 +104,18 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         ui_utils.build_log_level_menu(menu_bar, log_cls=log)
         self.setMenuBar(menu_bar)
 
+    def deco_disable_clip_data_set_signals(func):
+        """Decorator for disabling the scene node attribute setting while we're refreshing the UI"""
+
+        @wraps(func)
+        def inner(self, *args, **kwargs):
+            self.clip_data_refresh_is_active = True
+            try:
+                return func(self, *args, **kwargs)
+            finally:
+                self.clip_data_refresh_is_active = False
+        return inner
+
     def build_widget_ctx_menu(self, action_list, *args, **kwargs):
         return ui_utils.build_menu_from_action_list(action_list)
 
@@ -157,6 +170,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         for rig_name in rig_names:
             self.ui.scene_actor_CB.addItem(rig_icon, rig_name)
 
+    @deco_disable_clip_data_set_signals
     def update_clip_display_info(self):
         selected_clips = self.ui.clips_LW.selectedItems()
 
@@ -204,15 +218,13 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             log.debug("Parsing data from: {}".format(clip_node))
 
             mcs.dcc.select_node(clip_node)
-            start_pose_enabled = mcs.dcc.get_attr(clip_node, "start_pose_enabled", default=False)
-            start_pose_path = mcs.dcc.get_attr(clip_node, "start_pose_path")
-            end_pose_enabled = mcs.dcc.get_attr(clip_node, "end_pose_enabled", default=False)
-            end_pose_path = mcs.dcc.get_attr(clip_node, "end_pose_path")
-            end_pose_same_as_start = mcs.dcc.get_attr(clip_node, "end_pose_same_as_start", default=True)
 
-            self.ui.start_pose_CHK.setChecked(start_pose_enabled)
-            self.ui.end_pose_CHK.setChecked(end_pose_enabled)
-            self.ui.end_pose_same_CHK.setChecked(end_pose_same_as_start)
+            self.ui.start_pose_CHK.setChecked(clip_data.get(k.cdc.start_pose_enabled))
+            self.ui.end_pose_CHK.setChecked(clip_data.get(k.cdc.end_pose_enabled))
+            self.ui.end_pose_same_CHK.setChecked(clip_data.get(k.cdc.end_pose_same_as_start))
+
+            start_pose_path = clip_data.get(k.cdc.start_pose_path)
+            end_pose_path = clip_data.get(k.cdc.end_pose_path)
 
             if start_pose_path:
                 ui_utils.set_combo_box_by_data(self.ui.start_pose_CB, start_pose_path)
@@ -244,6 +256,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         """
         Apply UI data to scene node
         """
+        if self.clip_data_refresh_is_active:
+            return
+
         selected_clips = self.ui.clips_LW.selectedItems()
         if not selected_clips or len(selected_clips) > 1:
             return
@@ -259,18 +274,25 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         end_pose_enabled = self.ui.end_pose_CHK.isChecked()
         end_pose_same_as_start = self.ui.end_pose_same_CHK.isChecked()
 
-        mcs.dcc.set_attr(clip_node, "start_pose_enabled", start_pose_enabled)
-        mcs.dcc.set_attr(clip_node, "end_pose_enabled", end_pose_enabled)
-        mcs.dcc.set_attr(clip_node, "end_pose_same_as_start", end_pose_same_as_start)
+        mcs.dcc.set_attr(clip_node, k.cdc.start_pose_enabled, start_pose_enabled)
+        mcs.dcc.set_attr(clip_node, k.cdc.end_pose_enabled, end_pose_enabled)
+        mcs.dcc.set_attr(clip_node, k.cdc.end_pose_same_as_start, end_pose_same_as_start)
 
         if start_pose_enabled:
-            mcs.dcc.set_attr(clip_node, "start_pose_path", start_pose_path)
+            mcs.dcc.set_attr(clip_node, k.cdc.start_pose_path, start_pose_path)
+            clip_data[k.cdc.start_pose_path] = start_pose_path
 
         if end_pose_enabled:
             if end_pose_same_as_start:
                 end_pose_path = start_pose_path
                 self.match_end_pose_to_start()
-            mcs.dcc.set_attr(clip_node, "end_pose_path", end_pose_path)
+            mcs.dcc.set_attr(clip_node, k.cdc.end_pose_path, end_pose_path)
+            clip_data[k.cdc.end_pose_path] = end_pose_path
+
+        # set internal clip data for this clip
+        clip_data[k.cdc.start_pose_enabled] = start_pose_enabled
+        clip_data[k.cdc.end_pose_enabled] = end_pose_enabled
+        clip_data[k.cdc.end_pose_same_as_start] = end_pose_same_as_start
 
     def get_active_rig(self):
         return self.ui.scene_actor_CB.currentText()
@@ -323,93 +345,36 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.update_from_scene()
 
     def bake_to_rig(self):
-        clip_data = self.get_active_clip_data()
-        if not clip_data:
+        active_clip_data = self.get_active_clip_data()
+        if not active_clip_data:
             log.warning("Clip not found in selection")
             return
 
-        mocap_namespace = clip_data.get(k.cdc.namespace)
+        mocap_namespace = active_clip_data.get(k.cdc.namespace)
         if not mocap_namespace:
             log.warning("Could not find namespace of driven objects of clip.")
             return
 
-        rig_name = self.get_active_rig()
-        start_frame = clip_data.get(k.cdc.start_frame)
-        end_frame = clip_data.get(k.cdc.end_frame)
-        log.info("Baking range: '{} - {}' to rig: '{}'".format(start_frame, end_frame, rig_name))
+        # Gather bake configuration from the current UI settings
+        bake_config = k.BakeConfig()
+        bake_config.align_mocap_to_pose = self.ui.align_mocap_CHK.isChecked()
+        bake_config.align_mocap_to_start_pose = self.ui.align_to_start_pose_RB.isChecked()
+        bake_config.align_mocap_to_end_pose = self.ui.align_to_end_pose_RB.isChecked()
 
-        log.debug("Running PreBake: {}".format(mcs.dcc.pre_bake))
-        mcs.dcc.pre_bake()
+        bake_config.run_euler_filter = self.ui.euler_filter_CHK.isChecked()
+        bake_config.set_time_range = self.ui.set_time_range_CHK.isChecked()
+        bake_config.run_adjustment_blend = self.ui.adjustment_blend_CHK.isChecked()
+        bake_config.save_clip = self.ui.save_clip_CHK.isChecked()
 
-        align_mocap_to_pose = self.ui.align_mocap_CHK.isChecked()
-        if align_mocap_to_pose:
-            if self.ui.align_to_start_pose_RB.isChecked():
-                pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
-                alignment_frame = start_frame
-            else:
-                pose_path = self.ui.end_pose_CB.currentData(QtCore.Qt.UserRole)
-                alignment_frame = end_frame
-            log.info("Applying pose for alignment: {}".format(pose_path))
-            mcs.dcc.apply_pose(pose_path, rig_name)
-            mcs.dcc.align_mocap_to_rig(mocap_namespace, rig_name, on_frame=alignment_frame)
+        # run bake on all selected clips
+        for clip_lw in self.ui.clips_LW.selectedItems():  # type: QtWidgets.QListWidgetItem
+            clip_name = clip_lw.text()
+            clip_data = self.scene_data.get(clip_name)
 
-        log.debug("Removing existing pose anim layer(s)")
-        mcs.dcc.remove_pose_anim_layer()
+            clip_data[k.cdc.target_rig] = self.get_active_rig()
+            clip_data[k.cdc.output_folder] = self.ui.output_path_W.path()
 
-        log.info("Baking mocap: '{}', to rig: '{}'".format(mocap_namespace, rig_name))
-        rig_controls = mcs.dcc.bake_to_rig(
-            mocap_ns=mocap_namespace,
-            rig_name=rig_name,
-            start_frame=start_frame,
-            end_frame=end_frame,
-        )
-
-        if self.ui.euler_filter_CHK.isChecked():
-            log.debug("Running Euler Filter on {} control(s)".format(len(rig_controls)))
-            mcs.dcc.run_euler_filter(rig_controls)
-
-        create_pose_layer = self.ui.start_pose_CHK.isChecked() or self.ui.end_pose_CHK.isChecked()
-
-        if create_pose_layer:
-            log.info("Re-building pose anim layer for: '{}' control(s)".format(len(rig_controls)))
-            mcs.dcc.rebuild_pose_anim_layer(rig_controls)
-
-            # create border keys on either end. might get overridden by poses below
-            mcs.dcc.set_key_on_pose_layer(rig_controls, on_frame=start_frame)
-            mcs.dcc.set_key_on_pose_layer(rig_controls, on_frame=end_frame)
-
-        if self.ui.start_pose_CHK.isChecked():
-            start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
-            log.info("Applying start pose: {}".format(start_pose_path))
-            mcs.dcc.apply_pose(
-                pose_path=start_pose_path,
-                rig_name=rig_name,
-                on_frame=start_frame,
-            )
-            mcs.dcc.set_key_on_pose_layer(rig_controls)
-
-        if self.ui.end_pose_CHK.isChecked():
-            end_pose_path = self.ui.end_pose_CB.currentData(QtCore.Qt.UserRole)
-            log.info("Applying start pose: {}".format(end_pose_path))
-            mcs.dcc.apply_pose(
-                pose_path=end_pose_path,
-                rig_name=rig_name,
-                on_frame=end_frame,
-            )
-            mcs.dcc.set_key_on_pose_layer(rig_controls)
-
-        if self.ui.adjustment_blend_CHK.isChecked():
-            log.info("Running Adjustment Blend")
-            mcs.dcc.run_adjustment_blend(k.SceneConstants.pose_anim_layer_name)
-
-        if self.ui.set_time_range_CHK.isChecked():
-            log.info("Setting time range to '{} - {}'".format(start_frame, end_frame))
-            mcs.dcc.set_time_range((start_frame, end_frame))
-
-        mcs.dcc.post_bake()
-
-        if self.ui.save_clip_CHK.isChecked():
-            mcs.dcc.save_clip(clip_data, output_folder=self.ui.output_path_W.path())
+            mcs.dcc.main_bake_function(clip_data, bake_config)
 
     def apply_start_pose(self):
         start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)

@@ -51,6 +51,14 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             clip_data[k.cdc.clip_parent] = clip_parent
             clip_data[k.cdc.namespace] = get_namespace_from_time_clip(te_clip)
             clip_data[k.cdc.clip_name] = clip_name
+
+            # mocap_clipper attributes
+            clip_data[k.cdc.start_pose_enabled] = self.get_attr(te_clip, k.cdc.start_pose_enabled, default=False)
+            clip_data[k.cdc.start_pose_path] = self.get_attr(te_clip, k.cdc.start_pose_path, default="")
+            clip_data[k.cdc.end_pose_enabled] = self.get_attr(te_clip, k.cdc.end_pose_enabled, default=False)
+            clip_data[k.cdc.end_pose_path] = self.get_attr(te_clip, k.cdc.end_pose_path, default="")
+            clip_data[k.cdc.end_pose_same_as_start] = self.get_attr(te_clip, k.cdc.end_pose_same_as_start, default=False)
+
             all_clip_data[clip_name] = clip_data
 
         return all_clip_data
