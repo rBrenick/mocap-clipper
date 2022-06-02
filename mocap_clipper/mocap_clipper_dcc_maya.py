@@ -109,7 +109,7 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         mocap_nodes = []
         mocap_nodes.extend(mocap_top_nodes)
         for mocap_top_node in mocap_top_nodes:
-            for mocap_node in pm.listRelatives(mocap_top_node, ad=True):
+            for mocap_node in pm.listRelatives(mocap_top_node, ad=True, type="joint"):
                 mocap_nodes.append(mocap_node)
 
         self.create_time_editor_clip(mocap_nodes, clip_name=file_name)
