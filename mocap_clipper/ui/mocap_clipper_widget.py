@@ -19,7 +19,7 @@ class Ui_MocapClipperWidget(object):
     def setupUi(self, MocapClipperWidget):
         if not MocapClipperWidget.objectName():
             MocapClipperWidget.setObjectName(u"MocapClipperWidget")
-        MocapClipperWidget.resize(697, 364)
+        MocapClipperWidget.resize(640, 475)
         self.main_layout = QVBoxLayout(MocapClipperWidget)
         self.main_layout.setSpacing(2)
         self.main_layout.setObjectName(u"main_layout")
@@ -153,14 +153,6 @@ class Ui_MocapClipperWidget(object):
 
         self.horizontalLayout_2.addWidget(self.end_pose_CHK)
 
-        self.end_pose_same_CHK = QCheckBox(self.widget)
-        self.end_pose_same_CHK.setObjectName(u"end_pose_same_CHK")
-        sizePolicy1.setHeightForWidth(self.end_pose_same_CHK.sizePolicy().hasHeightForWidth())
-        self.end_pose_same_CHK.setSizePolicy(sizePolicy1)
-        self.end_pose_same_CHK.setChecked(True)
-
-        self.horizontalLayout_2.addWidget(self.end_pose_same_CHK)
-
         self.end_pose_CB = QComboBox(self.widget)
         self.end_pose_CB.setObjectName(u"end_pose_CB")
         self.end_pose_CB.setEnabled(False)
@@ -169,6 +161,13 @@ class Ui_MocapClipperWidget(object):
 
 
         self.clip_info_layout.addLayout(self.horizontalLayout_2)
+
+        self.end_pose_same_CHK = QCheckBox(self.widget)
+        self.end_pose_same_CHK.setObjectName(u"end_pose_same_CHK")
+        sizePolicy1.setHeightForWidth(self.end_pose_same_CHK.sizePolicy().hasHeightForWidth())
+        self.end_pose_same_CHK.setSizePolicy(sizePolicy1)
+
+        self.clip_info_layout.addWidget(self.end_pose_same_CHK)
 
 
         self.verticalLayout_4.addLayout(self.clip_info_layout)
@@ -202,11 +201,15 @@ class Ui_MocapClipperWidget(object):
 
         self.bake_settings_layout = QVBoxLayout()
         self.bake_settings_layout.setObjectName(u"bake_settings_layout")
+        self.project_root_from_hips_CHK = QCheckBox(self.widget)
+        self.project_root_from_hips_CHK.setObjectName(u"project_root_from_hips_CHK")
+
+        self.bake_settings_layout.addWidget(self.project_root_from_hips_CHK)
+
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.align_mocap_CHK = QCheckBox(self.widget)
         self.align_mocap_CHK.setObjectName(u"align_mocap_CHK")
-        self.align_mocap_CHK.setChecked(True)
 
         self.horizontalLayout.addWidget(self.align_mocap_CHK)
 
@@ -220,6 +223,11 @@ class Ui_MocapClipperWidget(object):
         self.align_to_end_pose_RB.setObjectName(u"align_to_end_pose_RB")
 
         self.horizontalLayout.addWidget(self.align_to_end_pose_RB)
+
+        self.align_mocap_CB = QComboBox(self.widget)
+        self.align_mocap_CB.setObjectName(u"align_mocap_CB")
+
+        self.horizontalLayout.addWidget(self.align_mocap_CB)
 
         self.horizontalSpacer = QSpacerItem(0, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
@@ -373,17 +381,18 @@ class Ui_MocapClipperWidget(object):
         self.frame_duration.setPlaceholderText(QCoreApplication.translate("MocapClipperWidget", u"Duration", None))
         self.start_pose_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Start Pose", None))
         self.end_pose_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"End Pose", None))
-        self.end_pose_same_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Same As Start", None))
+        self.end_pose_same_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Match End Pose to Start", None))
 #if QT_CONFIG(tooltip)
         self.label_2.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Settings to run before and after baking", None))
 #endif // QT_CONFIG(tooltip)
         self.label_2.setText(QCoreApplication.translate("MocapClipperWidget", u"Bake Configuration", None))
+        self.project_root_from_hips_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Project Root from Hips", None))
 #if QT_CONFIG(tooltip)
         self.align_mocap_CHK.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Move the Mocap skeleton to match the rig at a certain pose", None))
 #endif // QT_CONFIG(tooltip)
         self.align_mocap_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Align Mocap to:", None))
-        self.align_to_start_pose_RB.setText(QCoreApplication.translate("MocapClipperWidget", u"Start Pose", None))
-        self.align_to_end_pose_RB.setText(QCoreApplication.translate("MocapClipperWidget", u"End Pose", None))
+        self.align_to_start_pose_RB.setText(QCoreApplication.translate("MocapClipperWidget", u"Start Frame", None))
+        self.align_to_end_pose_RB.setText(QCoreApplication.translate("MocapClipperWidget", u"End Frame", None))
 #if QT_CONFIG(tooltip)
         self.euler_filter_CHK.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Run an euler filter on the keys after baking", None))
 #endif // QT_CONFIG(tooltip)

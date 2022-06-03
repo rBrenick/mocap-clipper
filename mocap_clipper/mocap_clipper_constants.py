@@ -4,7 +4,9 @@ class ModuleConstants:
 
 class SceneConstants:
     pose_anim_layer_name = "PoseLayer"
-    mocap_top_grp_name = "nodes"
+    mocap_top_node_name = "mocap_top_node"
+    mocap_ctrl_name = "mocap_ctrl"
+    mocap_ctrl_offset_name = "mocap_ctrl_reverse_offset"
 
 
 class ClipDataConstants:
@@ -33,7 +35,9 @@ class BakeConfig:
         self.align_mocap_to_pose = False
         self.align_mocap_to_start_pose = False
         self.align_mocap_to_end_pose = False
+        self.mocap_alignment_name = ""
 
+        self.project_root_from_hips = False
         self.run_euler_filter = False
         self.set_time_range = False
         self.run_adjustment_blend = False

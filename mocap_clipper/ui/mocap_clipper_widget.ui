@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>697</width>
-    <height>364</height>
+    <width>640</width>
+    <height>475</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -253,22 +253,6 @@
               </widget>
              </item>
              <item>
-              <widget class="QCheckBox" name="end_pose_same_CHK">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>Same As Start</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
               <widget class="QComboBox" name="end_pose_CB">
                <property name="enabled">
                 <bool>false</bool>
@@ -276,6 +260,19 @@
               </widget>
              </item>
             </layout>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="end_pose_same_CHK">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Match End Pose to Start</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -323,6 +320,13 @@
          <item>
           <layout class="QVBoxLayout" name="bake_settings_layout">
            <item>
+            <widget class="QCheckBox" name="project_root_from_hips_CHK">
+             <property name="text">
+              <string>Project Root from Hips</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <layout class="QHBoxLayout" name="horizontalLayout">
              <item>
               <widget class="QCheckBox" name="align_mocap_CHK">
@@ -332,15 +336,12 @@
                <property name="text">
                 <string>Align Mocap to:</string>
                </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
               </widget>
              </item>
              <item>
               <widget class="QRadioButton" name="align_to_start_pose_RB">
                <property name="text">
-                <string>Start Pose</string>
+                <string>Start Frame</string>
                </property>
                <property name="checked">
                 <bool>true</bool>
@@ -350,9 +351,12 @@
              <item>
               <widget class="QRadioButton" name="align_to_end_pose_RB">
                <property name="text">
-                <string>End Pose</string>
+                <string>End Frame</string>
                </property>
               </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="align_mocap_CB"/>
              </item>
              <item>
               <spacer name="horizontalSpacer">

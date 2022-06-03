@@ -44,6 +44,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         rig_icon = mcs.dcc.get_rig_icon() or QtGui.QIcon()
         self.ui.import_mocap_BTN.setIcon(mocap_icon)
         self.ui.bake_BTN.setIcon(mocap_icon)
+        alignment_options = mcs.dcc.get_alignment_joint_names()
+        self.ui.align_mocap_CB.addItems(alignment_options)
 
         # set output folder
         self.ui.output_path_W.path_dialog.setFileMode(QtWidgets.QFileDialog.DirectoryOnly)
@@ -63,7 +65,6 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.end_pose_CHK.stateChanged.connect(self.set_active_clip_data)
         self.ui.end_pose_CB.currentIndexChanged.connect(self.set_active_clip_data)
         self.ui.end_pose_same_CHK.stateChanged.connect(self.set_active_clip_data)
-        self.ui.end_pose_same_CHK.stateChanged.connect(self.ui.end_pose_CB.setDisabled)
         self.ui.start_pose_CHK.stateChanged.connect(self.set_active_clip_data)
         self.ui.start_pose_CHK.stateChanged.connect(self.ui.start_pose_CB.setEnabled)
         self.ui.start_pose_CB.currentIndexChanged.connect(self.match_end_pose_to_start)
@@ -85,6 +86,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             self.ui.end_pose_CB: self.apply_end_pose,
             self.ui.end_pose_CHK: self.apply_end_pose,
             self.ui.end_pose_same_CHK: self.apply_end_pose,
+            self.ui.project_root_from_hips_CHK: self.project_new_mocap_root_from_hips,
             self.ui.align_mocap_CHK: self.align_mocap_with_rig,
             self.ui.align_to_start_pose_RB: self.align_mocap_with_rig,
             self.ui.align_to_end_pose_RB: self.align_mocap_with_rig,
@@ -98,6 +100,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             widget_ctx_menu = partial(self.build_widget_ctx_menu, action_list)
             widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
             widget.customContextMenuRequested.connect(widget_ctx_menu)
+
+        # Hiding this since I don't think we want this, but I don't want to remove logic just yet
+        self.ui.project_root_from_hips_CHK.setVisible(False)
 
         # Menu bar
         menu_bar = QtWidgets.QMenuBar()
@@ -121,7 +126,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
     def build_clip_list_ctx_menu(self):
         action_list = [
-            {"Rename Clip": self.rename_selected_clip}
+            {"Rename Clip": self.rename_selected_clip},
+            {"Re-Project Mocap Control under Hips": self.reproject_mocap_control_under_hips},
+            {"Re-Project Root Joint Anim from Hips": self.project_new_mocap_root_from_hips},
         ]
         ui_utils.build_menu_from_action_list(action_list)
 
@@ -134,6 +141,13 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         rename_success = mcs.dcc.rename_clip(clip_node)
         if rename_success:
             self.update_from_scene()
+
+    def reproject_mocap_control_under_hips(self):
+        clip_data = self.get_active_clip_data()
+        if not clip_data:
+            return
+        mocap_namespace = clip_data.get(k.cdc.namespace)
+        mcs.dcc.project_node_to_ground_under_hips(mocap_namespace)
 
     def update_from_project(self):
         pose_files = mcs.dcc.get_pose_files()
@@ -205,7 +219,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             clip_data[k.cdc.frame_duration] = ""
             self.ui.start_pose_CHK.setChecked(False)
             self.ui.end_pose_CHK.setChecked(False)
-            self.ui.end_pose_same_CHK.setChecked(True)
+            self.ui.end_pose_same_CHK.setChecked(False)
             log.debug("No clips found in selection, resetting data")
 
         self.ui.clip_name_LE.setText(clip_name)
@@ -341,7 +355,11 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         if not file_paths:
             return
         for file_path in file_paths:
-            mcs.dcc.import_mocap(file_path)
+            clip_name = os.path.splitext(os.path.basename(file_path))[0]
+
+            mocap_nodes = mcs.dcc.import_mocap(file_path)
+            mcs.dcc.create_time_editor_clip(mocap_nodes, clip_name)
+
         self.update_from_scene()
 
     def bake_to_rig(self):
@@ -360,6 +378,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         bake_config.align_mocap_to_pose = self.ui.align_mocap_CHK.isChecked()
         bake_config.align_mocap_to_start_pose = self.ui.align_to_start_pose_RB.isChecked()
         bake_config.align_mocap_to_end_pose = self.ui.align_to_end_pose_RB.isChecked()
+        bake_config.mocap_alignment_name = self.ui.align_mocap_CB.currentText()
 
         bake_config.run_euler_filter = self.ui.euler_filter_CHK.isChecked()
         bake_config.set_time_range = self.ui.set_time_range_CHK.isChecked()
@@ -384,6 +403,14 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         end_pose_path = self.ui.end_pose_CB.currentData(QtCore.Qt.UserRole)
         mcs.dcc.apply_pose(end_pose_path, rig_name=self.get_active_rig())
 
+    def project_new_mocap_root_from_hips(self):
+        clip_data = self.get_active_clip_data()
+        if not clip_data:
+            log.warning("Clip not found in selection")
+            return
+        mocap_namespace = clip_data.get(k.cdc.namespace)
+        mcs.dcc.project_root_animation_from_hips(mocap_namespace)
+
     def align_mocap_with_rig(self):
         clip_data = self.get_active_clip_data()
         if not clip_data:
@@ -391,7 +418,11 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             return
         mocap_namespace = clip_data.get(k.cdc.namespace)
         rig_name = self.get_active_rig()
-        mcs.dcc.align_mocap_to_rig(mocap_namespace, rig_name)
+        mcs.dcc.align_mocap_to_rig(
+            mocap_namespace,
+            rig_name,
+            alignment_name=self.ui.align_mocap_CB.currentText(),
+        )
 
     def set_time_range(self):
         clip_data = self.get_active_clip_data()

@@ -39,6 +39,10 @@ class MocapClipperCoreInterface(object):
         self.log_missing_implementation(self.bake_to_rig)
         return []  # rig controls, gets sent to rebuild_pose_anim_layer
 
+    def save_pose(self, rig_name, on_frame=None):
+        self.log_missing_implementation(self.save_pose)
+        return ""  # pose file path
+
     def apply_pose(self, pose_path, rig_name, on_frame=None, on_selected=False):
         self.log_missing_implementation(self.apply_pose)
 
@@ -100,7 +104,8 @@ class MocapClipperCoreInterface(object):
 
         apply_start_pose = clip_data.get(k.cdc.start_pose_enabled)
         apply_end_pose = clip_data.get(k.cdc.end_pose_enabled)
-        poses_defined = any([apply_start_pose, apply_end_pose])
+        end_pose_same_as_start = clip_data.get(k.cdc.end_pose_same_as_start)
+        pose_layer_should_be_created = any([apply_start_pose, apply_end_pose, end_pose_same_as_start])
 
         start_frame = clip_data.get(k.cdc.start_frame)
         end_frame = clip_data.get(k.cdc.end_frame)
@@ -109,17 +114,33 @@ class MocapClipperCoreInterface(object):
         log.debug("Running PreBake: {}".format(self.pre_bake))
         self.pre_bake()
 
-        if poses_defined and bake_config.align_mocap_to_pose:
+        if bake_config.project_root_from_hips:
+            self.project_root_animation_from_hips(mocap_namespace)
+
+        if bake_config.align_mocap_to_pose:
+
+            pose_path = None
             if bake_config.align_mocap_to_start_pose:
-                pose_path = clip_data.get(k.cdc.start_pose_path)
                 alignment_frame = start_frame
+
+                if apply_start_pose:
+                    pose_path = clip_data.get(k.cdc.start_pose_path)
             else:
-                pose_path = clip_data.get(k.cdc.end_pose_path)
                 alignment_frame = end_frame
 
-            log.info("Applying pose for alignment: {}".format(pose_path))
-            self.apply_pose(pose_path, rig_name)
-            self.align_mocap_to_rig(mocap_namespace, rig_name, on_frame=alignment_frame)
+                if apply_end_pose:
+                    pose_path = clip_data.get(k.cdc.end_pose_path)
+
+            if pose_path:
+                log.info("Applying pose for alignment: {}".format(pose_path))
+                self.apply_pose(pose_path, rig_name)
+
+            self.align_mocap_to_rig(
+                mocap_namespace,
+                rig_name,
+                alignment_name=bake_config.mocap_alignment_name,
+                on_frame=alignment_frame,
+            )
 
         log.debug("Removing existing pose anim layer(s)")
         self.remove_pose_anim_layer()
@@ -136,7 +157,7 @@ class MocapClipperCoreInterface(object):
             log.debug("Running Euler Filter on {} control(s)".format(len(rig_controls)))
             self.run_euler_filter(rig_controls)
 
-        if poses_defined:
+        if pose_layer_should_be_created:
             log.info("Re-building pose anim layer for: '{}' control(s)".format(len(rig_controls)))
             self.rebuild_pose_anim_layer(rig_controls)
 
@@ -164,6 +185,20 @@ class MocapClipperCoreInterface(object):
                 )
                 self.set_key_on_pose_layer(rig_controls)
 
+            if end_pose_same_as_start:
+                if not apply_start_pose and not apply_end_pose:
+                    # save the first frame pose and re-apply it at the end
+                    temp_pose_path = self.save_pose(
+                        rig_name=rig_name,
+                        on_frame=start_frame
+                    )
+                    self.apply_pose(
+                        pose_path=temp_pose_path,
+                        rig_name=rig_name,
+                        on_frame=end_frame,
+                    )
+                    self.set_key_on_pose_layer(rig_controls)
+
             if bake_config.run_adjustment_blend:
                 log.info("Running Adjustment Blend")
                 self.run_adjustment_blend(k.SceneConstants.pose_anim_layer_name)
@@ -176,7 +211,10 @@ class MocapClipperCoreInterface(object):
 
         if bake_config.save_clip:
             self.save_clip(clip_data)
-    
+
+    def get_alignment_joint_names(self):
+        return "root", "pelvis"
+
     def get_clip_icon(self):
         return None  # qicon
 
@@ -187,7 +225,10 @@ class MocapClipperCoreInterface(object):
     def import_mocap(self, file_path):
         self.log_missing_implementation(self.import_mocap)
 
-    def align_mocap_to_rig(self, mocap_ns, rig_name, root_name="root", pelvis_name="pelvis", on_frame=None):
+    def create_time_editor_clip(self, mocap_nodes, clip_name):
+        self.log_missing_implementation(self.create_time_editor_clip)
+
+    def align_mocap_to_rig(self, mocap_ns, rig_name, root_name="root", alignment_name="pelvis", on_frame=None):
         self.log_missing_implementation(self.align_mocap_to_rig)
 
     def remove_pose_anim_layer(self):
@@ -195,6 +236,9 @@ class MocapClipperCoreInterface(object):
 
     def rebuild_pose_anim_layer(self, controls):
         self.log_missing_implementation(self.rebuild_pose_anim_layer)
+
+    def project_root_animation_from_hips(self, mocap_namespace):
+        self.log_missing_implementation(self.project_root_animation_from_hips)
 
     def run_euler_filter(self, controls):
         self.log_missing_implementation(self.run_euler_filter)

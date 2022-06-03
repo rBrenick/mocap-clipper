@@ -85,8 +85,6 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         node.setAttr(attr_name, value, type="string")
 
     def import_mocap(self, file_path):
-        file_name = os.path.splitext(os.path.basename(file_path))[0]
-
         nspace = 'mocapImport'
         i = 0
         while pm.namespace(exists=nspace + str(i)):
@@ -99,11 +97,26 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         pm.mel.file(file_path, i=True, type='FBX', ra=True, namespace=nspace, options='fbx', importTimeRange='override')
         mocap_top_nodes = pm.ls(pm.namespaceInfo(nspace, listNamespace=True, recurse=True), assemblies=True)
 
-        # parent nodes under group
-        mocap_grp_name = "{}:{}".format(nspace, k.SceneConstants.mocap_top_grp_name)
-        mocap_grp = pm.createNode('transform', n=mocap_grp_name)
-        mocap_grp.overrideEnabled.set(True)
-        pm.parent(mocap_top_nodes, mocap_grp)
+        # parent nodes under two controllers
+        mocap_top_name = "{}:{}".format(nspace, k.SceneConstants.mocap_top_node_name)
+        mocap_top_node, _ = pm.circle(sections=3, degree=1, normal=[0, -1, 0], radius=75, name=mocap_top_name)
+        mocap_top_node.overrideEnabled.set(True)
+        mocap_top_node.overrideColor.set(16)
+
+        mocap_ctrl_name = "{}:{}".format(nspace, k.SceneConstants.mocap_ctrl_name)
+        mocap_ctrl_node, _ = pm.circle(sections=3, degree=1, normal=[0, -1, 0], radius=50, name=mocap_ctrl_name)
+        mocap_ctrl_node.overrideEnabled.set(True)
+        mocap_ctrl_node.overrideColor.set(16)
+        mocap_ctrl_node.setParent(mocap_top_node)
+
+        # create a reverse transform so the parenting can be relative to the world again
+        mocap_ctrl_offset_name = "{}:{}".format(nspace, k.SceneConstants.mocap_ctrl_offset_name)
+        mocap_ctrl_offset = pm.createNode("transform", name=mocap_ctrl_offset_name)
+        mocap_ctrl_offset.setParent(mocap_ctrl_node)
+
+        self.project_node_to_ground_under_hips(nspace+":")
+
+        pm.parent(mocap_top_nodes, mocap_ctrl_offset)
 
         # get all transforms from fbx
         mocap_nodes = []
@@ -112,7 +125,30 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             for mocap_node in pm.listRelatives(mocap_top_node, ad=True, type="joint"):
                 mocap_nodes.append(mocap_node)
 
-        self.create_time_editor_clip(mocap_nodes, clip_name=file_name)
+        return mocap_nodes
+
+    def project_node_to_ground_under_hips(self, namespace):
+        mocap_ctrl_name = "{}{}".format(namespace, k.SceneConstants.mocap_ctrl_name)
+        mocap_ctrl_offset_name = "{}{}".format(namespace, k.SceneConstants.mocap_ctrl_offset_name)
+        mocap_top_name = "{}{}".format(namespace, k.SceneConstants.mocap_top_node_name)
+
+        mocap_top_node = pm.PyNode(mocap_top_name)
+        mocap_ctrl_node = pm.PyNode(mocap_ctrl_name)
+        mocap_ctrl_offset_node = pm.PyNode(mocap_ctrl_offset_name)
+        mocap_pelvis = pm.PyNode(namespace + ":pelvis")
+
+        pelvis_matrix = mocap_pelvis.getAttr("worldMatrix")
+        relative_matrix = pelvis_matrix * mocap_top_node.getAttr("worldMatrix").inverse()
+
+        mocap_ctrl_node.setTranslation([relative_matrix.translate.x, 0, relative_matrix.translate.z])
+
+        # set Y rotation from pelvis X direction
+        rot = relative_matrix.rotate.asEulerRotation()
+        rot.setDisplayUnit(pm.dt.Angle.Unit.degrees)
+        mocap_ctrl_node.rotateY.set(rot.x + 90)
+
+        # reset the offset transform to the parent
+        mocap_ctrl_offset_node.setMatrix(mocap_ctrl_node.getParent().getMatrix(worldSpace=True), worldSpace=True)
 
     def create_time_editor_clip(self, mocap_nodes, clip_name):
         return create_time_editor_clip(mocap_nodes, clip_name)
@@ -154,28 +190,33 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         if pm.objExists(k.SceneConstants.pose_anim_layer_name):
             pm.delete(k.SceneConstants.pose_anim_layer_name)
 
-    def align_mocap_to_rig(self, mocap_ns, rig_name, root_name="root", pelvis_name="pelvis", on_frame=None):
+    def align_mocap_to_rig(self, mocap_ns, rig_name, root_name="root", alignment_name="root", on_frame=None, match_transform=True):
         target_rig = self.get_rigs_in_scene().get(rig_name)
         rig_ns = target_rig.namespace()
 
-        top_grp = pm.PyNode(mocap_ns + k.SceneConstants.mocap_top_grp_name)
+        top_grp = pm.PyNode(mocap_ns + k.SceneConstants.mocap_top_node_name)
         root = mocap_ns + root_name
-        pelvis = mocap_ns + pelvis_name
+        alignment_node_name = mocap_ns + alignment_name
         rig_root = rig_ns + root_name
-        rig_pelvis = rig_ns + pelvis_name
+        rig_alignment = rig_ns + alignment_name
 
         # reset top node
         top_grp.setMatrix(pm.dt.Matrix.identity)
 
         # align with rig hips
         if on_frame:
-            pelvis_matrix = pm.getAttr(pelvis + ".worldMatrix", time=on_frame)
+            alignment_matrix = pm.getAttr(alignment_node_name + ".worldMatrix", time=on_frame)
         else:
-            pelvis_matrix = pm.getAttr(pelvis + ".worldMatrix")
-        rig_pelvis_matrix = pm.getAttr(rig_pelvis + ".worldMatrix")
+            alignment_matrix = pm.getAttr(alignment_node_name + ".worldMatrix")
+        rig_align_matrix = pm.getAttr(rig_alignment + ".worldMatrix")
 
-        diff_pos = rig_pelvis_matrix.translate - pelvis_matrix.translate
-        top_grp.setTranslation(diff_pos)
+        if match_transform:
+            relative_matrix = alignment_matrix.inverse() * rig_align_matrix
+            top_grp.setMatrix(relative_matrix.inverse())
+        else:
+            # match position
+            diff_pos = rig_align_matrix.translate - alignment_matrix.translate
+            top_grp.setTranslation(diff_pos)
 
         # create new root that's aligned with the rig (since the mocap one might be a bit off)
         imported_root_name = root + "_RAW_IMPORT"
@@ -188,6 +229,13 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
 
         rig_root_matrix = pm.getAttr(rig_root + ".worldMatrix")
         new_root.setMatrix(rig_root_matrix, worldSpace=True)
+
+    def project_root_animation_from_hips(self, mocap_namespace):
+        with pm.UndoChunk():
+            project_new_root(
+                mocap_namespace + "root",
+                mocap_namespace + "pelvis",
+            )
 
     def run_euler_filter(self, controls):
         pm.select(controls)
@@ -206,7 +254,7 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         pm.playbackOptions(maxTime=time_range[1])
 
     def set_key_on_pose_layer(self, controls, on_frame=None):
-        if on_frame:
+        if on_frame is not None:
             pm.currentTime(on_frame)
         pm.setKeyframe(controls, animLayer=k.SceneConstants.pose_anim_layer_name)
 
@@ -263,17 +311,29 @@ def project_new_root(mocap_root, mocap_pelvis):
     mocap_ns = get_namespace(mocap_root)
 
     pelvis_keys = pm.keyframe(mocap_pelvis, query=True, timeChange=True)
-    time_range = pelvis_keys[0], pelvis_keys[-1]
+    if pelvis_keys:
+        time_range = pelvis_keys[0], pelvis_keys[-1]
+    else:
+        print("Key data not found on {}. Using scene time range instead.".format(mocap_pelvis))
+        time_range = pm.playbackOptions(q=True, min=True), pm.playbackOptions(q=True, max=True)
 
-    new_root = pm.createNode("transform", name=mocap_ns + "projected_root")
-    new_root.setParent(mocap_root.getParent())
+    mocap_root_name = mocap_root.nodeName(stripNamespace=True)
 
-    pm.pointConstraint(mocap_pelvis, new_root, skip=["y"])
+    before_projection_name = mocap_ns + mocap_root_name + "_RAW_IMPORT"
+
+    if pm.objExists(before_projection_name):
+        new_root = mocap_root
+    else:
+        mocap_root.rename(before_projection_name)
+        new_root = pm.createNode("transform", name=mocap_ns + mocap_root_name)
+        new_root.setParent(mocap_root.getParent())
+
+    point_const = pm.pointConstraint(mocap_pelvis, new_root, skip=["y"])
 
     pelvis_aim_offset = pm.createNode("transform", name=mocap_pelvis + "_aim_offset")
     pelvis_aim_offset.setParent(mocap_pelvis, relative=True)
     pelvis_aim_offset.translateY.set(-50)
-    pm.aimConstraint(
+    aim_const = pm.aimConstraint(
         mocap_pelvis,
         new_root,
         aimVector=[0, 0, 1],
@@ -282,21 +342,30 @@ def project_new_root(mocap_root, mocap_pelvis):
         worldUpObject=pelvis_aim_offset,
     )
 
-    mocap_locs = {mocap_root: new_root}
-    for mocap_root_child in pm.listRelatives(mocap_root, children=True):
-        temp_loc = pm.createNode("transform", name=mocap_root_child + "_projection_bake")
-        temp_loc.setParent(new_root)
-        pm.parentConstraint(mocap_root_child, temp_loc)
-        mocap_locs[mocap_root_child] = temp_loc
+    # mocap_locs = {}
+    # for mocap_root_child in pm.listRelatives(mocap_root, children=True):
+    #     temp_loc = pm.createNode("transform", name=mocap_root_child + "_projection_bake")
+    #     temp_loc.setParent(new_root)
+    #     pm.parentConstraint(mocap_root_child, temp_loc)
+    #     mocap_locs[mocap_root_child] = temp_loc
 
-    pm.bakeResults(list(mocap_locs.values()), t=time_range, sm=False)
+    # bake the animation data to our projected locators
+    bake_locators = [new_root]
+    # bake_locators.extend(list(mocap_locs.values()))
+    try:
+        pm.refresh(suspend=True)
+        pm.bakeResults(bake_locators, t=time_range, simulation=True)
+    finally:
+        pm.refresh(suspend=False)
 
-    for mocap_jnt, bake_loc in mocap_locs.items():
-        pm.parentConstraint(bake_loc, mocap_jnt)
+    # constrain joints to the projected locators
+    # for mocap_jnt, bake_loc in mocap_locs.items():
+    #     pm.parentConstraint(bake_loc, mocap_jnt)
 
-    pm.bakeResults(list(mocap_locs.keys()), t=time_range, sm=False)
+    # bake on the original joints
+    # pm.bakeResults(list(mocap_locs.keys()), t=time_range, sm=False)
 
     # delete temp bake nodes
-    to_delete = list(mocap_locs.values())
-    to_delete.append(pelvis_aim_offset)
-    pm.delete(to_delete)
+    # to_delete = list(mocap_locs.values())
+    # to_delete.append(pelvis_aim_offset)
+    pm.delete([point_const, aim_const])
