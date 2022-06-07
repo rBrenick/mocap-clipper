@@ -191,19 +191,18 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             pm.delete(k.SceneConstants.pose_anim_layer_name)
 
     def align_mocap_to_rig(self, mocap_ns, rig_name, root_name="root", alignment_name="root", on_frame=None, match_transform=True):
+        mocap_ctrl_name = "{}{}".format(mocap_ns, k.SceneConstants.mocap_ctrl_name)
+        mocap_ctrl_node = pm.PyNode(mocap_ctrl_name)
+
         target_rig = self.get_rigs_in_scene().get(rig_name)
         rig_ns = target_rig.namespace()
 
-        top_grp = pm.PyNode(mocap_ns + k.SceneConstants.mocap_top_node_name)
         root = mocap_ns + root_name
         alignment_node_name = mocap_ns + alignment_name
         rig_root = rig_ns + root_name
         rig_alignment = rig_ns + alignment_name
 
-        # reset top node
-        top_grp.setMatrix(pm.dt.Matrix.identity)
-
-        # align with rig hips
+        # align with rig joint
         if on_frame:
             alignment_matrix = pm.getAttr(alignment_node_name + ".worldMatrix", time=on_frame)
         else:
@@ -211,12 +210,20 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         rig_align_matrix = pm.getAttr(rig_alignment + ".worldMatrix")
 
         if match_transform:
-            relative_matrix = alignment_matrix.inverse() * rig_align_matrix
-            top_grp.setMatrix(relative_matrix.inverse())
+
+            # calculate relative matrix between controller and alignment joint
+            reverse_alignment = mocap_ctrl_node.getMatrix(worldSpace=True) * alignment_matrix.inverse()
+
+            # add that relative matrix to target world matrix
+            out_matrix = reverse_alignment * rig_align_matrix
+
+            # set final parent matrix
+            mocap_ctrl_node.setMatrix(out_matrix, worldSpace=True)
+
         else:
             # match position
             diff_pos = rig_align_matrix.translate - alignment_matrix.translate
-            top_grp.setTranslation(diff_pos)
+            mocap_ctrl_node.setTranslation(diff_pos)
 
         # create new root that's aligned with the rig (since the mocap one might be a bit off)
         imported_root_name = root + "_RAW_IMPORT"
