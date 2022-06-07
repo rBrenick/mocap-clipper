@@ -71,8 +71,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.start_pose_CB.currentIndexChanged.connect(self.set_active_clip_data)
         self.ui.end_pose_CB.currentIndexChanged.connect(self.set_active_clip_data)
 
-        self.ui.reproject_root_anim_BTN.clicked.connect(self.project_new_mocap_root_from_hips)
+        self.ui.reproject_root_anim_BTN.clicked.connect(self.project_root_animation_from_hips)
         self.ui.reproject_mocap_ctrl_BTN.clicked.connect(self.reproject_mocap_control_under_hips)
+        self.ui.clear_root_rotation_keys_BTN.clicked.connect(self.clear_root_rotation_keys)
         self.ui.align_root_to_rig_BTN.clicked.connect(self.align_mocap_with_rig)
 
         self.ui.align_mocap_CHK.stateChanged.connect(self.ui.align_to_start_pose_RB.setEnabled)
@@ -90,7 +91,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             self.ui.end_pose_CB: self.apply_end_pose,
             self.ui.end_pose_CHK: self.apply_end_pose,
             self.ui.end_pose_same_CHK: self.apply_end_pose,
-            self.ui.project_root_from_hips_CHK: self.project_new_mocap_root_from_hips,
+            self.ui.project_root_from_hips_CHK: self.project_root_animation_from_hips,
             self.ui.align_mocap_CHK: self.align_mocap_with_rig,
             self.ui.align_to_start_pose_RB: self.align_mocap_with_rig,
             self.ui.align_to_end_pose_RB: self.align_mocap_with_rig,
@@ -132,7 +133,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         action_list = [
             {"Rename Clip": self.rename_selected_clip},
             {"Re-Project Mocap Control under Hips": self.reproject_mocap_control_under_hips},
-            {"Re-Project Root Joint Anim from Hips": self.project_new_mocap_root_from_hips},
+            {"Re-Project Root Joint Anim from Hips": self.project_root_animation_from_hips},
         ]
         ui_utils.build_menu_from_action_list(action_list)
 
@@ -145,13 +146,6 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         rename_success = mcs.dcc.rename_clip(clip_node)
         if rename_success:
             self.update_from_scene()
-
-    def reproject_mocap_control_under_hips(self):
-        clip_data = self.get_active_clip_data()
-        if not clip_data:
-            return
-        mocap_namespace = clip_data.get(k.cdc.namespace)
-        mcs.dcc.project_mocap_ctrl_to_ground_under_hips(mocap_namespace)
 
     def update_from_project(self):
         pose_files = mcs.dcc.get_pose_files()
@@ -257,6 +251,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
         self.ui.reproject_mocap_ctrl_BTN.setEnabled(valid_selection)
         self.ui.reproject_root_anim_BTN.setEnabled(valid_selection)
+        self.ui.clear_root_rotation_keys_BTN.setEnabled(valid_selection)
         self.ui.align_root_to_rig_BTN.setEnabled(valid_selection)
 
     def get_active_clip_data(self):
@@ -411,13 +406,27 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         end_pose_path = self.ui.end_pose_CB.currentData(QtCore.Qt.UserRole)
         mcs.dcc.apply_pose(end_pose_path, rig_name=self.get_active_rig())
 
-    def project_new_mocap_root_from_hips(self):
+    def project_root_animation_from_hips(self):
         clip_data = self.get_active_clip_data()
         if not clip_data:
             log.warning("Clip not found in selection")
             return
         mocap_namespace = clip_data.get(k.cdc.namespace)
         mcs.dcc.project_root_animation_from_hips(mocap_namespace)
+
+    def reproject_mocap_control_under_hips(self):
+        clip_data = self.get_active_clip_data()
+        if not clip_data:
+            return
+        mocap_namespace = clip_data.get(k.cdc.namespace)
+        mcs.dcc.project_mocap_ctrl_to_ground_under_hips(mocap_namespace)
+
+    def clear_root_rotation_keys(self):
+        clip_data = self.get_active_clip_data()
+        if not clip_data:
+            return
+        mocap_namespace = clip_data.get(k.cdc.namespace)
+        mcs.dcc.clear_root_rotation_keys(mocap_namespace)
 
     def align_mocap_with_rig(self):
         clip_data = self.get_active_clip_data()

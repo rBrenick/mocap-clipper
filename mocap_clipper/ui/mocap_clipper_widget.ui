@@ -198,6 +198,9 @@
             <layout class="QHBoxLayout" name="horizontalLayout_7">
              <item>
               <widget class="QLineEdit" name="frame_start">
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
                <property name="placeholderText">
                 <string>Start Frame</string>
                </property>
@@ -205,6 +208,9 @@
              </item>
              <item>
               <widget class="QLineEdit" name="frame_end">
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
                <property name="placeholderText">
                 <string>End Frame</string>
                </property>
@@ -343,14 +349,28 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="reproject_root_anim_BTN">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Re-Project Root Anim under Hips</string>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout" name="horizontalLayout_10">
+           <item>
+            <widget class="QPushButton" name="reproject_root_anim_BTN">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Re-Project Root Anim under Hips</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="clear_root_rotation_keys_BTN">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Clear Root Rotation Keys</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
           <widget class="QPushButton" name="align_root_to_rig_BTN">

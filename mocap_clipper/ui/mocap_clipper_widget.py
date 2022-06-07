@@ -118,11 +118,13 @@ class Ui_MocapClipperWidget(object):
         self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
         self.frame_start = QLineEdit(self.widget)
         self.frame_start.setObjectName(u"frame_start")
+        self.frame_start.setReadOnly(True)
 
         self.horizontalLayout_7.addWidget(self.frame_start)
 
         self.frame_end = QLineEdit(self.widget)
         self.frame_end.setObjectName(u"frame_end")
+        self.frame_end.setReadOnly(True)
 
         self.horizontalLayout_7.addWidget(self.frame_end)
 
@@ -216,11 +218,22 @@ class Ui_MocapClipperWidget(object):
 
         self.verticalLayout_4.addWidget(self.reproject_mocap_ctrl_BTN)
 
+        self.horizontalLayout_10 = QHBoxLayout()
+        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
         self.reproject_root_anim_BTN = QPushButton(self.widget)
         self.reproject_root_anim_BTN.setObjectName(u"reproject_root_anim_BTN")
         self.reproject_root_anim_BTN.setEnabled(False)
 
-        self.verticalLayout_4.addWidget(self.reproject_root_anim_BTN)
+        self.horizontalLayout_10.addWidget(self.reproject_root_anim_BTN)
+
+        self.clear_root_rotation_keys_BTN = QPushButton(self.widget)
+        self.clear_root_rotation_keys_BTN.setObjectName(u"clear_root_rotation_keys_BTN")
+        self.clear_root_rotation_keys_BTN.setEnabled(False)
+
+        self.horizontalLayout_10.addWidget(self.clear_root_rotation_keys_BTN)
+
+
+        self.verticalLayout_4.addLayout(self.horizontalLayout_10)
 
         self.align_root_to_rig_BTN = QPushButton(self.widget)
         self.align_root_to_rig_BTN.setObjectName(u"align_root_to_rig_BTN")
@@ -429,6 +442,7 @@ class Ui_MocapClipperWidget(object):
         self.label_3.setText(QCoreApplication.translate("MocapClipperWidget", u"Pre-Process Mocap Actions", None))
         self.reproject_mocap_ctrl_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Re-Project Mocap Control under Hips", None))
         self.reproject_root_anim_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Re-Project Root Anim under Hips", None))
+        self.clear_root_rotation_keys_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Clear Root Rotation Keys", None))
         self.align_root_to_rig_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Align Root to Rig", None))
 #if QT_CONFIG(tooltip)
         self.label_2.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Settings to run before and after baking", None))

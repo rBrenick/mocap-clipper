@@ -148,6 +148,12 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         # reset the offset transform to invert this offset
         mocap_ctrl_offset_node.setMatrix(offset_world_matrix, worldSpace=True)
 
+    def clear_root_rotation_keys(self, namespace):
+        mocap_root_name = "{}root".format(namespace)
+        pm.cutKey(mocap_root_name, attribute=["rotateX", "rotateY", "rotateZ"], clear=True)
+        log.info("Cleared rotation keys from: {}".format(mocap_root_name))
+        pm.select(mocap_root_name)
+
     def create_time_editor_clip(self, mocap_nodes, clip_name):
         return create_time_editor_clip(mocap_nodes, clip_name)
 
