@@ -71,6 +71,10 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.start_pose_CB.currentIndexChanged.connect(self.set_active_clip_data)
         self.ui.end_pose_CB.currentIndexChanged.connect(self.set_active_clip_data)
 
+        self.ui.reproject_root_anim_BTN.clicked.connect(self.project_new_mocap_root_from_hips)
+        self.ui.reproject_mocap_ctrl_BTN.clicked.connect(self.reproject_mocap_control_under_hips)
+        self.ui.align_root_to_rig_BTN.clicked.connect(self.align_mocap_with_rig)
+
         self.ui.align_mocap_CHK.stateChanged.connect(self.ui.align_to_start_pose_RB.setEnabled)
         self.ui.align_mocap_CHK.stateChanged.connect(self.ui.align_to_end_pose_RB.setEnabled)
 
@@ -147,7 +151,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         if not clip_data:
             return
         mocap_namespace = clip_data.get(k.cdc.namespace)
-        mcs.dcc.project_node_to_ground_under_hips(mocap_namespace)
+        mcs.dcc.project_mocap_ctrl_to_ground_under_hips(mocap_namespace)
 
     def update_from_project(self):
         pose_files = mcs.dcc.get_pose_files()
@@ -250,6 +254,10 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             self.ui.bake_BTN.setStyleSheet("background-color:rgb(80, 120, 80)")
         else:
             self.ui.bake_BTN.setStyleSheet("background-color:rgb(80, 80, 80)")
+
+        self.ui.reproject_mocap_ctrl_BTN.setEnabled(valid_selection)
+        self.ui.reproject_root_anim_BTN.setEnabled(valid_selection)
+        self.ui.align_root_to_rig_BTN.setEnabled(valid_selection)
 
     def get_active_clip_data(self):
         selected_clips = self.ui.clips_LW.selectedItems()

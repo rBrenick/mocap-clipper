@@ -60,6 +60,18 @@ class Ui_MocapClipperWidget(object):
 
         self.verticalLayout_3.addWidget(self.clips_LW)
 
+        self.scene_actor_CB = QComboBox(self.widget_2)
+        self.scene_actor_CB.addItem("")
+        self.scene_actor_CB.setObjectName(u"scene_actor_CB")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.scene_actor_CB.sizePolicy().hasHeightForWidth())
+        self.scene_actor_CB.setSizePolicy(sizePolicy1)
+        self.scene_actor_CB.setMinimumSize(QSize(0, 30))
+
+        self.verticalLayout_3.addWidget(self.scene_actor_CB)
+
 
         self.horizontalLayout_3.addLayout(self.verticalLayout_3)
 
@@ -90,11 +102,11 @@ class Ui_MocapClipperWidget(object):
 
         self.rename_clip_BTN = QPushButton(self.widget)
         self.rename_clip_BTN.setObjectName(u"rename_clip_BTN")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.rename_clip_BTN.sizePolicy().hasHeightForWidth())
-        self.rename_clip_BTN.setSizePolicy(sizePolicy1)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.rename_clip_BTN.sizePolicy().hasHeightForWidth())
+        self.rename_clip_BTN.setSizePolicy(sizePolicy2)
         self.rename_clip_BTN.setMaximumSize(QSize(70, 16777215))
 
         self.horizontalLayout_8.addWidget(self.rename_clip_BTN)
@@ -116,8 +128,8 @@ class Ui_MocapClipperWidget(object):
 
         self.frame_duration = QLineEdit(self.widget)
         self.frame_duration.setObjectName(u"frame_duration")
-        sizePolicy1.setHeightForWidth(self.frame_duration.sizePolicy().hasHeightForWidth())
-        self.frame_duration.setSizePolicy(sizePolicy1)
+        sizePolicy2.setHeightForWidth(self.frame_duration.sizePolicy().hasHeightForWidth())
+        self.frame_duration.setSizePolicy(sizePolicy2)
         self.frame_duration.setMaximumSize(QSize(70, 16777215))
         self.frame_duration.setReadOnly(True)
 
@@ -130,8 +142,8 @@ class Ui_MocapClipperWidget(object):
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
         self.start_pose_CHK = QCheckBox(self.widget)
         self.start_pose_CHK.setObjectName(u"start_pose_CHK")
-        sizePolicy1.setHeightForWidth(self.start_pose_CHK.sizePolicy().hasHeightForWidth())
-        self.start_pose_CHK.setSizePolicy(sizePolicy1)
+        sizePolicy2.setHeightForWidth(self.start_pose_CHK.sizePolicy().hasHeightForWidth())
+        self.start_pose_CHK.setSizePolicy(sizePolicy2)
 
         self.horizontalLayout_5.addWidget(self.start_pose_CHK)
 
@@ -148,8 +160,8 @@ class Ui_MocapClipperWidget(object):
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.end_pose_CHK = QCheckBox(self.widget)
         self.end_pose_CHK.setObjectName(u"end_pose_CHK")
-        sizePolicy1.setHeightForWidth(self.end_pose_CHK.sizePolicy().hasHeightForWidth())
-        self.end_pose_CHK.setSizePolicy(sizePolicy1)
+        sizePolicy2.setHeightForWidth(self.end_pose_CHK.sizePolicy().hasHeightForWidth())
+        self.end_pose_CHK.setSizePolicy(sizePolicy2)
 
         self.horizontalLayout_2.addWidget(self.end_pose_CHK)
 
@@ -164,26 +176,69 @@ class Ui_MocapClipperWidget(object):
 
         self.end_pose_same_CHK = QCheckBox(self.widget)
         self.end_pose_same_CHK.setObjectName(u"end_pose_same_CHK")
-        sizePolicy1.setHeightForWidth(self.end_pose_same_CHK.sizePolicy().hasHeightForWidth())
-        self.end_pose_same_CHK.setSizePolicy(sizePolicy1)
+        sizePolicy2.setHeightForWidth(self.end_pose_same_CHK.sizePolicy().hasHeightForWidth())
+        self.end_pose_same_CHK.setSizePolicy(sizePolicy2)
 
         self.clip_info_layout.addWidget(self.end_pose_same_CHK)
 
 
         self.verticalLayout_4.addLayout(self.clip_info_layout)
 
+        self.horizontalLayout_9 = QHBoxLayout()
+        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
+        self.horizontalLayout_9.setContentsMargins(-1, 10, -1, -1)
+        self.label_3 = QLabel(self.widget)
+        self.label_3.setObjectName(u"label_3")
+        sizePolicy3 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.label_3.sizePolicy().hasHeightForWidth())
+        self.label_3.setSizePolicy(sizePolicy3)
+        font1 = QFont()
+        font1.setItalic(True)
+        self.label_3.setFont(font1)
+
+        self.horizontalLayout_9.addWidget(self.label_3)
+
+        self.line_3 = QFrame(self.widget)
+        self.line_3.setObjectName(u"line_3")
+        self.line_3.setFrameShape(QFrame.HLine)
+        self.line_3.setFrameShadow(QFrame.Sunken)
+
+        self.horizontalLayout_9.addWidget(self.line_3)
+
+
+        self.verticalLayout_4.addLayout(self.horizontalLayout_9)
+
+        self.reproject_mocap_ctrl_BTN = QPushButton(self.widget)
+        self.reproject_mocap_ctrl_BTN.setObjectName(u"reproject_mocap_ctrl_BTN")
+        self.reproject_mocap_ctrl_BTN.setEnabled(False)
+
+        self.verticalLayout_4.addWidget(self.reproject_mocap_ctrl_BTN)
+
+        self.reproject_root_anim_BTN = QPushButton(self.widget)
+        self.reproject_root_anim_BTN.setObjectName(u"reproject_root_anim_BTN")
+        self.reproject_root_anim_BTN.setEnabled(False)
+
+        self.verticalLayout_4.addWidget(self.reproject_root_anim_BTN)
+
+        self.align_root_to_rig_BTN = QPushButton(self.widget)
+        self.align_root_to_rig_BTN.setObjectName(u"align_root_to_rig_BTN")
+        self.align_root_to_rig_BTN.setEnabled(False)
+
+        self.verticalLayout_4.addWidget(self.align_root_to_rig_BTN)
+
+        self.verticalSpacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_4.addItem(self.verticalSpacer)
+
         self.bake_configuration_label_layout = QHBoxLayout()
         self.bake_configuration_label_layout.setObjectName(u"bake_configuration_label_layout")
         self.bake_configuration_label_layout.setContentsMargins(-1, 10, -1, -1)
         self.label_2 = QLabel(self.widget)
         self.label_2.setObjectName(u"label_2")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
-        self.label_2.setSizePolicy(sizePolicy2)
-        font1 = QFont()
-        font1.setItalic(True)
+        sizePolicy3.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
+        self.label_2.setSizePolicy(sizePolicy3)
         self.label_2.setFont(font1)
 
         self.bake_configuration_label_layout.addWidget(self.label_2)
@@ -198,6 +253,11 @@ class Ui_MocapClipperWidget(object):
 
 
         self.verticalLayout_4.addLayout(self.bake_configuration_label_layout)
+
+        self.project_settings_layout = QVBoxLayout()
+        self.project_settings_layout.setObjectName(u"project_settings_layout")
+
+        self.verticalLayout_4.addLayout(self.project_settings_layout)
 
         self.bake_settings_layout = QVBoxLayout()
         self.bake_settings_layout.setObjectName(u"bake_settings_layout")
@@ -256,32 +316,23 @@ class Ui_MocapClipperWidget(object):
 
         self.verticalLayout_4.addLayout(self.bake_settings_layout)
 
-        self.project_settings_layout = QVBoxLayout()
-        self.project_settings_layout.setObjectName(u"project_settings_layout")
-
-        self.verticalLayout_4.addLayout(self.project_settings_layout)
-
-        self.verticalSpacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.verticalLayout_4.addItem(self.verticalSpacer)
-
         self.horizontalLayout_6 = QHBoxLayout()
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
         self.save_clip_CHK = QCheckBox(self.widget)
         self.save_clip_CHK.setObjectName(u"save_clip_CHK")
-        sizePolicy1.setHeightForWidth(self.save_clip_CHK.sizePolicy().hasHeightForWidth())
-        self.save_clip_CHK.setSizePolicy(sizePolicy1)
+        sizePolicy2.setHeightForWidth(self.save_clip_CHK.sizePolicy().hasHeightForWidth())
+        self.save_clip_CHK.setSizePolicy(sizePolicy2)
 
         self.horizontalLayout_6.addWidget(self.save_clip_CHK)
 
         self.output_path_W = QtPathWidget(self.widget)
         self.output_path_W.setObjectName(u"output_path_W")
         self.output_path_W.setEnabled(False)
-        sizePolicy3 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.output_path_W.sizePolicy().hasHeightForWidth())
-        self.output_path_W.setSizePolicy(sizePolicy3)
+        sizePolicy4 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+        sizePolicy4.setHorizontalStretch(0)
+        sizePolicy4.setVerticalStretch(0)
+        sizePolicy4.setHeightForWidth(self.output_path_W.sizePolicy().hasHeightForWidth())
+        self.output_path_W.setSizePolicy(sizePolicy4)
         self.output_path_W.setMinimumSize(QSize(0, 24))
 
         self.horizontalLayout_6.addWidget(self.output_path_W)
@@ -292,18 +343,6 @@ class Ui_MocapClipperWidget(object):
         self.bake_actions_layout = QHBoxLayout()
         self.bake_actions_layout.setSpacing(3)
         self.bake_actions_layout.setObjectName(u"bake_actions_layout")
-        self.scene_actor_CB = QComboBox(self.widget)
-        self.scene_actor_CB.addItem("")
-        self.scene_actor_CB.setObjectName(u"scene_actor_CB")
-        sizePolicy4 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        sizePolicy4.setHorizontalStretch(0)
-        sizePolicy4.setVerticalStretch(0)
-        sizePolicy4.setHeightForWidth(self.scene_actor_CB.sizePolicy().hasHeightForWidth())
-        self.scene_actor_CB.setSizePolicy(sizePolicy4)
-        self.scene_actor_CB.setMinimumSize(QSize(0, 30))
-
-        self.bake_actions_layout.addWidget(self.scene_actor_CB)
-
         self.connect_mocap_to_rig_BTN = QPushButton(self.widget)
         self.connect_mocap_to_rig_BTN.setObjectName(u"connect_mocap_to_rig_BTN")
         sizePolicy5 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
@@ -334,8 +373,8 @@ class Ui_MocapClipperWidget(object):
         self.project_widgets_label_layout.setContentsMargins(-1, 10, -1, -1)
         self.label = QLabel(self.widget)
         self.label.setObjectName(u"label")
-        sizePolicy2.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
-        self.label.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
+        self.label.setSizePolicy(sizePolicy3)
         self.label.setFont(font1)
 
         self.project_widgets_label_layout.addWidget(self.label)
@@ -373,6 +412,11 @@ class Ui_MocapClipperWidget(object):
         MocapClipperWidget.setWindowTitle(QCoreApplication.translate("MocapClipperWidget", u"Form", None))
         self.import_mocap_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Import Mocap", None))
         self.refresh_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Refresh Time Editor Clips", None))
+        self.scene_actor_CB.setItemText(0, QCoreApplication.translate("MocapClipperWidget", u"actor0:Rig", None))
+
+#if QT_CONFIG(tooltip)
+        self.scene_actor_CB.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Name of the target rig", None))
+#endif // QT_CONFIG(tooltip)
         self.clip_name_LE.setPlaceholderText(QCoreApplication.translate("MocapClipperWidget", u"Clip Name", None))
         self.rename_clip_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Rename", None))
         self.frame_start.setPlaceholderText(QCoreApplication.translate("MocapClipperWidget", u"Start Frame", None))
@@ -382,6 +426,10 @@ class Ui_MocapClipperWidget(object):
         self.start_pose_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Start Pose", None))
         self.end_pose_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"End Pose", None))
         self.end_pose_same_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Match End Pose to Start", None))
+        self.label_3.setText(QCoreApplication.translate("MocapClipperWidget", u"Pre-Process Mocap Actions", None))
+        self.reproject_mocap_ctrl_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Re-Project Mocap Control under Hips", None))
+        self.reproject_root_anim_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Re-Project Root Anim under Hips", None))
+        self.align_root_to_rig_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Align Root to Rig", None))
 #if QT_CONFIG(tooltip)
         self.label_2.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Settings to run before and after baking", None))
 #endif // QT_CONFIG(tooltip)
@@ -412,11 +460,6 @@ class Ui_MocapClipperWidget(object):
 #if QT_CONFIG(tooltip)
         self.output_path_W.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Output folder for the clips", None))
 #endif // QT_CONFIG(tooltip)
-        self.scene_actor_CB.setItemText(0, QCoreApplication.translate("MocapClipperWidget", u"actor0:Rig", None))
-
-#if QT_CONFIG(tooltip)
-        self.scene_actor_CB.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Name of the target rig", None))
-#endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
         self.connect_mocap_to_rig_BTN.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Constrain the rig to the mocap skeleton", None))
 #endif // QT_CONFIG(tooltip)
@@ -428,6 +471,6 @@ class Ui_MocapClipperWidget(object):
 #if QT_CONFIG(tooltip)
         self.label.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Widgets defined for the studio/project using class overrides", None))
 #endif // QT_CONFIG(tooltip)
-        self.label.setText(QCoreApplication.translate("MocapClipperWidget", u"Project Action Widgets", None))
+        self.label.setText(QCoreApplication.translate("MocapClipperWidget", u"Project Actions", None))
     # retranslateUi
 

@@ -98,6 +98,30 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QComboBox" name="scene_actor_CB">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Name of the target rig</string>
+           </property>
+           <item>
+            <property name="text">
+             <string>actor0:Rig</string>
+            </property>
+           </item>
+          </widget>
+         </item>
         </layout>
        </item>
       </layout>
@@ -277,6 +301,84 @@
           </layout>
          </item>
          <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_9">
+           <property name="topMargin">
+            <number>10</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <italic>true</italic>
+              </font>
+             </property>
+             <property name="text">
+              <string>Pre-Process Mocap Actions</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QPushButton" name="reproject_mocap_ctrl_BTN">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Re-Project Mocap Control under Hips</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="reproject_root_anim_BTN">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Re-Project Root Anim under Hips</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="align_root_to_rig_BTN">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Align Root to Rig</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Expanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
           <layout class="QHBoxLayout" name="bake_configuration_label_layout">
            <property name="topMargin">
             <number>10</number>
@@ -316,6 +418,9 @@
             </widget>
            </item>
           </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="project_settings_layout"/>
          </item>
          <item>
           <layout class="QVBoxLayout" name="bake_settings_layout">
@@ -412,25 +517,6 @@
           </layout>
          </item>
          <item>
-          <layout class="QVBoxLayout" name="project_settings_layout"/>
-         </item>
-         <item>
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Expanding</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_6">
            <item>
             <widget class="QCheckBox" name="save_clip_CHK">
@@ -477,30 +563,6 @@
            <property name="spacing">
             <number>3</number>
            </property>
-           <item>
-            <widget class="QComboBox" name="scene_actor_CB">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>30</height>
-              </size>
-             </property>
-             <property name="toolTip">
-              <string>Name of the target rig</string>
-             </property>
-             <item>
-              <property name="text">
-               <string>actor0:Rig</string>
-              </property>
-             </item>
-            </widget>
-           </item>
            <item>
             <widget class="QPushButton" name="connect_mocap_to_rig_BTN">
              <property name="sizePolicy">
@@ -566,7 +628,7 @@
               <string>Widgets defined for the studio/project using class overrides</string>
              </property>
              <property name="text">
-              <string>Project Action Widgets</string>
+              <string>Project Actions</string>
              </property>
             </widget>
            </item>

@@ -99,14 +99,10 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
 
         # parent nodes under two controllers
         mocap_top_name = "{}:{}".format(nspace, k.SceneConstants.mocap_top_node_name)
-        mocap_top_node, _ = pm.circle(sections=3, degree=1, normal=[0, -1, 0], radius=75, name=mocap_top_name)
-        mocap_top_node.overrideEnabled.set(True)
-        mocap_top_node.overrideColor.set(16)
+        mocap_top_node = create_triangle_ctrl(mocap_top_name, radius=75, sections=5)
 
         mocap_ctrl_name = "{}:{}".format(nspace, k.SceneConstants.mocap_ctrl_name)
-        mocap_ctrl_node, _ = pm.circle(sections=3, degree=1, normal=[0, -1, 0], radius=50, name=mocap_ctrl_name)
-        mocap_ctrl_node.overrideEnabled.set(True)
-        mocap_ctrl_node.overrideColor.set(16)
+        mocap_ctrl_node = create_triangle_ctrl(mocap_ctrl_name)
         mocap_ctrl_node.setParent(mocap_top_node)
 
         # create a reverse transform so the parenting can be relative to the world again
@@ -114,7 +110,7 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         mocap_ctrl_offset = pm.createNode("transform", name=mocap_ctrl_offset_name)
         mocap_ctrl_offset.setParent(mocap_ctrl_node)
 
-        self.project_node_to_ground_under_hips(nspace+":")
+        self.project_mocap_ctrl_to_ground_under_hips(nspace + ":")
 
         pm.parent(mocap_top_nodes, mocap_ctrl_offset)
 
@@ -127,7 +123,7 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
 
         return mocap_nodes
 
-    def project_node_to_ground_under_hips(self, namespace):
+    def project_mocap_ctrl_to_ground_under_hips(self, namespace):
         mocap_ctrl_name = "{}{}".format(namespace, k.SceneConstants.mocap_ctrl_name)
         mocap_ctrl_offset_name = "{}{}".format(namespace, k.SceneConstants.mocap_ctrl_offset_name)
         mocap_top_name = "{}{}".format(namespace, k.SceneConstants.mocap_top_node_name)
@@ -136,6 +132,8 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         mocap_ctrl_node = pm.PyNode(mocap_ctrl_name)
         mocap_ctrl_offset_node = pm.PyNode(mocap_ctrl_offset_name)
         mocap_pelvis = pm.PyNode(namespace + ":pelvis")
+
+        offset_world_matrix = mocap_ctrl_offset_node.getMatrix(worldSpace=True)
 
         pelvis_matrix = mocap_pelvis.getAttr("worldMatrix")
         relative_matrix = pelvis_matrix * mocap_top_node.getAttr("worldMatrix").inverse()
@@ -147,8 +145,8 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         rot.setDisplayUnit(pm.dt.Angle.Unit.degrees)
         mocap_ctrl_node.rotateY.set(rot.x + 90)
 
-        # reset the offset transform to the parent
-        mocap_ctrl_offset_node.setMatrix(mocap_ctrl_node.getParent().getMatrix(worldSpace=True), worldSpace=True)
+        # reset the offset transform to invert this offset
+        mocap_ctrl_offset_node.setMatrix(offset_world_matrix, worldSpace=True)
 
     def create_time_editor_clip(self, mocap_nodes, clip_name):
         return create_time_editor_clip(mocap_nodes, clip_name)
@@ -226,16 +224,10 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             mocap_ctrl_node.setTranslation(diff_pos)
 
         # create new root that's aligned with the rig (since the mocap one might be a bit off)
-        imported_root_name = root + "_RAW_IMPORT"
-        if pm.objExists(imported_root_name):
-            new_root = pm.PyNode(root)
-        else:
-            imported_root = pm.rename(root, imported_root_name)
-            new_root = pm.createNode("transform", name=root)
-            new_root.setParent(imported_root)
+        mocap_ctrl = get_mocap_root_ctrl(mocap_root=pm.PyNode(root))
 
         rig_root_matrix = pm.getAttr(rig_root + ".worldMatrix")
-        new_root.setMatrix(rig_root_matrix, worldSpace=True)
+        mocap_ctrl.setMatrix(rig_root_matrix, worldSpace=True)
 
     def project_root_animation_from_hips(self, mocap_namespace):
         with pm.UndoChunk():
@@ -315,7 +307,6 @@ def create_time_editor_clip(nodes, clip_name="SpecialClip"):
 def project_new_root(mocap_root, mocap_pelvis):
     mocap_root = pm.PyNode(mocap_root)
     mocap_pelvis = pm.PyNode(mocap_pelvis)
-    mocap_ns = get_namespace(mocap_root)
 
     pelvis_keys = pm.keyframe(mocap_pelvis, query=True, timeChange=True)
     if pelvis_keys:
@@ -324,16 +315,7 @@ def project_new_root(mocap_root, mocap_pelvis):
         print("Key data not found on {}. Using scene time range instead.".format(mocap_pelvis))
         time_range = pm.playbackOptions(q=True, min=True), pm.playbackOptions(q=True, max=True)
 
-    mocap_root_name = mocap_root.nodeName(stripNamespace=True)
-
-    before_projection_name = mocap_ns + mocap_root_name + "_RAW_IMPORT"
-
-    if pm.objExists(before_projection_name):
-        new_root = mocap_root
-    else:
-        mocap_root.rename(before_projection_name)
-        new_root = pm.createNode("transform", name=mocap_ns + mocap_root_name)
-        new_root.setParent(mocap_root.getParent())
+    new_root = get_mocap_root_ctrl(mocap_root)
 
     point_const = pm.pointConstraint(mocap_pelvis, new_root, skip=["y"])
 
@@ -376,3 +358,25 @@ def project_new_root(mocap_root, mocap_pelvis):
     # to_delete = list(mocap_locs.values())
     # to_delete.append(pelvis_aim_offset)
     pm.delete([point_const, aim_const])
+
+
+def get_mocap_root_ctrl(mocap_root):
+    root_name = mocap_root.nodeName()  # includes namespace
+
+    raw_import_name = root_name + "_RAW_IMPORT"
+    if pm.objExists(raw_import_name):
+        root_ctrl = mocap_root
+    else:
+        mocap_root.rename(raw_import_name)
+        root_ctrl = create_triangle_ctrl(root_name, shape_normal=(0, 0, -1), radius=25)
+        root_ctrl.setAttr("displayHandle", 1)
+        root_ctrl.setParent(mocap_root.getParent())
+
+    return root_ctrl
+
+
+def create_triangle_ctrl(ctrl_name, shape_normal=(0, -1, 0), radius=50, sections=3):
+    ctrl_node, _ = pm.circle(sections=sections, degree=1, normal=shape_normal, radius=radius, name=ctrl_name)
+    ctrl_node.overrideEnabled.set(True)
+    ctrl_node.overrideColor.set(16)
+    return ctrl_node
