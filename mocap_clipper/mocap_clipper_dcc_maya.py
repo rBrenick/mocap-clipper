@@ -365,6 +365,12 @@ def project_new_root(mocap_root, mocap_pelvis):
     # to_delete.append(pelvis_aim_offset)
     pm.delete([point_const, aim_const])
 
+    if pm.objExists(new_root+".blendPoint1"):
+        pm.deleteAttr(new_root+".blendPoint1")
+
+    if pm.objExists(new_root+".blendAim1"):
+        pm.deleteAttr(new_root+".blendAim1")
+
 
 def get_mocap_root_ctrl(mocap_root):
     root_name = mocap_root.nodeName()  # includes namespace
@@ -373,10 +379,27 @@ def get_mocap_root_ctrl(mocap_root):
     if pm.objExists(raw_import_name):
         root_ctrl = mocap_root
     else:
+        existing_root_parent = mocap_root.getParent().getParent()
         mocap_root.rename(raw_import_name)
         root_ctrl = create_triangle_ctrl(root_name, shape_normal=(0, 0, -1), radius=25)
         root_ctrl.setAttr("displayHandle", 1)
-        root_ctrl.setParent(mocap_root.getParent())
+
+        root_grp = pm.createNode("transform", name=root_name+"_counter_rotation")
+        root_grp.inheritsTransform.set(False)
+
+        decomp_root_grp = pm.createNode("decomposeMatrix", name=root_grp+"_decomposeMat")
+        existing_root_parent.attr("worldMatrix").connect(decomp_root_grp.inputMatrix)
+        decomp_root_grp.outputTranslate.connect(root_grp.translate)
+
+        rot_blend = pm.createNode("pairBlend", name=root_grp+"_rot_blend")
+        decomp_root_grp.outputRotate.connect(rot_blend.inRotate2)
+        rot_blend.outRotate.connect(root_grp.rotate)
+
+        root_ctrl.addAttr("inheritParentRotation", min=0, max=1, keyable=True)
+        root_ctrl.attr("inheritParentRotation").connect(rot_blend.weight)
+
+        root_grp.setParent(existing_root_parent)
+        root_ctrl.setParent(root_grp)
 
     return root_ctrl
 
