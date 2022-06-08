@@ -371,6 +371,8 @@ def project_new_root(mocap_root, mocap_pelvis):
     if pm.objExists(new_root+".blendAim1"):
         pm.deleteAttr(new_root+".blendAim1")
 
+    pm.select(new_root)
+
 
 def get_mocap_root_ctrl(mocap_root):
     root_name = mocap_root.nodeName()  # includes namespace
