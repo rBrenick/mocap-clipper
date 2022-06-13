@@ -222,6 +222,9 @@ class MocapClipperCoreInterface(object):
         self.log_missing_implementation(self.get_scene_time_editor_data)
         return {}  # {example in 'MocapClipperMaya'}
 
+    def set_mocap_visibility(self, mocap_namespace, state=True):
+        self.log_missing_implementation(self.get_scene_time_editor_data)
+
     def import_mocap(self, file_path):
         self.log_missing_implementation(self.import_mocap)
 

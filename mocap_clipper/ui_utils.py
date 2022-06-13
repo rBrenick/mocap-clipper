@@ -219,6 +219,24 @@ def set_combo_box_by_data(cb, data):
         cb.setCurrentIndex(index)
 
 
+def get_list_widget_items(list_widget):
+    """
+
+    Args:
+        list_widget (QtWidgets.QListWidget):
+
+    Returns:
+
+    """
+    list_widget_items = []
+
+    for i in range(list_widget.count()):
+        lwi = list_widget.item(i)
+        list_widget_items.append(lwi)
+
+    return list_widget_items
+
+
 def build_log_level_menu(menu_bar, log_cls):
     log_levels = {
         logging.getLevelName(logging.DEBUG): logging.DEBUG,

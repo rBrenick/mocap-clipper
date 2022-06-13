@@ -246,6 +246,21 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
         if valid_selection:
             self.ui.bake_BTN.setStyleSheet("background-color:rgb(80, 120, 80)")
+
+            # hide all mocap skeletons in the scene
+            namespaces_to_show = []
+            for clip_lwi in ui_utils.get_list_widget_items(self.ui.clips_LW):
+                clip_data = self.scene_data.get(clip_lwi.text())
+                mocap_namespace = clip_data.get(k.cdc.namespace)
+
+                if clip_lwi in selected_clips:
+                    namespaces_to_show.append(mocap_namespace)
+
+                mcs.dcc.set_mocap_visibility(mocap_namespace, False)
+
+            # re-enable the selected mocap
+            [mcs.dcc.set_mocap_visibility(ns, True) for ns in namespaces_to_show]
+
         else:
             self.ui.bake_BTN.setStyleSheet("background-color:rgb(80, 80, 80)")
 

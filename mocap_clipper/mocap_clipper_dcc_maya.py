@@ -100,10 +100,12 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         # parent nodes under two controllers
         mocap_top_name = "{}:{}".format(nspace, k.SceneConstants.mocap_top_node_name)
         mocap_top_node = create_triangle_ctrl(mocap_top_name, radius=75, sections=5)
+        mocap_top_node.setAttr("visibility", keyable=False, channelBox=True)
 
         mocap_ctrl_name = "{}:{}".format(nspace, k.SceneConstants.mocap_ctrl_name)
         mocap_ctrl_node = create_triangle_ctrl(mocap_ctrl_name)
         mocap_ctrl_node.setParent(mocap_top_node)
+        mocap_ctrl_node.setAttr("visibility", keyable=False, channelBox=True)
 
         # create a reverse transform so the parenting can be relative to the world again
         mocap_ctrl_offset_name = "{}:{}".format(nspace, k.SceneConstants.mocap_ctrl_offset_name)
@@ -153,6 +155,11 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         pm.cutKey(mocap_root_name, attribute=["rotateX", "rotateY", "rotateZ"], clear=True)
         log.info("Cleared rotation keys from: {}".format(mocap_root_name))
         pm.select(mocap_root_name)
+
+    def set_mocap_visibility(self, mocap_ns, state=True):
+        mocap_top_name = "{}{}".format(mocap_ns, k.SceneConstants.mocap_top_node_name)
+        mocap_top_node = pm.PyNode(mocap_top_name)
+        mocap_top_node.visibility.set(state)
 
     def create_time_editor_clip(self, mocap_nodes, clip_name):
         return create_time_editor_clip(mocap_nodes, clip_name)
@@ -385,6 +392,7 @@ def get_mocap_root_ctrl(mocap_root):
         mocap_root.rename(raw_import_name)
         root_ctrl = create_triangle_ctrl(root_name, shape_normal=(0, 0, -1), radius=25)
         root_ctrl.setAttr("displayHandle", 1)
+        root_ctrl.setAttr("visibility", keyable=False, channelBox=True)
 
         root_grp = pm.createNode("transform", name=root_name+"_counter_rotation")
         root_grp.inheritsTransform.set(False)
