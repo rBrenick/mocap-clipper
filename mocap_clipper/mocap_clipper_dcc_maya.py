@@ -179,6 +179,23 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         node.setAttr("clip[0].clipName", new_clip_name, type="string")
         return True
 
+    def delete_clips(self, clip_datas, namespace_usage):
+        to_delete = []
+        for clip_data in clip_datas:
+            time_clip_node = clip_data.get(k.cdc.node)
+
+            mocap_ns = clip_data.get(k.cdc.namespace)
+            amount_of_clips_with_this_namespace = len(namespace_usage.get(mocap_ns))
+
+            if amount_of_clips_with_this_namespace == 1:
+                log.info("Only one clip found using this namespace, removing skeleton from scene: {}".format(mocap_ns))
+                pm.namespace(removeNamespace=mocap_ns.rstrip(":"), deleteNamespaceContent=True)
+
+            to_delete.append(time_clip_node)
+            namespace_usage[mocap_ns].remove(time_clip_node)
+
+        pm.delete(to_delete)
+
     def get_new_clip_name_from_dialog(self, current_clip_name):
         from . import ui_utils
         clip_name, _ = QtWidgets.QInputDialog.getText(

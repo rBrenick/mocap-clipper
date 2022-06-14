@@ -1,6 +1,7 @@
 import os.path
 import sys
 from functools import partial, wraps
+from collections import defaultdict
 
 from . import mocap_clipper_constants as k
 from . import mocap_clipper_logger
@@ -106,6 +107,14 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
             widget.customContextMenuRequested.connect(widget_ctx_menu)
 
+        # shortcuts
+        del_hotkey = QtWidgets.QShortcut(
+            QtGui.QKeySequence("DEL"),
+            self.ui.clips_LW,
+            self.delete_selected_clips,
+        )
+        del_hotkey.setContext(QtCore.Qt.WidgetShortcut)
+
         # Hiding this since I don't think we want this, but I don't want to remove logic just yet
         self.ui.project_root_from_hips_CHK.setVisible(False)
 
@@ -132,6 +141,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
     def build_clip_list_ctx_menu(self):
         action_list = [
             {"Rename Clip": self.rename_selected_clip},
+            {"Delete Clip(s)": self.delete_selected_clips},
             {"Re-Project Mocap Control under Hips": self.reproject_mocap_control_under_hips},
             {"Re-Project Root Joint Anim from Hips": self.project_root_animation_from_hips},
         ]
@@ -146,6 +156,21 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         rename_success = mcs.dcc.rename_clip(clip_node)
         if rename_success:
             self.update_from_scene()
+
+    def delete_selected_clips(self):
+        # find all namespaces used by each clip node
+        namespace_usage = defaultdict(list)
+        for scene_clip_data in self.scene_data.values():  # type: dict
+            clip_ns = scene_clip_data.get(k.cdc.namespace)
+            clip_node = scene_clip_data.get(k.cdc.node)
+            namespace_usage[clip_ns].append(clip_node)
+
+        selected_clip_data = self.get_selected_clip_data()  # type: list
+
+        mcs.dcc.delete_clips(selected_clip_data, namespace_usage)
+
+        # refresh ui
+        self.update_from_scene()
 
     def update_from_project(self):
         pose_files = mcs.dcc.get_pose_files()
@@ -190,53 +215,48 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         if len(selected_clips) == 1:
             clip_lwi = selected_clips[0]  # type: QtWidgets.QListWidgetItem
             clip_name = clip_lwi.text()
-            clip_data = self.scene_data.get(clip_name)
+            active_clip_data = self.scene_data.get(clip_name)
             valid_selection = True
 
         elif len(selected_clips) > 1:
-            all_clip_data = []
-            for clip_lwi in selected_clips:
-                clip_name = clip_lwi.text()
-                all_clip_data.append(self.scene_data.get(clip_name))
-
-            smallest_start_frame = min([cd.get(k.cdc.start_frame) for cd in all_clip_data])
-            highest_start_frame = max([cd.get(k.cdc.end_frame) for cd in all_clip_data])
-
             clip_name = "[Multiple Clips Selected]"
-            clip_data = dict()
-            clip_data[k.cdc.start_frame] = smallest_start_frame
-            clip_data[k.cdc.end_frame] = highest_start_frame
-            clip_data[k.cdc.frame_duration] = highest_start_frame - smallest_start_frame
+            active_clip_data = dict()
+            active_clip_data[k.cdc.start_frame] = ""
+            active_clip_data[k.cdc.end_frame] = ""
+            active_clip_data[k.cdc.frame_duration] = ""
             valid_selection = True
-
         else:
             clip_name = ""
-            clip_data = dict()
-            clip_data[k.cdc.start_frame] = ""
-            clip_data[k.cdc.end_frame] = ""
-            clip_data[k.cdc.frame_duration] = ""
+            active_clip_data = dict()
+            active_clip_data[k.cdc.start_frame] = ""
+            active_clip_data[k.cdc.end_frame] = ""
+            active_clip_data[k.cdc.frame_duration] = ""
             self.ui.start_pose_CHK.setChecked(False)
             self.ui.end_pose_CHK.setChecked(False)
             self.ui.end_pose_same_CHK.setChecked(False)
             log.debug("No clips found in selection, resetting data")
 
-        self.ui.clip_name_LE.setText(clip_name)
-        self.ui.frame_start.setText(str(clip_data.get(k.cdc.start_frame)))
-        self.ui.frame_end.setText(str(clip_data.get(k.cdc.end_frame)))
-        self.ui.frame_duration.setText(str(clip_data.get(k.cdc.frame_duration)))
+        if not active_clip_data:
+            log.warning("Clip data could not be extracted from UI, exiting UI update early")
+            return
 
-        clip_node = clip_data.get(k.cdc.node)
+        self.ui.clip_name_LE.setText(clip_name)
+        self.ui.frame_start.setText(str(active_clip_data.get(k.cdc.start_frame)))
+        self.ui.frame_end.setText(str(active_clip_data.get(k.cdc.end_frame)))
+        self.ui.frame_duration.setText(str(active_clip_data.get(k.cdc.frame_duration)))
+
+        clip_node = active_clip_data.get(k.cdc.node)
         if clip_node:
             log.debug("Parsing data from: {}".format(clip_node))
 
             mcs.dcc.select_node(clip_node)
 
-            self.ui.start_pose_CHK.setChecked(clip_data.get(k.cdc.start_pose_enabled))
-            self.ui.end_pose_CHK.setChecked(clip_data.get(k.cdc.end_pose_enabled))
-            self.ui.end_pose_same_CHK.setChecked(clip_data.get(k.cdc.end_pose_same_as_start))
+            self.ui.start_pose_CHK.setChecked(active_clip_data.get(k.cdc.start_pose_enabled))
+            self.ui.end_pose_CHK.setChecked(active_clip_data.get(k.cdc.end_pose_enabled))
+            self.ui.end_pose_same_CHK.setChecked(active_clip_data.get(k.cdc.end_pose_same_as_start))
 
-            start_pose_path = clip_data.get(k.cdc.start_pose_path)
-            end_pose_path = clip_data.get(k.cdc.end_pose_path)
+            start_pose_path = active_clip_data.get(k.cdc.start_pose_path)
+            end_pose_path = active_clip_data.get(k.cdc.end_pose_path)
 
             if start_pose_path:
                 ui_utils.set_combo_box_by_data(self.ui.start_pose_CB, start_pose_path)
@@ -247,12 +267,14 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         if valid_selection:
             self.ui.bake_BTN.setStyleSheet("background-color:rgb(80, 120, 80)")
 
-            # hide all mocap skeletons in the scene
+            # hide all other mocap skeletons in the scene
             namespaces_to_show = []
             for clip_lwi in ui_utils.get_list_widget_items(self.ui.clips_LW):
                 clip_data = self.scene_data.get(clip_lwi.text())
-                mocap_namespace = clip_data.get(k.cdc.namespace)
+                if not clip_data:
+                    continue
 
+                mocap_namespace = clip_data.get(k.cdc.namespace)
                 if clip_lwi in selected_clips:
                     namespaces_to_show.append(mocap_namespace)
 
@@ -283,6 +305,15 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             clip_data[k.cdc.target_rig] = self.get_active_rig()
 
             return clip_data
+
+    def get_selected_clip_data(self):
+        selected_clips = self.ui.clips_LW.selectedItems()
+        sel_clip_data = []
+        for clip_lwi in selected_clips:
+            clip_name = clip_lwi.text()
+            clip_data = self.scene_data.get(clip_name)
+            sel_clip_data.append(clip_data)
+        return sel_clip_data
 
     def set_active_clip_data(self):
         """

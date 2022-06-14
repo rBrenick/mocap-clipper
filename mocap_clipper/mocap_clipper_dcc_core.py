@@ -228,6 +228,13 @@ class MocapClipperCoreInterface(object):
     def import_mocap(self, file_path):
         self.log_missing_implementation(self.import_mocap)
 
+    def rename_clip(self, node, new_clip_name=None):
+        self.log_missing_implementation(self.rename_clip)
+        return True  # clip was successfully renamed
+
+    def delete_clips(self, clip_data, namespace_usage):
+        self.log_missing_implementation(self.delete_clips)
+
     def create_time_editor_clip(self, mocap_nodes, clip_name):
         self.log_missing_implementation(self.create_time_editor_clip)
 
