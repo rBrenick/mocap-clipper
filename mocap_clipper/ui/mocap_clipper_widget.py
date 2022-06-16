@@ -19,7 +19,7 @@ class Ui_MocapClipperWidget(object):
     def setupUi(self, MocapClipperWidget):
         if not MocapClipperWidget.objectName():
             MocapClipperWidget.setObjectName(u"MocapClipperWidget")
-        MocapClipperWidget.resize(640, 475)
+        MocapClipperWidget.resize(632, 585)
         self.main_layout = QVBoxLayout(MocapClipperWidget)
         self.main_layout.setSpacing(2)
         self.main_layout.setObjectName(u"main_layout")
@@ -218,28 +218,24 @@ class Ui_MocapClipperWidget(object):
 
         self.verticalLayout_4.addWidget(self.reproject_mocap_ctrl_BTN)
 
-        self.horizontalLayout_10 = QHBoxLayout()
-        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
         self.reproject_root_anim_BTN = QPushButton(self.widget)
         self.reproject_root_anim_BTN.setObjectName(u"reproject_root_anim_BTN")
         self.reproject_root_anim_BTN.setEnabled(False)
 
-        self.horizontalLayout_10.addWidget(self.reproject_root_anim_BTN)
-
-        self.clear_root_rotation_keys_BTN = QPushButton(self.widget)
-        self.clear_root_rotation_keys_BTN.setObjectName(u"clear_root_rotation_keys_BTN")
-        self.clear_root_rotation_keys_BTN.setEnabled(False)
-
-        self.horizontalLayout_10.addWidget(self.clear_root_rotation_keys_BTN)
-
-
-        self.verticalLayout_4.addLayout(self.horizontalLayout_10)
+        self.verticalLayout_4.addWidget(self.reproject_root_anim_BTN)
 
         self.align_root_to_rig_BTN = QPushButton(self.widget)
         self.align_root_to_rig_BTN.setObjectName(u"align_root_to_rig_BTN")
         self.align_root_to_rig_BTN.setEnabled(False)
 
         self.verticalLayout_4.addWidget(self.align_root_to_rig_BTN)
+
+        self.toggle_root_aim_BTN = QPushButton(self.widget)
+        self.toggle_root_aim_BTN.setObjectName(u"toggle_root_aim_BTN")
+        self.toggle_root_aim_BTN.setEnabled(False)
+        self.toggle_root_aim_BTN.setCheckable(True)
+
+        self.verticalLayout_4.addWidget(self.toggle_root_aim_BTN)
 
         self.verticalSpacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
@@ -442,8 +438,8 @@ class Ui_MocapClipperWidget(object):
         self.label_3.setText(QCoreApplication.translate("MocapClipperWidget", u"Pre-Process Mocap Actions", None))
         self.reproject_mocap_ctrl_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Re-Project Mocap Control under Hips", None))
         self.reproject_root_anim_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Re-Project Root Anim under Hips", None))
-        self.clear_root_rotation_keys_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Clear Root Rotation Keys", None))
         self.align_root_to_rig_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Align Root to Rig", None))
+        self.toggle_root_aim_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Toggle Root Aim", None))
 #if QT_CONFIG(tooltip)
         self.label_2.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Settings to run before and after baking", None))
 #endif // QT_CONFIG(tooltip)

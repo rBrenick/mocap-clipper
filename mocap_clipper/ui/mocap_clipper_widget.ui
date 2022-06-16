@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>475</height>
+    <width>632</width>
+    <height>585</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -349,28 +349,14 @@
           </widget>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_10">
-           <item>
-            <widget class="QPushButton" name="reproject_root_anim_BTN">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>Re-Project Root Anim under Hips</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="clear_root_rotation_keys_BTN">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>Clear Root Rotation Keys</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <widget class="QPushButton" name="reproject_root_anim_BTN">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Re-Project Root Anim under Hips</string>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QPushButton" name="align_root_to_rig_BTN">
@@ -379,6 +365,19 @@
            </property>
            <property name="text">
             <string>Align Root to Rig</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="toggle_root_aim_BTN">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Toggle Root Aim</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
            </property>
           </widget>
          </item>

@@ -101,11 +101,13 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         mocap_top_name = "{}:{}".format(nspace, k.SceneConstants.mocap_top_node_name)
         mocap_top_node = create_triangle_ctrl(mocap_top_name, radius=75, sections=5)
         mocap_top_node.setAttr("visibility", keyable=False, channelBox=True)
+        set_default_attrs_non_keyable(mocap_top_node)
 
         mocap_ctrl_name = "{}:{}".format(nspace, k.SceneConstants.mocap_ctrl_name)
         mocap_ctrl_node = create_triangle_ctrl(mocap_ctrl_name)
         mocap_ctrl_node.setParent(mocap_top_node)
         mocap_ctrl_node.setAttr("visibility", keyable=False, channelBox=True)
+        set_default_attrs_non_keyable(mocap_ctrl_node)
 
         # create a reverse transform so the parenting can be relative to the world again
         mocap_ctrl_offset_name = "{}:{}".format(nspace, k.SceneConstants.mocap_ctrl_offset_name)
@@ -266,6 +268,25 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
                 mocap_namespace + "pelvis",
             )
 
+    def toggle_root_aim(self, mocap_ns):
+        mocap_aim_ctrl_name = "{}{}".format(mocap_ns, "root_aim_ctrl")
+        mocap_top_name = "{}{}".format(mocap_ns, k.SceneConstants.mocap_top_node_name)
+        mocap_root_name = "{}{}".format(mocap_ns, "root")
+
+        if pm.objExists(mocap_aim_ctrl_name):
+            top_rotate = pm.getAttr(mocap_top_name+".rotate")
+            pm.delete(mocap_aim_ctrl_name)
+            pm.setAttr(mocap_top_name+".rotate", top_rotate)
+        else:
+            aim_loc = pm.spaceLocator(name=mocap_aim_ctrl_name)
+            aim_loc.setTranslation(pm.PyNode(mocap_root_name).getTranslation(worldSpace=True), worldSpace=True)
+            pm.aimConstraint(
+                aim_loc,
+                mocap_top_name,
+                maintainOffset=True,
+                skip=["x", "z"],
+            )
+
     def run_euler_filter(self, controls):
         pm.select(controls)
         pm.filterCurve()
@@ -352,14 +373,14 @@ def project_new_root(mocap_root, mocap_pelvis):
     pelvis_aim_offset = pm.createNode("transform", name=mocap_pelvis + "_aim_offset")
     pelvis_aim_offset.setParent(mocap_pelvis, relative=True)
     pelvis_aim_offset.translateY.set(-50)
-    aim_const = pm.aimConstraint(
-        mocap_pelvis,
-        new_root,
-        aimVector=[0, 0, 1],
-        upVector=[0, -1, 0],
-        worldUpType='object',
-        worldUpObject=pelvis_aim_offset,
-    )
+    # aim_const = pm.aimConstraint(
+    #     mocap_pelvis,
+    #     new_root,
+    #     aimVector=[0, 0, 1],
+    #     upVector=[0, -1, 0],
+    #     worldUpType='object',
+    #     worldUpObject=pelvis_aim_offset,
+    # )
 
     # mocap_locs = {}
     # for mocap_root_child in pm.listRelatives(mocap_root, children=True):
@@ -373,7 +394,7 @@ def project_new_root(mocap_root, mocap_pelvis):
     # bake_locators.extend(list(mocap_locs.values()))
     try:
         pm.refresh(suspend=True)
-        pm.bakeResults(bake_locators, t=time_range, simulation=True)
+        pm.bakeResults(bake_locators, t=time_range, simulation=True, attribute=["tx", "ty", "tz"])
     finally:
         pm.refresh(suspend=False)
 
@@ -387,7 +408,7 @@ def project_new_root(mocap_root, mocap_pelvis):
     # delete temp bake nodes
     # to_delete = list(mocap_locs.values())
     # to_delete.append(pelvis_aim_offset)
-    pm.delete([point_const, aim_const])
+    pm.delete([point_const])
 
     if pm.objExists(new_root+".blendPoint1"):
         pm.deleteAttr(new_root+".blendPoint1")
@@ -405,28 +426,41 @@ def get_mocap_root_ctrl(mocap_root):
     if pm.objExists(raw_import_name):
         root_ctrl = mocap_root
     else:
-        existing_root_parent = mocap_root.getParent().getParent()
+        mocap_namespace = mocap_root.namespace()
+        mocap_top_node = pm.PyNode(mocap_namespace+k.SceneConstants.mocap_top_node_name)
+
+        existing_root_parent = mocap_root.getParent()
         mocap_root.rename(raw_import_name)
         root_ctrl = create_triangle_ctrl(root_name, shape_normal=(0, 0, -1), radius=25)
-        root_ctrl.setAttr("displayHandle", 1)
-        root_ctrl.setAttr("visibility", keyable=False, channelBox=True)
 
-        root_grp = pm.createNode("transform", name=root_name+"_counter_rotation")
-        root_grp.inheritsTransform.set(False)
+        root_ctrl.displayHandle.set(1)
+        root_ctrl.visibility.set(keyable=False, channelBox=True)
+        root_ctrl.rotateX.set(-90)
+        root_ctrl.rotateX.set(lock=True)
+        root_ctrl.rotateZ.set(lock=True)
+        root_ctrl.scaleX.set(lock=True, keyable=False)
+        root_ctrl.scaleY.set(lock=True, keyable=False)
+        root_ctrl.scaleZ.set(lock=True, keyable=False)
+        root_ctrl.setParent(existing_root_parent)
 
-        decomp_root_grp = pm.createNode("decomposeMatrix", name=root_grp+"_decomposeMat")
-        existing_root_parent.attr("worldMatrix").connect(decomp_root_grp.inputMatrix)
-        decomp_root_grp.outputTranslate.connect(root_grp.translate)
+        world_aligned_node = pm.createNode("transform", name=mocap_namespace+":world_align")
+        world_aligned_node.inheritsTransform.set(False)
+        world_aligned_node.setParent(mocap_top_node)
 
-        rot_blend = pm.createNode("pairBlend", name=root_grp+"_rot_blend")
-        decomp_root_grp.outputRotate.connect(rot_blend.inRotate2)
-        rot_blend.outRotate.connect(root_grp.rotate)
+        counter_rotate_node = pm.createNode("transform", name=mocap_namespace+":root_world_align")
+        pm.orientConstraint(world_aligned_node, counter_rotate_node)
+        counter_rotate_node.setParent(existing_root_parent)
 
-        root_ctrl.addAttr("inheritParentRotation", min=0, max=1, keyable=True)
-        root_ctrl.attr("inheritParentRotation").connect(rot_blend.weight)
+        # root_ctrl.addAttr("worldRotateY", keyable=True)
+        # root_ctrl.worldRotateY.set(keyable=False, channelBox=True)
+        # counter_rotate_node.rotateY.connect(root_ctrl.worldRotateY)
 
-        root_grp.setParent(existing_root_parent)
-        root_ctrl.setParent(root_grp)
+        root_ctrl.addAttr("worldRotateY", keyable=True)
+        world_rot_pma = pm.createNode("plusMinusAverage", name=mocap_namespace+":world_rot_PMA")
+        counter_rotate_node.rotateY.connect(world_rot_pma.attr("input1D[0]"))
+        root_ctrl.worldRotateY.connect(world_rot_pma.attr("input1D[1]"))
+        world_rot_pma.output1D.connect(root_ctrl.rotateY)
+        root_ctrl.rotateY.set(lock=True)
 
     return root_ctrl
 
@@ -436,3 +470,19 @@ def create_triangle_ctrl(ctrl_name, shape_normal=(0, -1, 0), radius=50, sections
     ctrl_node.overrideEnabled.set(True)
     ctrl_node.overrideColor.set(16)
     return ctrl_node
+
+
+def set_default_attrs_non_keyable(node):
+    attribute_list = [
+        "translateX",
+        "translateY",
+        "translateZ",
+        "rotateX",
+        "rotateY",
+        "rotateZ",
+        "scaleX",
+        "scaleY",
+        "scaleZ",
+    ]
+    for attribute in attribute_list:
+        node.setAttr(attribute, keyable=False, channelBox=True)

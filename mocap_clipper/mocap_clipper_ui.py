@@ -64,6 +64,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
         self.ui.rename_clip_BTN.clicked.connect(self.rename_selected_clip)
         self.ui.end_pose_CHK.stateChanged.connect(self.set_active_clip_data)
+        self.ui.end_pose_CHK.stateChanged.connect(self.ui.end_pose_CB.setEnabled)
         self.ui.end_pose_CB.currentIndexChanged.connect(self.set_active_clip_data)
         self.ui.end_pose_same_CHK.stateChanged.connect(self.set_active_clip_data)
         self.ui.start_pose_CHK.stateChanged.connect(self.set_active_clip_data)
@@ -74,8 +75,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
         self.ui.reproject_root_anim_BTN.clicked.connect(self.project_root_animation_from_hips)
         self.ui.reproject_mocap_ctrl_BTN.clicked.connect(self.reproject_mocap_control_under_hips)
-        self.ui.clear_root_rotation_keys_BTN.clicked.connect(self.clear_root_rotation_keys)
         self.ui.align_root_to_rig_BTN.clicked.connect(self.align_mocap_with_rig)
+        self.ui.toggle_root_aim_BTN.clicked.connect(self.toggle_root_aim)
 
         self.ui.align_mocap_CHK.stateChanged.connect(self.ui.align_to_start_pose_RB.setEnabled)
         self.ui.align_mocap_CHK.stateChanged.connect(self.ui.align_to_end_pose_RB.setEnabled)
@@ -288,8 +289,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
         self.ui.reproject_mocap_ctrl_BTN.setEnabled(valid_selection)
         self.ui.reproject_root_anim_BTN.setEnabled(valid_selection)
-        self.ui.clear_root_rotation_keys_BTN.setEnabled(valid_selection)
         self.ui.align_root_to_rig_BTN.setEnabled(valid_selection)
+        self.ui.toggle_root_aim_BTN.setEnabled(valid_selection)
 
     def get_active_clip_data(self):
         selected_clips = self.ui.clips_LW.selectedItems()
@@ -467,13 +468,6 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         mocap_namespace = clip_data.get(k.cdc.namespace)
         mcs.dcc.project_mocap_ctrl_to_ground_under_hips(mocap_namespace)
 
-    def clear_root_rotation_keys(self):
-        clip_data = self.get_active_clip_data()
-        if not clip_data:
-            return
-        mocap_namespace = clip_data.get(k.cdc.namespace)
-        mcs.dcc.clear_root_rotation_keys(mocap_namespace)
-
     def align_mocap_with_rig(self):
         clip_data = self.get_active_clip_data()
         if not clip_data:
@@ -486,6 +480,14 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             rig_name,
             alignment_name=self.ui.align_mocap_CB.currentText(),
         )
+
+    def toggle_root_aim(self):
+        clip_data = self.get_active_clip_data()
+        if not clip_data:
+            log.warning("Clip not found in selection")
+            return
+        mocap_namespace = clip_data.get(k.cdc.namespace)
+        mcs.dcc.toggle_root_aim(mocap_namespace)
 
     def set_time_range(self):
         clip_data = self.get_active_clip_data()
