@@ -152,14 +152,8 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         # reset the offset transform to invert this offset
         mocap_ctrl_offset_node.setMatrix(offset_world_matrix, worldSpace=True)
 
-    def clear_root_rotation_keys(self, namespace):
-        mocap_root_name = "{}root".format(namespace)
-        pm.cutKey(mocap_root_name, attribute=["rotateX", "rotateY", "rotateZ"], clear=True)
-        log.info("Cleared rotation keys from: {}".format(mocap_root_name))
-        pm.select(mocap_root_name)
-
-    def set_mocap_visibility(self, mocap_ns, state=True):
-        mocap_top_name = "{}{}".format(mocap_ns, k.SceneConstants.mocap_top_node_name)
+    def set_mocap_visibility(self, mocap_namespace, state=True):
+        mocap_top_name = "{}{}".format(mocap_namespace, k.SceneConstants.mocap_top_node_name)
         mocap_top_node = pm.PyNode(mocap_top_name)
         mocap_top_node.visibility.set(state)
 
@@ -220,15 +214,15 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         if pm.objExists(k.SceneConstants.pose_anim_layer_name):
             pm.delete(k.SceneConstants.pose_anim_layer_name)
 
-    def align_mocap_to_rig(self, mocap_ns, rig_name, root_name="root", alignment_name="root", on_frame=None, match_transform=True):
-        mocap_ctrl_name = "{}{}".format(mocap_ns, k.SceneConstants.mocap_ctrl_name)
+    def align_mocap_to_rig(self, mocap_namespace, rig_name, root_name="root", alignment_name="root", on_frame=None, match_transform=True):
+        mocap_ctrl_name = "{}{}".format(mocap_namespace, k.SceneConstants.mocap_ctrl_name)
         mocap_ctrl_node = pm.PyNode(mocap_ctrl_name)
 
         target_rig = self.get_rigs_in_scene().get(rig_name)
         rig_ns = target_rig.namespace()
 
-        root = mocap_ns + root_name
-        alignment_node_name = mocap_ns + alignment_name
+        root = mocap_namespace + root_name
+        alignment_node_name = mocap_namespace + alignment_name
         rig_root = rig_ns + root_name
         rig_alignment = rig_ns + alignment_name
 
@@ -268,10 +262,10 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
                 mocap_namespace + "pelvis",
             )
 
-    def toggle_root_aim(self, mocap_ns):
-        mocap_aim_ctrl_name = "{}{}".format(mocap_ns, "root_aim_ctrl")
-        mocap_top_name = "{}{}".format(mocap_ns, k.SceneConstants.mocap_top_node_name)
-        mocap_root_name = "{}{}".format(mocap_ns, "root")
+    def toggle_root_aim(self, mocap_namespace):
+        mocap_aim_ctrl_name = "{}{}".format(mocap_namespace, "root_aim_ctrl")
+        mocap_top_name = "{}{}".format(mocap_namespace, k.SceneConstants.mocap_top_node_name)
+        mocap_root_name = "{}{}".format(mocap_namespace, "root")
 
         if pm.objExists(mocap_aim_ctrl_name):
             top_rotate = pm.getAttr(mocap_top_name+".rotate")

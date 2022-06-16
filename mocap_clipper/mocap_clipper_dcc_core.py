@@ -238,11 +238,8 @@ class MocapClipperCoreInterface(object):
     def create_time_editor_clip(self, mocap_nodes, clip_name):
         self.log_missing_implementation(self.create_time_editor_clip)
 
-    def align_mocap_to_rig(self, mocap_ns, rig_name, root_name="root", alignment_name="pelvis", on_frame=None):
+    def align_mocap_to_rig(self, mocap_namespace, rig_name, root_name="root", alignment_name="pelvis", on_frame=None):
         self.log_missing_implementation(self.align_mocap_to_rig)
-
-    def clear_root_rotation_keys(self, mocap_namespace):
-        self.log_missing_implementation(self.clear_root_rotation_keys)
 
     def remove_pose_anim_layer(self):
         self.log_missing_implementation(self.remove_pose_anim_layer)
@@ -252,6 +249,9 @@ class MocapClipperCoreInterface(object):
 
     def project_root_animation_from_hips(self, mocap_namespace):
         self.log_missing_implementation(self.project_root_animation_from_hips)
+
+    def toggle_root_aim(self, mocap_namespace):
+        self.log_missing_implementation(self.toggle_root_aim)
 
     def run_euler_filter(self, controls):
         self.log_missing_implementation(self.run_euler_filter)
