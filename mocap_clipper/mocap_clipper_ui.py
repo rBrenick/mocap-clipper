@@ -40,11 +40,16 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.main_splitter.setSizes([1, 2])
         self.update_from_project()
         self.update_from_scene()
-        self.ui.refresh_BTN.setIcon(QtGui.QIcon(resources.get_image_path("refresh_icon")))
+
+        # set icons
         mocap_icon = mcs.dcc.get_mocap_icon() or QtGui.QIcon()
-        rig_icon = mcs.dcc.get_rig_icon() or QtGui.QIcon()
+        refresh_icon = QtGui.QIcon(resources.get_image_path("refresh_icon"))
+        self.ui.refresh_BTN.setIcon(refresh_icon)
+        self.ui.refresh_project_BTN.setIcon(refresh_icon)
         self.ui.import_mocap_BTN.setIcon(mocap_icon)
         self.ui.bake_BTN.setIcon(mocap_icon)
+
+        # add project specfic alignment joints
         alignment_options = mcs.dcc.get_alignment_joint_names()
         self.ui.align_mocap_CB.addItems(alignment_options)
 
@@ -57,6 +62,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         # connect UI
         self.ui.import_mocap_BTN.clicked.connect(self.import_mocap)
         self.ui.refresh_BTN.clicked.connect(self.update_from_scene)
+        self.ui.refresh_project_BTN.clicked.connect(self.update_project_poses)
         self.ui.clips_LW.itemSelectionChanged.connect(self.update_clip_display_info)
 
         self.ui.clips_LW.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -174,18 +180,27 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.update_from_scene()
 
     def update_from_project(self):
-        pose_files = mcs.dcc.get_pose_files()
-        pose_icon = mcs.dcc.get_pose_icon() or QtGui.QIcon()
-        for pose_file in pose_files:
-            pose_name = os.path.splitext(os.path.basename(pose_file))[0]
-            self.ui.start_pose_CB.addItem(pose_icon, pose_name, pose_file)
-            self.ui.end_pose_CB.addItem(pose_icon, pose_name, pose_file)
+
+        self.update_project_poses()
 
         for project_settings_widget in mcs.dcc.get_project_settings_widgets():
             self.ui.project_settings_layout.addWidget(project_settings_widget)
 
         for project_action_widget in mcs.dcc.get_project_action_widgets():
             self.ui.project_widgets_layout.addWidget(project_action_widget)
+            
+    @deco_disable_clip_data_set_signals
+    def update_project_poses(self):
+        self.ui.start_pose_CB.clear()
+        self.ui.end_pose_CB.clear()
+
+        pose_files = mcs.dcc.get_pose_files()
+        pose_icon = mcs.dcc.get_pose_icon() or QtGui.QIcon()
+
+        for pose_file in pose_files:
+            pose_name = os.path.splitext(os.path.basename(pose_file))[0]
+            self.ui.start_pose_CB.addItem(pose_icon, pose_name, pose_file)
+            self.ui.end_pose_CB.addItem(pose_icon, pose_name, pose_file)
 
     def update_from_scene(self):
         self.scene_data = mcs.dcc.get_scene_time_editor_data()
