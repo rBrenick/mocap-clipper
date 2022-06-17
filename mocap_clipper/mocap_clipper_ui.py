@@ -61,9 +61,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.import_mocap_BTN.setIcon(mocap_icon)
         self.ui.bake_BTN.setIcon(mocap_icon)
 
-        # add project specfic alignment joints
-        alignment_options = mcs.dcc.get_alignment_joint_names()
-        self.ui.align_mocap_CB.addItems(alignment_options)
+        # add project options
+        self.ui.align_mocap_CB.addItems(mcs.dcc.get_alignment_joint_names())
+        self.ui.end_pose_match_method_CB.addItems(mcs.dcc.get_pose_match_methods())
 
         # set output folder
         self.ui.output_path_W.path_dialog.setFileMode(QtWidgets.QFileDialog.DirectoryOnly)
@@ -99,15 +99,18 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.rename_clip_BTN.clicked.connect(self.rename_selected_clip)
 
         # pose configuration
+        self.ui.start_pose_CHK.stateChanged.connect(self.set_active_clip_data)
+        self.ui.start_pose_CHK.stateChanged.connect(self.ui.start_pose_CB.setEnabled)
+        self.ui.start_pose_CB.currentIndexChanged.connect(self.set_active_clip_data)
+        self.ui.start_pose_CB.currentIndexChanged.connect(self.match_end_pose_to_start)
+
         self.ui.end_pose_CHK.stateChanged.connect(self.set_active_clip_data)
         self.ui.end_pose_CHK.stateChanged.connect(self.ui.end_pose_CB.setEnabled)
         self.ui.end_pose_CB.currentIndexChanged.connect(self.set_active_clip_data)
+
         self.ui.end_pose_same_CHK.stateChanged.connect(self.set_active_clip_data)
-        self.ui.start_pose_CHK.stateChanged.connect(self.set_active_clip_data)
-        self.ui.start_pose_CHK.stateChanged.connect(self.ui.start_pose_CB.setEnabled)
-        self.ui.start_pose_CB.currentIndexChanged.connect(self.match_end_pose_to_start)
-        self.ui.start_pose_CB.currentIndexChanged.connect(self.set_active_clip_data)
-        self.ui.end_pose_CB.currentIndexChanged.connect(self.set_active_clip_data)
+        self.ui.end_pose_same_CHK.stateChanged.connect(self.ui.end_pose_match_method_CB.setEnabled)
+        self.ui.end_pose_match_method_CB.currentIndexChanged.connect(self.set_active_clip_data)
 
         # bake configuration
         self.ui.align_mocap_CHK.stateChanged.connect(self.ui.align_to_start_pose_RB.setEnabled)
@@ -301,6 +304,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             if active_cd.end_pose_path:
                 ui_utils.set_combo_box_by_data(self.ui.end_pose_CB, active_cd.end_pose_path)
 
+            if active_cd.end_pose_match_method:
+                ui_utils.set_combo_box_by_text(self.ui.end_pose_match_method_CB, active_cd.end_pose_match_method)
+
         if valid_selection:
             self.ui.bake_BTN.setStyleSheet("background-color:rgb(80, 120, 80)")
 
@@ -376,6 +382,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         cd.end_pose_path = self.ui.end_pose_CB.currentData(QtCore.Qt.UserRole)
         cd.end_pose_enabled = self.ui.end_pose_CHK.isChecked()
         cd.end_pose_same_as_start = self.ui.end_pose_same_CHK.isChecked()
+        cd.end_pose_match_method = self.ui.end_pose_match_method_CB.currentText()
 
         if cd.end_pose_enabled:
             if cd.end_pose_same_as_start:

@@ -163,8 +163,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>381</width>
-            <height>605</height>
+            <width>390</width>
+            <height>610</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
@@ -391,17 +391,28 @@
                  </layout>
                 </item>
                 <item>
-                 <widget class="QCheckBox" name="end_pose_same_CHK">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string>Match End Pose to Start</string>
-                  </property>
-                 </widget>
+                 <layout class="QHBoxLayout" name="horizontalLayout_2">
+                  <item>
+                   <widget class="QCheckBox" name="end_pose_same_CHK">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Match End Pose to Start</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="end_pose_match_method_CB">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
                </layout>
               </widget>

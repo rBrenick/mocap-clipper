@@ -219,6 +219,17 @@ def set_combo_box_by_data(cb, data):
         cb.setCurrentIndex(index)
 
 
+def set_combo_box_by_text(cb, text):
+    """
+    Args:
+        cb (QtWidgets.QComboBox):
+        text (str):
+    """
+    index = cb.findData(text, QtCore.Qt.DisplayRole)
+    if index != -1:
+        cb.setCurrentIndex(index)
+
+
 def get_list_widget_items(list_widget):
     """
 

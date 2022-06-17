@@ -321,6 +321,19 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             pm.currentTime(on_frame)
         pm.setKeyframe(controls, animLayer=k.SceneConstants.pose_anim_layer_name)
 
+    def match_attribute_values_between_frames(self, controls, src_frame, tgt_frame):
+        # get values at src frame
+        pm.currentTime(src_frame)
+        attr_values = {}
+        for control in controls:
+            for attr in control.listAttr(keyable=True):
+                attr_values[attr] = attr.get()
+
+        # set values at tgt_frame
+        pm.currentTime(tgt_frame)
+        for attr, attr_val in attr_values.items():
+            attr.set(attr_val)
+
     def get_clip_icon(self):
         return QtGui.QIcon(":adjustTimeline.png")
 

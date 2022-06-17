@@ -29,6 +29,7 @@ class ClipData(object):
         self.end_pose_enabled = False
         self.end_pose_path = ""
         self.end_pose_same_as_start = False
+        self.end_pose_match_method = None
 
     def to_dict(self):
         out_dict = {}

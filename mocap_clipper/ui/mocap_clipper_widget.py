@@ -92,7 +92,7 @@ class Ui_MocapClipperWidget(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 381, 605))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 390, 610))
         self.verticalLayout = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -223,12 +223,23 @@ class Ui_MocapClipperWidget(object):
 
         self.verticalLayout_10.addLayout(self.horizontalLayout_10)
 
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.end_pose_same_CHK = QCheckBox(self.pose_configuration_widget)
         self.end_pose_same_CHK.setObjectName(u"end_pose_same_CHK")
         sizePolicy2.setHeightForWidth(self.end_pose_same_CHK.sizePolicy().hasHeightForWidth())
         self.end_pose_same_CHK.setSizePolicy(sizePolicy2)
 
-        self.verticalLayout_10.addWidget(self.end_pose_same_CHK)
+        self.horizontalLayout_2.addWidget(self.end_pose_same_CHK)
+
+        self.end_pose_match_method_CB = QComboBox(self.pose_configuration_widget)
+        self.end_pose_match_method_CB.setObjectName(u"end_pose_match_method_CB")
+        self.end_pose_match_method_CB.setEnabled(False)
+
+        self.horizontalLayout_2.addWidget(self.end_pose_match_method_CB)
+
+
+        self.verticalLayout_10.addLayout(self.horizontalLayout_2)
 
 
         self.pose_configuration_root_layout.addWidget(self.pose_configuration_widget)

@@ -21,6 +21,9 @@ class MocapClipperCoreInterface(object):
             from . import mocap_clipper_ui
             self.tool_window = mocap_clipper_ui.MocapClipperWindow()  # for auto complete
 
+        self.match_via_pose_file = "Using Pose File"
+        self.match_via_attributes = "Using Attribute Values"
+
     def log_missing_implementation(self, func):
         log.error("'{}.{}()' has not been implemented".format(self.__class__.__name__, func.__name__))
 
@@ -176,7 +179,7 @@ class MocapClipperCoreInterface(object):
 
             if apply_end_pose:
                 end_pose_path = cd.end_pose_path
-                log.info("Applying start pose: {}".format(end_pose_path))
+                log.info("Applying end pose: {}".format(end_pose_path))
                 self.apply_pose(
                     pose_path=end_pose_path,
                     rig_name=rig_name,
@@ -185,17 +188,22 @@ class MocapClipperCoreInterface(object):
                 self.set_key_on_pose_layer(rig_controls)
 
             if end_pose_same_as_start:
-                if not apply_start_pose and not apply_end_pose:
-                    # save the first frame pose and re-apply it at the end
-                    temp_pose_path = self.save_pose(
-                        rig_name=rig_name,
-                        on_frame=start_frame
-                    )
-                    self.apply_pose(
-                        pose_path=temp_pose_path,
-                        rig_name=rig_name,
-                        on_frame=end_frame,
-                    )
+                if not apply_end_pose:
+                    if cd.end_pose_match_method == self.match_via_pose_file:
+                        # save the first frame pose and re-apply it at the end
+                        temp_pose_path = self.save_pose(
+                            rig_name=rig_name,
+                            on_frame=start_frame
+                        )
+                        self.apply_pose(
+                            pose_path=temp_pose_path,
+                            rig_name=rig_name,
+                            on_frame=end_frame,
+                        )
+
+                    if cd.end_pose_match_method == self.match_via_attributes:
+                        self.match_attribute_values_between_frames(rig_controls, start_frame, end_frame)
+
                     self.set_key_on_pose_layer(rig_controls)
 
             if bake_config.run_adjustment_blend:
@@ -213,6 +221,9 @@ class MocapClipperCoreInterface(object):
 
     def get_alignment_joint_names(self):
         return "root", "pelvis"
+
+    def get_pose_match_methods(self):
+        return self.match_via_pose_file, self.match_via_attributes
 
     def get_clip_icon(self):
         return None  # qicon
@@ -263,6 +274,9 @@ class MocapClipperCoreInterface(object):
 
     def set_key_on_pose_layer(self, controls, on_frame=None):
         self.log_missing_implementation(self.set_key_on_pose_layer)
+
+    def match_attribute_values_between_frames(self, controls, src_frame, tgt_frame):
+        self.log_missing_implementation(self.match_attribute_values_between_frames)
 
     def select_node(self, node):
         self.log_missing_implementation(self.select_node)
