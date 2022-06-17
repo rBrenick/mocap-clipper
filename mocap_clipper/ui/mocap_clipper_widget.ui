@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>632</width>
-    <height>585</height>
+    <width>709</width>
+    <height>588</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -140,345 +140,176 @@
       </layout>
      </widget>
      <widget class="QWidget" name="widget" native="true">
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
-       <property name="spacing">
-        <number>2</number>
-       </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
        <property name="leftMargin">
-        <number>0</number>
+        <number>2</number>
        </property>
        <property name="topMargin">
         <number>0</number>
        </property>
        <property name="rightMargin">
-        <number>0</number>
+        <number>2</number>
        </property>
        <property name="bottomMargin">
         <number>0</number>
        </property>
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
-         <property name="spacing">
-          <number>3</number>
+        <widget class="QScrollArea" name="scrollArea">
+         <property name="widgetResizable">
+          <bool>true</bool>
          </property>
-         <item>
-          <layout class="QVBoxLayout" name="clip_info_layout">
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_8">
-             <item>
-              <widget class="QLineEdit" name="clip_name_LE">
-               <property name="font">
-                <font>
-                 <pointsize>12</pointsize>
-                </font>
-               </property>
-               <property name="cursor">
-                <cursorShape>BlankCursor</cursorShape>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-               <property name="placeholderText">
-                <string>Clip Name</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="rename_clip_BTN">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>70</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Rename</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_7">
-             <item>
-              <widget class="QLineEdit" name="frame_start">
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-               <property name="placeholderText">
-                <string>Start Frame</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="frame_end">
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-               <property name="placeholderText">
-                <string>End Frame</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="frame_duration">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>70</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-               <property name="placeholderText">
-                <string>Duration</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_5">
-             <item>
-              <widget class="QCheckBox" name="start_pose_CHK">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>Start Pose</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="start_pose_CB">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <item>
-              <widget class="QCheckBox" name="end_pose_CHK">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>End Pose</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="end_pose_CB">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="end_pose_same_CHK">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Match End Pose to Start</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_9">
+         <widget class="QWidget" name="scrollAreaWidgetContents">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>381</width>
+            <height>605</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
            <property name="topMargin">
-            <number>10</number>
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
            </property>
            <item>
-            <widget class="QLabel" name="label_3">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="font">
-              <font>
-               <italic>true</italic>
-              </font>
-             </property>
-             <property name="text">
-              <string>Pre-Process Mocap Actions</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="Line" name="line_3">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QPushButton" name="reproject_mocap_ctrl_BTN">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Re-Project Mocap Control under Hips</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="reproject_root_anim_BTN">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Re-Project Root Anim under Hips</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="align_root_to_rig_BTN">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Align Root to Rig</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="toggle_root_aim_BTN">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Toggle Root Aim</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Expanding</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="bake_configuration_label_layout">
-           <property name="topMargin">
-            <number>10</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="label_2">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="font">
-              <font>
-               <italic>true</italic>
-              </font>
-             </property>
-             <property name="toolTip">
-              <string>Settings to run before and after baking</string>
-             </property>
-             <property name="text">
-              <string>Bake Configuration</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="Line" name="line">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="project_settings_layout"/>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="bake_settings_layout">
-           <item>
-            <widget class="QCheckBox" name="project_root_from_hips_CHK">
-             <property name="text">
-              <string>Project Root from Hips</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout">
+            <layout class="QVBoxLayout" name="clip_info_layout">
              <item>
-              <widget class="QCheckBox" name="align_mocap_CHK">
-               <property name="toolTip">
-                <string>Move the Mocap skeleton to match the rig at a certain pose</string>
-               </property>
-               <property name="text">
-                <string>Align Mocap to:</string>
-               </property>
-              </widget>
+              <layout class="QHBoxLayout" name="horizontalLayout_8">
+               <item>
+                <widget class="QLineEdit" name="clip_name_LE">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
+                 <property name="cursor">
+                  <cursorShape>BlankCursor</cursorShape>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                 <property name="placeholderText">
+                  <string>Clip Name</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="rename_clip_BTN">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>70</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Rename</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
              <item>
-              <widget class="QRadioButton" name="align_to_start_pose_RB">
+              <layout class="QHBoxLayout" name="horizontalLayout_7">
+               <item>
+                <widget class="QLineEdit" name="frame_start">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                 <property name="placeholderText">
+                  <string>Start Frame</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="frame_end">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                 <property name="placeholderText">
+                  <string>End Frame</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="frame_duration">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>70</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                 <property name="placeholderText">
+                  <string>Duration</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="pose_configuration_root_layout">
+             <property name="spacing">
+              <number>2</number>
+             </property>
+             <item>
+              <widget class="QPushButton" name="pose_configuration_BTN">
+               <property name="styleSheet">
+                <string notr="true">background-color:rgb(75, 75, 75); text-align:left;</string>
+               </property>
                <property name="text">
-                <string>Start Frame</string>
+                <string>&gt; Pose Configuration</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
                </property>
                <property name="checked">
                 <bool>true</bool>
@@ -486,203 +317,500 @@
               </widget>
              </item>
              <item>
-              <widget class="QRadioButton" name="align_to_end_pose_RB">
-               <property name="text">
-                <string>End Frame</string>
-               </property>
+              <widget class="QWidget" name="pose_configuration_widget" native="true">
+               <layout class="QVBoxLayout" name="verticalLayout_10">
+                <property name="spacing">
+                 <number>2</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_9">
+                  <item>
+                   <widget class="QCheckBox" name="start_pose_CHK">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Start Pose</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="start_pose_CB">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_10">
+                  <item>
+                   <widget class="QCheckBox" name="end_pose_CHK">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>End Pose</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="end_pose_CB">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="end_pose_same_CHK">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>Match End Pose to Start</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="align_mocap_CB"/>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>0</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
              </item>
             </layout>
            </item>
            <item>
-            <widget class="QCheckBox" name="euler_filter_CHK">
-             <property name="toolTip">
-              <string>Run an euler filter on the keys after baking</string>
+            <layout class="QVBoxLayout" name="preprocess_mocap_actions_root_layout">
+             <property name="spacing">
+              <number>4</number>
              </property>
-             <property name="text">
-              <string>Euler Filter</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
+             <item>
+              <widget class="QPushButton" name="preprocess_mocap_actions_BTN">
+               <property name="font">
+                <font>
+                 <italic>true</italic>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color:rgb(75, 75, 75); text-align:left;</string>
+               </property>
+               <property name="text">
+                <string>&gt; Pre-Process Mocap Actions</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QWidget" name="preprocess_mocap_actions_widget" native="true">
+               <layout class="QVBoxLayout" name="verticalLayout_2">
+                <property name="spacing">
+                 <number>2</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QPushButton" name="reproject_mocap_ctrl_BTN">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>Re-Project Mocap Control under Hips</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="reproject_root_anim_BTN">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>Re-Project Root Anim under Hips</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="align_root_to_rig_BTN">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>Align Root to Rig</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="toggle_root_aim_BTN">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>Toggle Root Aim</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item>
-            <widget class="QCheckBox" name="set_time_range_CHK">
-             <property name="toolTip">
-              <string>Set the scene time range to match the clip after bake</string>
+            <layout class="QVBoxLayout" name="bake_configuration_root_layout">
+             <property name="spacing">
+              <number>2</number>
              </property>
-             <property name="text">
-              <string>Set Time Range</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
+             <item>
+              <widget class="QPushButton" name="bake_configuration_BTN">
+               <property name="styleSheet">
+                <string notr="true">background-color:rgb(75, 75, 75); text-align:left;</string>
+               </property>
+               <property name="text">
+                <string>&gt; Bake Configuration</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QWidget" name="bake_configuration_widget" native="true">
+               <layout class="QVBoxLayout" name="verticalLayout_6">
+                <property name="spacing">
+                 <number>2</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <layout class="QVBoxLayout" name="project_settings_layout"/>
+                </item>
+                <item>
+                 <layout class="QVBoxLayout" name="bake_configs">
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout">
+                    <item>
+                     <widget class="QCheckBox" name="align_mocap_CHK">
+                      <property name="toolTip">
+                       <string>Move the Mocap skeleton to match the rig at a certain pose</string>
+                      </property>
+                      <property name="text">
+                       <string>Align Mocap to:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QRadioButton" name="align_to_start_pose_RB">
+                      <property name="text">
+                       <string>Start Frame</string>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QRadioButton" name="align_to_end_pose_RB">
+                      <property name="text">
+                       <string>End Frame</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QComboBox" name="align_mocap_CB"/>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>0</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="euler_filter_CHK">
+                    <property name="toolTip">
+                     <string>Run an euler filter on the keys after baking</string>
+                    </property>
+                    <property name="text">
+                     <string>Euler Filter</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="set_time_range_CHK">
+                    <property name="toolTip">
+                     <string>Set the scene time range to match the clip after bake</string>
+                    </property>
+                    <property name="text">
+                     <string>Set Time Range</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="adjustment_blend_CHK">
+                    <property name="toolTip">
+                     <string>Blend the Start and End pose layer using the intensity of the base animation</string>
+                    </property>
+                    <property name="text">
+                     <string>Run Adjustment Blend</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_6">
+                    <property name="spacing">
+                     <number>2</number>
+                    </property>
+                    <item>
+                     <widget class="QCheckBox" name="save_clip_CHK">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="toolTip">
+                       <string>Enable this to automatically save the clip into the selected folder</string>
+                      </property>
+                      <property name="text">
+                       <string>Save As Clip</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QtPathWidget" name="output_path_W" native="true">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Output folder for the clips</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item>
-            <widget class="QCheckBox" name="adjustment_blend_CHK">
-             <property name="toolTip">
-              <string>Blend the Start and End pose layer using the intensity of the base animation</string>
-             </property>
-             <property name="text">
-              <string>Run Adjustment Blend</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_6">
-           <item>
-            <widget class="QCheckBox" name="save_clip_CHK">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>Enable this to automatically save the clip into the selected folder</string>
-             </property>
-             <property name="text">
-              <string>Save As Clip</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QtPathWidget" name="output_path_W" native="true">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>24</height>
-              </size>
-             </property>
-             <property name="toolTip">
-              <string>Output folder for the clips</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="bake_actions_layout">
-           <property name="spacing">
-            <number>3</number>
-           </property>
-           <item>
-            <widget class="QPushButton" name="connect_mocap_to_rig_BTN">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>Constrain the rig to the mocap skeleton</string>
-             </property>
-             <property name="text">
-              <string>Preview Mocap On Rig</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="bake_BTN">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>30</height>
-              </size>
-             </property>
-             <property name="toolTip">
-              <string>Bake the selected clip to the rig using the above configuration</string>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color:rgb(80, 80, 80)</string>
-             </property>
-             <property name="text">
-              <string>Bake to Rig</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="project_widgets_label_layout">
-           <property name="topMargin">
-            <number>10</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="label">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="font">
-              <font>
-               <italic>true</italic>
-              </font>
-             </property>
-             <property name="toolTip">
-              <string>Widgets defined for the studio/project using class overrides</string>
-             </property>
-             <property name="text">
-              <string>Project Actions</string>
-             </property>
-            </widget>
+            <layout class="QVBoxLayout" name="bake_actions_root_layout">
+             <item>
+              <widget class="QPushButton" name="bake_actions_BTN">
+               <property name="styleSheet">
+                <string notr="true">background-color:rgb(75, 75, 75); text-align:left;</string>
+               </property>
+               <property name="text">
+                <string>&gt; Bake Actions</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QWidget" name="bake_actions_widget" native="true">
+               <layout class="QVBoxLayout" name="verticalLayout_12">
+                <property name="spacing">
+                 <number>2</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <layout class="QHBoxLayout" name="bake_actions_layout">
+                  <property name="spacing">
+                   <number>3</number>
+                  </property>
+                  <item>
+                   <widget class="QPushButton" name="connect_mocap_to_rig_BTN">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="toolTip">
+                     <string>Constrain the rig to the mocap skeleton</string>
+                    </property>
+                    <property name="text">
+                     <string>Preview Mocap On Rig</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="bake_BTN">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>Bake the selected clip to the rig using the above configuration</string>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">background-color:rgb(80, 80, 80)</string>
+                    </property>
+                    <property name="text">
+                     <string>Bake to Rig</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item>
-            <widget class="Line" name="line_2">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>20</height>
-              </size>
-             </property>
+            <layout class="QVBoxLayout" name="project_widgets_root_layout">
+             <item>
+              <widget class="QPushButton" name="project_widgets_BTN">
+               <property name="styleSheet">
+                <string notr="true">background-color:rgb(75, 75, 75); text-align:left;</string>
+               </property>
+               <property name="text">
+                <string>&gt; Project Actions</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QWidget" name="project_widgets_widget" native="true">
+               <layout class="QVBoxLayout" name="verticalLayout_14">
+                <property name="spacing">
+                 <number>2</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <layout class="QVBoxLayout" name="project_widgets_layout"/>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <spacer name="verticalSpacer">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Vertical</enum>
              </property>
-            </widget>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="project_widgets_layout"/>
-         </item>
-        </layout>
+         </widget>
+        </widget>
        </item>
       </layout>
      </widget>

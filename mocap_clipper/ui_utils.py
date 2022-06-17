@@ -319,6 +319,7 @@ class QtPathWidget(QtWidgets.QWidget):
         # Browse path button
         self.browse_file_BTN = QtWidgets.QPushButton("...")
         self.browse_file_BTN.setMaximumWidth(40)
+        self.browse_file_BTN.setMaximumHeight(20)
         self.browse_file_BTN.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.browse_file_BTN.clicked.connect(self._open_dialog_and_set_path)
         main_layout.addWidget(self.browse_file_BTN)

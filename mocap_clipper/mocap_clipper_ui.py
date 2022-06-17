@@ -38,9 +38,20 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         # set UI
         self.scene_data = None
         self.ui.main_splitter.setSizes([1, 2])
-        self.update_from_project()
-        self.update_from_scene()
+        self.ui_refresh_from_project()
+        self.ui_refresh_from_scene()
 
+        self.set_ui_from_dcc_settings()
+        self.connect_ui_to_actions()
+        self.connect_layout_visbilities()
+        self.connect_marking_menus_and_shortcuts()
+
+        # Menu bar
+        menu_bar = QtWidgets.QMenuBar()
+        ui_utils.build_log_level_menu(menu_bar, log_cls=log)
+        self.setMenuBar(menu_bar)
+
+    def set_ui_from_dcc_settings(self):
         # set icons
         mocap_icon = mcs.dcc.get_mocap_icon() or QtGui.QIcon()
         refresh_icon = QtGui.QIcon(resources.get_image_path("refresh_icon"))
@@ -59,11 +70,19 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         if not self.ui.output_path_W.path() and default_project_folder:
             self.ui.output_path_W.set_path(default_project_folder)
 
+        # add project specific widgets and actions
+        for project_settings_widget in mcs.dcc.get_project_settings_widgets():
+            self.ui.project_settings_layout.addWidget(project_settings_widget)
+
+        for project_action_widget in mcs.dcc.get_project_action_widgets():
+            self.ui.project_widgets_layout.addWidget(project_action_widget)
+
+    def connect_ui_to_actions(self):
         # connect UI
         self.ui.import_mocap_BTN.clicked.connect(self.import_mocap)
-        self.ui.refresh_BTN.clicked.connect(self.update_from_scene)
-        self.ui.refresh_project_BTN.clicked.connect(self.update_project_poses)
-        self.ui.clips_LW.itemSelectionChanged.connect(self.update_clip_display_info)
+        self.ui.refresh_BTN.clicked.connect(self.ui_refresh_from_scene)
+        self.ui.refresh_project_BTN.clicked.connect(self.ui_refresh_from_project)
+        self.ui.clips_LW.itemSelectionChanged.connect(self.ui_update_clip_display_info)
 
         self.ui.clips_LW.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.ui.clips_LW.customContextMenuRequested.connect(self.build_clip_list_ctx_menu)
@@ -92,14 +111,20 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.connect_mocap_to_rig_BTN.clicked.connect(self.toggle_mocap_constraint)
         self.ui.bake_BTN.clicked.connect(self.bake_to_rig)
 
-        # right click menus
+    def connect_layout_visbilities(self):
+        self.ui.pose_configuration_BTN.toggled.connect(self.ui.pose_configuration_widget.setVisible)
+        self.ui.preprocess_mocap_actions_BTN.toggled.connect(self.ui.preprocess_mocap_actions_widget.setVisible)
+        self.ui.bake_configuration_BTN.toggled.connect(self.ui.bake_configuration_widget.setVisible)
+        self.ui.bake_actions_BTN.toggled.connect(self.ui.bake_actions_widget.setVisible)
+        self.ui.project_widgets_BTN.toggled.connect(self.ui.project_widgets_widget.setVisible)
+
+    def connect_marking_menus_and_shortcuts(self):
         widget_run_actions = {
             self.ui.start_pose_CB: self.apply_start_pose,
             self.ui.start_pose_CHK: self.apply_start_pose,
             self.ui.end_pose_CB: self.apply_end_pose,
             self.ui.end_pose_CHK: self.apply_end_pose,
             self.ui.end_pose_same_CHK: self.apply_end_pose,
-            self.ui.project_root_from_hips_CHK: self.project_root_animation_from_hips,
             self.ui.align_mocap_CHK: self.align_mocap_with_rig,
             self.ui.align_to_start_pose_RB: self.align_mocap_with_rig,
             self.ui.align_to_end_pose_RB: self.align_mocap_with_rig,
@@ -121,14 +146,6 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             self.delete_selected_clips,
         )
         del_hotkey.setContext(QtCore.Qt.WidgetShortcut)
-
-        # Hiding this since I don't think we want this, but I don't want to remove logic just yet
-        self.ui.project_root_from_hips_CHK.setVisible(False)
-
-        # Menu bar
-        menu_bar = QtWidgets.QMenuBar()
-        ui_utils.build_log_level_menu(menu_bar, log_cls=log)
-        self.setMenuBar(menu_bar)
 
     def deco_disable_clip_data_set_signals(func):
         """Decorator for disabling the scene node attribute setting while we're refreshing the UI"""
@@ -162,7 +179,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         clip_node = clip_data.get(k.cdc.node)
         rename_success = mcs.dcc.rename_clip(clip_node)
         if rename_success:
-            self.update_from_scene()
+            self.ui_refresh_from_scene()
 
     def delete_selected_clips(self):
         # find all namespaces used by each clip node
@@ -176,21 +193,10 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
         mcs.dcc.delete_clips(selected_clip_data, namespace_usage)
 
-        # refresh ui
-        self.update_from_scene()
+        self.ui_refresh_from_scene()
 
-    def update_from_project(self):
-
-        self.update_project_poses()
-
-        for project_settings_widget in mcs.dcc.get_project_settings_widgets():
-            self.ui.project_settings_layout.addWidget(project_settings_widget)
-
-        for project_action_widget in mcs.dcc.get_project_action_widgets():
-            self.ui.project_widgets_layout.addWidget(project_action_widget)
-            
     @deco_disable_clip_data_set_signals
-    def update_project_poses(self):
+    def ui_refresh_from_project(self):
         self.ui.start_pose_CB.clear()
         self.ui.end_pose_CB.clear()
 
@@ -202,7 +208,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             self.ui.start_pose_CB.addItem(pose_icon, pose_name, pose_file)
             self.ui.end_pose_CB.addItem(pose_icon, pose_name, pose_file)
 
-    def update_from_scene(self):
+    def ui_refresh_from_scene(self):
         self.scene_data = mcs.dcc.get_scene_time_editor_data()
         log.debug("Scene data refresh: {}".format(self.scene_data))
 
@@ -224,7 +230,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             self.ui.scene_actor_CB.addItem(rig_icon, rig_name)
 
     @deco_disable_clip_data_set_signals
-    def update_clip_display_info(self):
+    def ui_update_clip_display_info(self):
         selected_clips = self.ui.clips_LW.selectedItems()
 
         valid_selection = False
@@ -425,7 +431,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             mocap_nodes = mcs.dcc.import_mocap(file_path)
             mcs.dcc.create_time_editor_clip(mocap_nodes, clip_name)
 
-        self.update_from_scene()
+        self.ui_refresh_from_scene()
 
     def bake_to_rig(self):
         active_clip_data = self.get_active_clip_data()
