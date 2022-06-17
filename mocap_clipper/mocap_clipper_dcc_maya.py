@@ -1,4 +1,5 @@
 import os.path
+import json
 
 import pymel.core as pm
 from maya import cmds
@@ -49,22 +50,22 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
                 start_frame_offset += parent_clip_node.getAttr(f"clip[{parent_i}].clipStart")
                 parent_clip_node = clip_hierarchy.get(parent_clip_name)
 
-            clip_data = dict()
-            clip_data[k.cdc.start_frame] = te_clip.getAttr(f"clip[{i}].clipStart") + start_frame_offset
-            clip_data[k.cdc.frame_duration] = te_clip.getAttr(f"clip[{i}].clipDuration")
-            clip_data[k.cdc.end_frame] = clip_data[k.cdc.start_frame] + clip_data[k.cdc.frame_duration]
-            clip_data[k.cdc.node] = te_clip
-            clip_data[k.cdc.clip_parent] = clip_parent
-            clip_data[k.cdc.namespace] = get_namespace_from_time_clip(te_clip)
-            clip_data[k.cdc.clip_name] = clip_name
-            clip_data[k.cdc.clip_color] = te_clip.getAttr(f"clip[{i}].clipColor")
+            clip_data = k.ClipData()
 
-            # mocap_clipper attributes
-            clip_data[k.cdc.start_pose_enabled] = self.get_attr(te_clip, k.cdc.start_pose_enabled, default=False)
-            clip_data[k.cdc.start_pose_path] = self.get_attr(te_clip, k.cdc.start_pose_path, default="")
-            clip_data[k.cdc.end_pose_enabled] = self.get_attr(te_clip, k.cdc.end_pose_enabled, default=False)
-            clip_data[k.cdc.end_pose_path] = self.get_attr(te_clip, k.cdc.end_pose_path, default="")
-            clip_data[k.cdc.end_pose_same_as_start] = self.get_attr(te_clip, k.cdc.end_pose_same_as_start, default=False)
+            # fill data from attribute string if it exists, this will contain things like start and end pose
+            mocap_clipper_data_string = self.get_attr(te_clip, k.SceneConstants.mocap_clipper_data, default="{}")
+            mocap_clipper_data = json.loads(mocap_clipper_data_string)
+            clip_data.from_dict(mocap_clipper_data)
+
+            # stomp with data from the maya node
+            clip_data.start_frame = te_clip.getAttr(f"clip[{i}].clipStart") + start_frame_offset
+            clip_data.frame_duration = te_clip.getAttr(f"clip[{i}].clipDuration")
+            clip_data.end_frame = clip_data.start_frame + clip_data.frame_duration
+            clip_data.node = te_clip
+            clip_data.clip_parent = clip_parent
+            clip_data.namespace = get_namespace_from_time_clip(te_clip)
+            clip_data.clip_name = clip_name
+            clip_data.clip_color = te_clip.getAttr(f"clip[{i}].clipColor")
 
             all_clip_data[clip_name] = clip_data
 
@@ -197,18 +198,16 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
 
     def delete_clips(self, clip_datas, namespace_usage):
         to_delete = []
-        for clip_data in clip_datas:
-            time_clip_node = clip_data.get(k.cdc.node)
-
-            mocap_ns = clip_data.get(k.cdc.namespace)
+        for clip_data in clip_datas:  # type: k.ClipData
+            mocap_ns = clip_data.namespace
             amount_of_clips_with_this_namespace = len(namespace_usage.get(mocap_ns))
 
             if amount_of_clips_with_this_namespace == 1:
                 log.info("Only one clip found using this namespace, removing skeleton from scene: {}".format(mocap_ns))
                 pm.namespace(removeNamespace=mocap_ns.rstrip(":"), deleteNamespaceContent=True)
 
-            to_delete.append(time_clip_node)
-            namespace_usage[mocap_ns].remove(time_clip_node)
+            to_delete.append(clip_data.node)
+            namespace_usage[mocap_ns].remove(clip_data.node)
 
         pm.delete(to_delete)
 

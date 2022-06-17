@@ -62,7 +62,7 @@ class MocapClipperCoreInterface(object):
     def post_bake(self):
         pass  # method that runs after everything has been baked
 
-    def save_clip(self, clip_data):
+    def save_clip(self, clip_data, bake_config):
         self.log_missing_implementation(self.save_clip)
 
     def get_project_settings_widgets(self):
@@ -92,30 +92,29 @@ class MocapClipperCoreInterface(object):
         The big bake function that runs when pressing Bake To Rig
 
         Args:
-            clip_data (dict): Result of self.get_scene_time_editor_data with some extra key from the UI
+            clip_data (k.ClipData): Result of self.get_scene_time_editor_data with some extra keys from the UI
             bake_config (k.BakeConfig):
 
         Returns:
 
         """
 
-        rig_name = clip_data.get(k.cdc.target_rig)
-        mocap_namespace = clip_data.get(k.cdc.namespace)
+        cd = clip_data
 
-        apply_start_pose = clip_data.get(k.cdc.start_pose_enabled)
-        apply_end_pose = clip_data.get(k.cdc.end_pose_enabled)
-        end_pose_same_as_start = clip_data.get(k.cdc.end_pose_same_as_start)
+        rig_name = bake_config.target_rig
+        mocap_namespace = cd.namespace
+
+        apply_start_pose = cd.start_pose_enabled
+        apply_end_pose = cd.end_pose_enabled
+        end_pose_same_as_start = cd.end_pose_same_as_start
         pose_layer_should_be_created = any([apply_start_pose, apply_end_pose, end_pose_same_as_start])
 
-        start_frame = clip_data.get(k.cdc.start_frame)
-        end_frame = clip_data.get(k.cdc.end_frame)
+        start_frame = cd.start_frame
+        end_frame = cd.end_frame
         log.info("Baking range: '{} - {}' to rig: '{}'".format(start_frame, end_frame, rig_name))
 
         log.debug("Running PreBake: {}".format(self.pre_bake))
         self.pre_bake()
-
-        if bake_config.project_root_from_hips:
-            self.project_root_animation_from_hips(mocap_namespace)
 
         if bake_config.align_mocap_to_pose:
 
@@ -124,12 +123,12 @@ class MocapClipperCoreInterface(object):
                 alignment_frame = start_frame
 
                 if apply_start_pose:
-                    pose_path = clip_data.get(k.cdc.start_pose_path)
+                    pose_path = cd.start_pose_path
             else:
                 alignment_frame = end_frame
 
                 if apply_end_pose:
-                    pose_path = clip_data.get(k.cdc.end_pose_path)
+                    pose_path = cd.end_pose_path
 
             if pose_path:
                 log.info("Applying pose for alignment: {}".format(pose_path))
@@ -166,7 +165,7 @@ class MocapClipperCoreInterface(object):
             self.set_key_on_pose_layer(rig_controls, on_frame=end_frame)
 
             if apply_start_pose:
-                start_pose_path = clip_data.get(k.cdc.start_pose_path)
+                start_pose_path = cd.start_pose_path
                 log.info("Applying start pose: {}".format(start_pose_path))
                 self.apply_pose(
                     pose_path=start_pose_path,
@@ -176,7 +175,7 @@ class MocapClipperCoreInterface(object):
                 self.set_key_on_pose_layer(rig_controls)
 
             if apply_end_pose:
-                end_pose_path = clip_data.get(k.cdc.end_pose_path)
+                end_pose_path = cd.end_pose_path
                 log.info("Applying start pose: {}".format(end_pose_path))
                 self.apply_pose(
                     pose_path=end_pose_path,
@@ -210,7 +209,7 @@ class MocapClipperCoreInterface(object):
         self.post_bake()
 
         if bake_config.save_clip:
-            self.save_clip(clip_data)
+            self.save_clip(clip_data, bake_config)
 
     def get_alignment_joint_names(self):
         return "root", "pelvis"
@@ -224,6 +223,9 @@ class MocapClipperCoreInterface(object):
 
     def set_mocap_visibility(self, mocap_namespace, state=True):
         self.log_missing_implementation(self.get_scene_time_editor_data)
+
+    def set_random_color_on_clip(self, clip_node):
+        self.log_missing_implementation(self.set_random_color_on_clip)
 
     def import_mocap(self, file_path):
         self.log_missing_implementation(self.import_mocap)
