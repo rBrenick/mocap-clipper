@@ -302,6 +302,11 @@
              </property>
              <item>
               <widget class="QPushButton" name="pose_configuration_BTN">
+               <property name="font">
+                <font>
+                 <italic>true</italic>
+                </font>
+               </property>
                <property name="styleSheet">
                 <string notr="true">background-color:rgb(75, 75, 75); text-align:left;</string>
                </property>
@@ -517,6 +522,11 @@
              </property>
              <item>
               <widget class="QPushButton" name="bake_configuration_BTN">
+               <property name="font">
+                <font>
+                 <italic>true</italic>
+                </font>
+               </property>
                <property name="styleSheet">
                 <string notr="true">background-color:rgb(75, 75, 75); text-align:left;</string>
                </property>
@@ -684,6 +694,11 @@
             <layout class="QVBoxLayout" name="bake_actions_root_layout">
              <item>
               <widget class="QPushButton" name="bake_actions_BTN">
+               <property name="font">
+                <font>
+                 <italic>true</italic>
+                </font>
+               </property>
                <property name="styleSheet">
                 <string notr="true">background-color:rgb(75, 75, 75); text-align:left;</string>
                </property>
@@ -764,6 +779,11 @@
             <layout class="QVBoxLayout" name="project_widgets_root_layout">
              <item>
               <widget class="QPushButton" name="project_widgets_BTN">
+               <property name="font">
+                <font>
+                 <italic>true</italic>
+                </font>
+               </property>
                <property name="styleSheet">
                 <string notr="true">background-color:rgb(75, 75, 75); text-align:left;</string>
                </property>

@@ -235,9 +235,6 @@ class MocapClipperCoreInterface(object):
     def delete_clips(self, clip_data, namespace_usage):
         self.log_missing_implementation(self.delete_clips)
 
-    def create_time_editor_clip(self, mocap_nodes, clip_name):
-        self.log_missing_implementation(self.create_time_editor_clip)
-
     def align_mocap_to_rig(self, mocap_namespace, rig_name, root_name="root", alignment_name="pelvis", on_frame=None):
         self.log_missing_implementation(self.align_mocap_to_rig)
 
@@ -274,3 +271,14 @@ class MocapClipperCoreInterface(object):
     def get_attr(self, node, attr_name, default=None):
         self.log_missing_implementation(self.get_attr)
         return  # some value
+
+    def get_random_color(self):
+        import random
+        import colorsys
+
+        hue = random.random()
+        light = 0.6
+        saturation = 0.25 + ((random.random() - 0.5) * 0.2)  # 0.2 + (random.random() / 3.0)
+
+        random_color = colorsys.hls_to_rgb(hue, light, saturation)
+        return random_color

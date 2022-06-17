@@ -12,6 +12,12 @@ log = mocap_clipper_logger.get_logger()
 
 
 class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
+    def __init__(self, *args, **kwargs):
+        super(MocapClipperMaya, self).__init__(*args, **kwargs)
+
+        self.assign_random_color_on_new_clip = True
+        self.auto_create_time_editor_clip_from_mocap = True
+
     def get_scene_time_editor_data(self):
         all_clip_data = dict()
         scene_clips = pm.ls(type="timeEditorClip")
@@ -51,6 +57,7 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             clip_data[k.cdc.clip_parent] = clip_parent
             clip_data[k.cdc.namespace] = get_namespace_from_time_clip(te_clip)
             clip_data[k.cdc.clip_name] = clip_name
+            clip_data[k.cdc.clip_color] = te_clip.getAttr(f"clip[{i}].clipColor")
 
             # mocap_clipper attributes
             clip_data[k.cdc.start_pose_enabled] = self.get_attr(te_clip, k.cdc.start_pose_enabled, default=False)
@@ -85,6 +92,8 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         node.setAttr(attr_name, value, type="string")
 
     def import_mocap(self, file_path):
+        clip_name = os.path.splitext(os.path.basename(file_path))[0]
+
         nspace = 'mocapImport'
         i = 0
         while pm.namespace(exists=nspace + str(i)):
@@ -125,6 +134,12 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             for mocap_node in pm.listRelatives(mocap_top_node, ad=True, type="joint"):
                 mocap_nodes.append(mocap_node)
 
+        if self.auto_create_time_editor_clip_from_mocap:
+            new_clip = create_time_editor_clip(mocap_nodes, clip_name)
+
+            if self.assign_random_color_on_new_clip:
+                self.set_random_color_on_clip(new_clip)
+
         return mocap_nodes
 
     def project_mocap_ctrl_to_ground_under_hips(self, namespace):
@@ -151,14 +166,19 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
 
         # reset the offset transform to invert this offset
         mocap_ctrl_offset_node.setMatrix(offset_world_matrix, worldSpace=True)
+        pm.select(mocap_ctrl_node)
 
     def set_mocap_visibility(self, mocap_namespace, state=True):
         mocap_top_name = "{}{}".format(mocap_namespace, k.SceneConstants.mocap_top_node_name)
         mocap_top_node = pm.PyNode(mocap_top_name)
         mocap_top_node.visibility.set(state)
 
-    def create_time_editor_clip(self, mocap_nodes, clip_name):
-        return create_time_editor_clip(mocap_nodes, clip_name)
+    def set_random_color_on_clip(self, clip_node):
+        random_color = self.get_random_color()
+
+        # set color on time clip
+        pm.setAttr(clip_node + ".clip[0].useClipColor", True)
+        pm.setAttr(clip_node + ".clip[0].clipColor", *random_color)
 
     def rename_clip(self, node, new_clip_name=None):
         if not new_clip_name:
@@ -258,14 +278,14 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
     def project_root_animation_from_hips(self, mocap_namespace):
         with pm.UndoChunk():
             project_new_root(
-                mocap_namespace + "root",
+                mocap_namespace + k.SceneConstants.skeleton_root,
                 mocap_namespace + "pelvis",
             )
 
     def toggle_root_aim(self, mocap_namespace):
         mocap_aim_ctrl_name = "{}{}".format(mocap_namespace, "root_aim_ctrl")
         mocap_top_name = "{}{}".format(mocap_namespace, k.SceneConstants.mocap_top_node_name)
-        mocap_root_name = "{}{}".format(mocap_namespace, "root")
+        mocap_root_name = "{}{}".format(mocap_namespace, k.SceneConstants.skeleton_root)
 
         if pm.objExists(mocap_aim_ctrl_name):
             top_rotate = pm.getAttr(mocap_top_name+".rotate")
@@ -340,13 +360,15 @@ def create_time_editor_clip(nodes, clip_name="SpecialClip"):
     cmds.timeEditorTracks(composition_name, edit=True, addTrack=-1, trackName=track_name)
 
     pm.select(nodes)
-    cmds.timeEditorClip(
+    clip_id = cmds.timeEditorClip(
         clip_name,
         track='{}|{}'.format(composition_name, track_name),
         addSelectedObjects=True
     )
 
     cmds.timeEditor(mute=False)
+
+    return cmds.timeEditorClip(clip_id, query=True, clipNode=True)
 
 
 def project_new_root(mocap_root, mocap_pelvis):

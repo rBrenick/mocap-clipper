@@ -164,6 +164,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
     def build_clip_list_ctx_menu(self):
         action_list = [
+            {"Assign Random Color": self.set_random_clip_color},
             {"Rename Clip": self.rename_selected_clip},
             {"Delete Clip(s)": self.delete_selected_clips},
             {"Re-Project Mocap Control under Hips": self.reproject_mocap_control_under_hips},
@@ -180,6 +181,12 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         rename_success = mcs.dcc.rename_clip(clip_node)
         if rename_success:
             self.ui_refresh_from_scene()
+
+    def set_random_clip_color(self):
+        for clip_data in self.get_selected_clip_data():
+            clip_node = clip_data.get(k.cdc.node)
+            mcs.dcc.set_random_color_on_clip(clip_node)
+        self.ui_refresh_from_scene()
 
     def delete_selected_clips(self):
         # find all namespaces used by each clip node
@@ -216,10 +223,25 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
         # update clip list
         self.ui.clips_LW.clear()
-        for clip_name in self.scene_data.keys():
+        for clip_name, clip_data in self.scene_data.items():
             lw = QtWidgets.QListWidgetItem()
             lw.setText(clip_name)
             lw.setIcon(clip_icon)
+
+            # background color
+            clip_color = clip_data.get(k.cdc.clip_color)
+            if clip_color:
+                rgb_color = QtGui.QColor(*[x * 256 for x in clip_color])
+                lw.setBackgroundColor(rgb_color)
+
+            # text color
+            lw.setForeground(QtGui.QColor(0, 0, 0))
+
+            # font styling
+            f = lw.font() # type: QtGui.QFont
+            f.setItalic(True)
+            lw.setFont(f)
+
             self.ui.clips_LW.addItem(lw)
 
         # update actor list
@@ -426,10 +448,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         if not file_paths:
             return
         for file_path in file_paths:
-            clip_name = os.path.splitext(os.path.basename(file_path))[0]
-
-            mocap_nodes = mcs.dcc.import_mocap(file_path)
-            mcs.dcc.create_time_editor_clip(mocap_nodes, clip_name)
+            mcs.dcc.import_mocap(file_path)
 
         self.ui_refresh_from_scene()
 

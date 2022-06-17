@@ -7,6 +7,7 @@ class SceneConstants:
     mocap_top_node_name = "mocap_top_node"
     mocap_ctrl_name = "mocap_ctrl"
     mocap_ctrl_offset_name = "mocap_ctrl_reverse_offset"
+    skeleton_root = "root"
 
 
 class ClipDataConstants:
@@ -15,6 +16,7 @@ class ClipDataConstants:
     frame_duration = "frame_duration"
     node = "node"
     clip_parent = "clip_parent"
+    clip_color = "clip_color"
     namespace = "namespace"
 
     # mocap_clipper attributes
