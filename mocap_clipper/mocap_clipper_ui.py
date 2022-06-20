@@ -468,11 +468,18 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         bake_config.target_rig = self.get_active_rig()
         bake_config.output_folder = self.ui.output_path_W.path()
 
-        # run bake on all selected clips
-        for clip_lw in self.ui.clips_LW.selectedItems():  # type: QtWidgets.QListWidgetItem
-            clip_name = clip_lw.text()
-            clip_data = self.scene_data.get(clip_name)  # type: k.ClipData
-            mcs.dcc.main_bake_function(clip_data, bake_config)
+        try:
+            # set window to semi-transparent while it's working
+            self.window().setWindowOpacity(0.6)
+
+            # run bake on all selected clips
+            for clip_lw in self.ui.clips_LW.selectedItems():  # type: QtWidgets.QListWidgetItem
+                clip_name = clip_lw.text()
+                clip_data = self.scene_data.get(clip_name)  # type: k.ClipData
+                mcs.dcc.main_bake_function(clip_data, bake_config)
+
+        finally:
+            self.window().setWindowOpacity(1.0)
 
     def apply_start_pose(self):
         start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
