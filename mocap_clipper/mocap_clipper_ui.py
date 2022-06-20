@@ -47,6 +47,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.connect_layout_visbilities()
         self.connect_marking_menus_and_shortcuts()
 
+        ui_utils.set_combo_box_searchable(self.ui.start_pose_CB)
+        ui_utils.set_combo_box_searchable(self.ui.end_pose_CB)
+
         # Menu bar
         menu_bar = QtWidgets.QMenuBar()
         ui_utils.build_log_level_menu(menu_bar, log_cls=log)
@@ -214,9 +217,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.end_pose_CB.clear()
 
         pose_files = mcs.dcc.get_pose_files()
-        pose_icon = mcs.dcc.get_pose_icon() or QtGui.QIcon()
 
         for pose_file in pose_files:
+            pose_icon = mcs.dcc.get_pose_icon(pose_file) or QtGui.QIcon()
             pose_name = os.path.splitext(os.path.basename(pose_file))[0]
             self.ui.start_pose_CB.addItem(pose_icon, pose_name, pose_file)
             self.ui.end_pose_CB.addItem(pose_icon, pose_name, pose_file)

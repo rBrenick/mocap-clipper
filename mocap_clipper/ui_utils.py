@@ -113,7 +113,7 @@ if active_dcc_is_maya:
                 class_name=self.__class__.__name__,
             )
 
-            self.show(dockable=True, height=500, width=500, uiScript=launch_ui_script)
+            self.show(dockable=True, height=500, width=700, uiScript=launch_ui_script)
 
             self.WORKSPACE_NAMES.append(self.parent().objectName())
             return self
@@ -246,6 +246,21 @@ def get_list_widget_items(list_widget):
         list_widget_items.append(lwi)
 
     return list_widget_items
+
+
+def set_combo_box_searchable(combo_box):
+    combo_box.setFocusPolicy(QtCore.Qt.StrongFocus)
+    combo_box.setEditable(True)
+    combo_box.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
+
+    filter_model = QtCore.QSortFilterProxyModel(combo_box)
+    filter_model.setFilterCaseSensitivity(QtCore.Qt.CaseInsensitive)
+    filter_model.setSourceModel(combo_box.model())
+
+    completer = QtWidgets.QCompleter(filter_model, combo_box)
+    completer.setCompletionMode(QtWidgets.QCompleter.UnfilteredPopupCompletion)
+    combo_box.setCompleter(completer)
+    combo_box.lineEdit().textEdited.connect(filter_model.setFilterFixedString)
 
 
 def build_log_level_menu(menu_bar, log_cls):

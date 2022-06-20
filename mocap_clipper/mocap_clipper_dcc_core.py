@@ -77,7 +77,7 @@ class MocapClipperCoreInterface(object):
     def get_project_action_widgets(self):
         return []  # optional list of qwidgets
 
-    def get_pose_icon(self):
+    def get_pose_icon(self, pose_path=None):
         return None  # qicon
 
     def get_mocap_icon(self):
