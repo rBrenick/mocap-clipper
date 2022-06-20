@@ -63,7 +63,10 @@ class MocapClipperCoreInterface(object):
         pass  # method that runs before baking to the rig
 
     def post_bake(self):
-        pass  # method that runs after everything has been baked
+        pass  # method that runs after the clip has been baked to the rig
+
+    def post_all_clips_bake(self):
+        pass  # method that runs after all the clips have been processed
 
     def save_clip(self, clip_data, bake_config):
         self.log_missing_implementation(self.save_clip)

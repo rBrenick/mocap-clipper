@@ -478,6 +478,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
                 clip_data = self.scene_data.get(clip_name)  # type: k.ClipData
                 mcs.dcc.main_bake_function(clip_data, bake_config)
 
+            mcs.dcc.post_all_clips_bake()
+
         finally:
             self.window().setWindowOpacity(1.0)
 
