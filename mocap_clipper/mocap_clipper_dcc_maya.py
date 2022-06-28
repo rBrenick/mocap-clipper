@@ -269,10 +269,39 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             mocap_ctrl_node.setTranslation(diff_pos)
 
         # create new root that's aligned with the rig (since the mocap one might be a bit off)
-        mocap_ctrl = get_mocap_root_ctrl(mocap_root=pm.PyNode(root))
-
+        mocap_root_ctrl = get_mocap_root_ctrl(mocap_root=pm.PyNode(root))
         rig_root_matrix = pm.getAttr(rig_root + ".worldMatrix")
-        mocap_ctrl.setMatrix(rig_root_matrix, worldSpace=True)
+        set_mocap_ctrl_world_matrix(mocap_root_ctrl, rig_root_matrix)
+
+    def align_mocap_to_world_origin(self, mocap_namespace, root_name="root", alignment_name="root"):
+        mocap_ctrl_name = "{}{}".format(mocap_namespace, k.SceneConstants.mocap_ctrl_name)
+        mocap_ctrl_node = pm.PyNode(mocap_ctrl_name)
+
+        mocap_root = mocap_namespace + root_name
+        alignment_node_name = mocap_namespace + alignment_name
+
+        # align with rig joint
+        alignment_matrix = pm.getAttr(alignment_node_name + ".worldMatrix")
+
+        target_matrix = pm.dt.Matrix([
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 2.220446049250313e-16, -1.0000000000000002, 0.0],
+            [0.0, 1.0000000000000002, 2.220446049250313e-16, 0.0],
+            [0.0, 0.0, 0.0, 1.0]
+        ])
+
+        # calculate relative matrix between controller and alignment joint
+        reverse_alignment = mocap_ctrl_node.getMatrix(worldSpace=True) * alignment_matrix.inverse()
+
+        # add that relative matrix to target world matrix
+        out_matrix = reverse_alignment * target_matrix
+
+        # set final parent matrix
+        mocap_ctrl_node.setMatrix(out_matrix, worldSpace=True)
+
+        # remove rotation from mocap_ctrl attribute
+        mocap_root_ctrl = get_mocap_root_ctrl(mocap_root=pm.PyNode(mocap_root))
+        mocap_root_ctrl.setAttr("worldRotateY", 0)
 
     def project_root_animation_from_hips(self, mocap_namespace):
         with pm.UndoChunk():
@@ -336,6 +365,15 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
 
     def get_clip_icon(self):
         return QtGui.QIcon(":adjustTimeline.png")
+
+
+def set_mocap_ctrl_world_matrix(mocap_ctrl, world_matrix):
+    mocap_ctrl.setMatrix(world_matrix, worldSpace=True)
+
+    # since the mocap_ctrl rotation is locked, we need to set our custom rotate attribute
+    mocap_root_rotation = world_matrix.rotate.asEulerRotation()
+    mocap_root_rotation.setDisplayUnit(pm.dt.Angle.Unit.degrees)
+    mocap_ctrl.setAttr("worldRotateY", mocap_root_rotation.y)
 
 
 def get_namespace_from_time_clip(te_clip):

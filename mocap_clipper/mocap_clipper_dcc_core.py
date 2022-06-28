@@ -254,6 +254,9 @@ class MocapClipperCoreInterface(object):
     def align_mocap_to_rig(self, mocap_namespace, rig_name, root_name="root", alignment_name="pelvis", on_frame=None):
         self.log_missing_implementation(self.align_mocap_to_rig)
 
+    def align_mocap_to_world_origin(self, mocap_namespace, root_name="root", alignment_name="pelvis"):
+        self.log_missing_implementation(self.align_mocap_to_rig)
+
     def remove_pose_anim_layer(self):
         self.log_missing_implementation(self.remove_pose_anim_layer)
 

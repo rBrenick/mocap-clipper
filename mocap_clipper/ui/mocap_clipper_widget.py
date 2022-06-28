@@ -19,7 +19,7 @@ class Ui_MocapClipperWidget(object):
     def setupUi(self, MocapClipperWidget):
         if not MocapClipperWidget.objectName():
             MocapClipperWidget.setObjectName(u"MocapClipperWidget")
-        MocapClipperWidget.resize(709, 588)
+        MocapClipperWidget.resize(806, 783)
         self.main_layout = QVBoxLayout(MocapClipperWidget)
         self.main_layout.setSpacing(2)
         self.main_layout.setObjectName(u"main_layout")
@@ -92,7 +92,7 @@ class Ui_MocapClipperWidget(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 390, 610))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 464, 775))
         self.verticalLayout = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -284,13 +284,24 @@ class Ui_MocapClipperWidget(object):
 
         self.verticalLayout_2.addWidget(self.reproject_root_anim_BTN)
 
+        self.horizontalLayout_4 = QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.align_root_to_origin_BTN = QPushButton(self.preprocess_mocap_actions_widget)
+        self.align_root_to_origin_BTN.setObjectName(u"align_root_to_origin_BTN")
+        self.align_root_to_origin_BTN.setEnabled(False)
+
+        self.horizontalLayout_4.addWidget(self.align_root_to_origin_BTN)
+
         self.align_root_to_rig_BTN = QPushButton(self.preprocess_mocap_actions_widget)
         self.align_root_to_rig_BTN.setObjectName(u"align_root_to_rig_BTN")
         self.align_root_to_rig_BTN.setEnabled(False)
         sizePolicy4.setHeightForWidth(self.align_root_to_rig_BTN.sizePolicy().hasHeightForWidth())
         self.align_root_to_rig_BTN.setSizePolicy(sizePolicy4)
 
-        self.verticalLayout_2.addWidget(self.align_root_to_rig_BTN)
+        self.horizontalLayout_4.addWidget(self.align_root_to_rig_BTN)
+
+
+        self.verticalLayout_2.addLayout(self.horizontalLayout_4)
 
         self.toggle_root_aim_BTN = QPushButton(self.preprocess_mocap_actions_widget)
         self.toggle_root_aim_BTN.setObjectName(u"toggle_root_aim_BTN")
@@ -527,6 +538,7 @@ class Ui_MocapClipperWidget(object):
         self.preprocess_mocap_actions_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"> Pre-Process Mocap Actions", None))
         self.reproject_mocap_ctrl_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Re-Project Mocap Control under Hips", None))
         self.reproject_root_anim_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Re-Project Root Anim under Hips", None))
+        self.align_root_to_origin_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Align Root to World Origin", None))
         self.align_root_to_rig_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Align Root to Rig", None))
         self.toggle_root_aim_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"Toggle Root Aim", None))
         self.bake_configuration_BTN.setText(QCoreApplication.translate("MocapClipperWidget", u"> Bake Configuration", None))

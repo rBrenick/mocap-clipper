@@ -96,6 +96,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.reproject_root_anim_BTN.clicked.connect(self.project_root_animation_from_hips)
         self.ui.reproject_mocap_ctrl_BTN.clicked.connect(self.reproject_mocap_control_under_hips)
         self.ui.align_root_to_rig_BTN.clicked.connect(self.align_mocap_with_rig)
+        self.ui.align_root_to_origin_BTN.clicked.connect(self.align_mocap_to_world_origin)
         self.ui.toggle_root_aim_BTN.clicked.connect(self.toggle_root_aim)
 
         # clip data
@@ -334,6 +335,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.reproject_mocap_ctrl_BTN.setEnabled(valid_selection)
         self.ui.reproject_root_anim_BTN.setEnabled(valid_selection)
         self.ui.align_root_to_rig_BTN.setEnabled(valid_selection)
+        self.ui.align_root_to_origin_BTN.setEnabled(valid_selection)
         self.ui.toggle_root_aim_BTN.setEnabled(valid_selection)
 
     def get_active_clip_data(self):
@@ -512,10 +514,22 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         if not clip_data:
             log.warning("Clip not found in selection")
             return
+
         rig_name = self.get_active_rig()
         mcs.dcc.align_mocap_to_rig(
             clip_data.namespace,
             rig_name,
+            alignment_name=self.ui.align_mocap_CB.currentText(),
+        )
+
+    def align_mocap_to_world_origin(self):
+        clip_data = self.get_active_clip_data()
+        if not clip_data:
+            log.warning("Clip not found in selection")
+            return
+
+        mcs.dcc.align_mocap_to_world_origin(
+            clip_data.namespace,
             alignment_name=self.ui.align_mocap_CB.currentText(),
         )
 
