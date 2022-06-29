@@ -1,3 +1,6 @@
+import json
+
+
 class ModuleConstants:
     extension_file_prefix = "mocap_clipper_ext"
 
@@ -34,7 +37,7 @@ class ClipData(object):
     def to_dict(self):
         out_dict = {}
         for k, v in self.__dict__.items():
-            if v == self.node:
+            if not is_jsonable(v):
                 v = str(self.node)
             out_dict[k] = v
         return out_dict
@@ -59,3 +62,11 @@ class BakeConfig(object):
 
         self.target_rig = None
         self.output_folder = ""
+
+
+def is_jsonable(x):
+    try:
+        json.dumps(x)
+        return True
+    except Exception as e:
+        return False
