@@ -38,7 +38,7 @@ class ClipData(object):
         out_dict = {}
         for k, v in self.__dict__.items():
             if not is_jsonable(v):
-                v = str(self.node)
+                v = str(v)
             out_dict[k] = v
         return out_dict
 
