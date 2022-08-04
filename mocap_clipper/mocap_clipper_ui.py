@@ -24,9 +24,16 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         log.debug("Window __init__")
 
         self.ui = mocap_clipper_widget.Ui_MocapClipperWidget()
+        clipper_ui_widget = QtWidgets.QWidget()
+        self.ui.setupUi(clipper_ui_widget)
+
+        main_layout = QtWidgets.QVBoxLayout()
+        main_layout.setContentsMargins(2, 2, 2, 2)
+        main_layout.addWidget(clipper_ui_widget)
         main_ui_widget = QtWidgets.QWidget()
-        self.ui.setupUi(main_ui_widget)
+        main_ui_widget.setLayout(main_layout)
         self.setCentralWidget(main_ui_widget)
+
         self.setWindowTitle("Mocap Clipper")
         self.setWindowIcon(QtGui.QIcon(resources.get_image_path("mocap_clipper_icon")))
 
