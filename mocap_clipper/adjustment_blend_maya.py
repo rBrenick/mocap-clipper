@@ -79,6 +79,13 @@ def adjustment_blend(layer_name="AnimLayer1", allow_ui=False):
 
         percentage_values = {}
         for a in affected_attrs:
+            if allow_ui:
+                ProgressBar(
+                    "AdjustmentBlend - calculating attribute deltas",
+                    total=len(affected_attrs),
+                    status="Attribute: {}".format(a),
+                    wide=True,
+                )
 
             # get base animation values
             base_anim_values = {}
@@ -111,7 +118,16 @@ def adjustment_blend(layer_name="AnimLayer1", allow_ui=False):
         anim_layer.setMute(False)
 
         # create final attribute setting on curves
-        for anim_curve in anim_layer.getAnimCurves():
+        curves_to_modify = anim_layer.getAnimCurves()
+        for anim_curve in curves_to_modify:
+            if allow_ui:
+                ProgressBar(
+                    "AdjustmentBlend - setting keys",
+                    total=len(curves_to_modify),
+                    status="Curve: {}".format(anim_curve),
+                    wide=True,
+                )
+
             start_value, end_value = start_and_end_values[key_index][anim_curve]
             if start_value == end_value:
                 continue
@@ -202,6 +218,63 @@ def run_adjustment_blend(layer_name=None, allow_ui=False):
 
     with pm.UndoChunk():
         adjustment_blend(layer_name, allow_ui)
+
+
+class ProgressBar(object):
+    """
+    Convenience function for showing a progress bar in Maya
+
+    ---- simple example
+
+    for i in range(20):
+        ProgressBar("Waiting for something", total=20)
+        time.sleep(0.3)
+
+
+    ---- little more complex example
+
+    example_list = range(20)
+    for i in example_list:
+        ProgressBar("ProgressTitle", total=len(example_list), status="example: {}".format(i), wide=True)
+        time.sleep(0.3)
+
+
+    """
+    PROGRESS_BARS = {}
+
+    def __new__(cls, title, total, *args, **kwargs):
+
+        status = kwargs.pop("status") if kwargs.get("status") else "Computing..."
+        kwargs.pop("wide") if kwargs.get("wide") else None
+
+        if ProgressBar.PROGRESS_BARS.get(title):
+            current_amount = cmds.progressWindow(query=True, progress=True)
+            new_amount = current_amount + 1
+            if new_amount < total:
+                cmds.progressWindow(edit=True, progress=new_amount, status=status)
+                return None
+
+            if new_amount == total:
+                cmds.progressWindow(endProgress=True)
+                ProgressBar.PROGRESS_BARS.pop(title)
+                return None
+
+        return super(ProgressBar, cls).__new__(cls, *args, **kwargs)
+
+    def __init__(self, title, total, status="Computing...", wide=False):
+        cmds.progressWindow(endProgress=True)
+
+        if wide:
+            init_status = "#" * 100
+        else:
+            init_status = status
+
+        self.total = total
+        cmds.progressWindow(title=title, progress=1, maxValue=total, status=init_status, isInterruptable=False)
+
+        cmds.progressWindow(edit=True, status=status)
+
+        ProgressBar.PROGRESS_BARS[title] = self
 
 
 if __name__ == '__main__':
