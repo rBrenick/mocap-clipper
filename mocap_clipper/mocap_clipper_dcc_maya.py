@@ -28,9 +28,9 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         for te_clip in scene_clips:
             # not sure how to handle multiple clips in a clip
             i = te_clip.clip.getArrayIndices()[0]
-            clip_name = te_clip.getAttr(f"clip[{i}].clipName")
+            clip_name = te_clip.getAttr("clip[{}].clipName".format(i))
 
-            parent_attr = pm.listConnections(te_clip + f".clip[{i}].clipParent", plugs=True)
+            parent_attr = pm.listConnections("{}.clip[{}].clipParent".format(te_clip, i), plugs=True)
             if parent_attr:
                 parent_clip_node = parent_attr[0].node()
                 clip_hierarchy[clip_name] = parent_clip_node
@@ -39,15 +39,15 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             # not sure how to handle multiple clips in a clip
             i = te_clip.clip.getArrayIndices()[0]
 
-            clip_name = te_clip.getAttr(f"clip[{i}].clipName")
+            clip_name = te_clip.getAttr("clip[{}].clipName".format(i))
             clip_parent = clip_hierarchy.get(clip_name)
 
             start_frame_offset = 0
             parent_clip_node = clip_parent
             while parent_clip_node:
                 parent_i = parent_clip_node.clip.getArrayIndices()[0]
-                parent_clip_name = parent_clip_node.getAttr(f"clip[{parent_i}].clipName")
-                start_frame_offset += parent_clip_node.getAttr(f"clip[{parent_i}].clipStart")
+                parent_clip_name = parent_clip_node.getAttr("clip[{}].clipName".format(parent_i))
+                start_frame_offset += parent_clip_node.getAttr("clip[{}].clipStart".format(parent_i))
                 parent_clip_node = clip_hierarchy.get(parent_clip_name)
 
             clip_data = k.ClipData()
@@ -58,14 +58,14 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             clip_data.from_dict(mocap_clipper_data)
 
             # stomp with data from the maya node
-            clip_data.start_frame = te_clip.getAttr(f"clip[{i}].clipStart") + start_frame_offset
-            clip_data.frame_duration = te_clip.getAttr(f"clip[{i}].clipDuration")
+            clip_data.start_frame = te_clip.getAttr("clip[{}].clipStart".format(i)) + start_frame_offset
+            clip_data.frame_duration = te_clip.getAttr("clip[{}].clipDuration".format(i))
             clip_data.end_frame = clip_data.start_frame + clip_data.frame_duration
             clip_data.node = te_clip
             clip_data.clip_parent = clip_parent
             clip_data.namespace = get_namespace_from_time_clip(te_clip)
             clip_data.clip_name = clip_name
-            clip_data.clip_color = te_clip.getAttr(f"clip[{i}].clipColor")
+            clip_data.clip_color = te_clip.getAttr("clip[{}].clipColor".format(i))
 
             all_clip_data[clip_name] = clip_data
 
@@ -378,7 +378,7 @@ def set_mocap_ctrl_world_matrix(mocap_ctrl, world_matrix):
 
 def get_namespace_from_time_clip(te_clip):
     i = te_clip.clip.getArrayIndices()[0]
-    clip_id = te_clip.getAttr(f"clip[{i}].clipid")
+    clip_id = te_clip.getAttr("clip[{}].clipid".format(i))
 
     namespaces = set()
     for driven_node in pm.timeEditorClip(clip_id, q=True, drivenObjects=True):  # type: str
