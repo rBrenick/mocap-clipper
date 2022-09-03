@@ -18,6 +18,10 @@ class MocapClipperCoreInterface(object):
 
         self.mocap_preview_available = False
 
+        # assume unreal skeleton naming (can be overridden in your class)
+        self.root_name = "root"
+        self.pelvis_name = "pelvis"
+
         # noinspection PyUnreachableCode
         if 0:
             from . import mocap_clipper_ui
@@ -225,7 +229,7 @@ class MocapClipperCoreInterface(object):
             self.save_clip(clip_data, bake_config)
 
     def get_alignment_joint_names(self):
-        return "root", "pelvis"
+        return self.root_name, self.pelvis_name
 
     def get_pose_match_methods(self):
         return self.match_via_pose_file, self.match_via_attributes
@@ -253,11 +257,11 @@ class MocapClipperCoreInterface(object):
     def delete_clips(self, clip_data, namespace_usage):
         self.log_missing_implementation(self.delete_clips)
 
-    def align_mocap_to_rig(self, mocap_namespace, rig_name, root_name="root", alignment_name="pelvis", on_frame=None):
+    def align_mocap_to_rig(self, mocap_namespace, rig_name, alignment_name="pelvis", on_frame=None):
         self.log_missing_implementation(self.align_mocap_to_rig)
 
-    def align_mocap_to_world_origin(self, mocap_namespace, root_name="root", alignment_name="pelvis"):
-        self.log_missing_implementation(self.align_mocap_to_rig)
+    def align_mocap_to_world_origin(self, mocap_namespace, alignment_name="pelvis"):
+        self.log_missing_implementation(self.align_mocap_to_world_origin)
 
     def remove_pose_anim_layer(self):
         self.log_missing_implementation(self.remove_pose_anim_layer)

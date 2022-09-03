@@ -151,7 +151,7 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         mocap_top_node = pm.PyNode(mocap_top_name)
         mocap_ctrl_node = pm.PyNode(mocap_ctrl_name)
         mocap_ctrl_offset_node = pm.PyNode(mocap_ctrl_offset_name)
-        mocap_pelvis = pm.PyNode(namespace + ":pelvis")
+        mocap_pelvis = pm.PyNode("{}:{}".format(namespace, self.pelvis_name))
 
         offset_world_matrix = mocap_ctrl_offset_node.getMatrix(worldSpace=True)
 
@@ -233,16 +233,16 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         if pm.objExists(k.SceneConstants.pose_anim_layer_name):
             pm.delete(k.SceneConstants.pose_anim_layer_name)
 
-    def align_mocap_to_rig(self, mocap_namespace, rig_name, root_name="root", alignment_name="root", on_frame=None, match_transform=True):
+    def align_mocap_to_rig(self, mocap_namespace, rig_name, alignment_name="root", on_frame=None, match_transform=True):
         mocap_ctrl_name = "{}{}".format(mocap_namespace, k.SceneConstants.mocap_ctrl_name)
         mocap_ctrl_node = pm.PyNode(mocap_ctrl_name)
 
         target_rig = self.get_rigs_in_scene().get(rig_name)
         rig_ns = target_rig.namespace()
 
-        root = mocap_namespace + root_name
+        root = mocap_namespace + self.root_name
         alignment_node_name = mocap_namespace + alignment_name
-        rig_root = rig_ns + root_name
+        rig_root = rig_ns + self.root_name
         rig_alignment = rig_ns + alignment_name
 
         # align with rig joint
@@ -273,16 +273,17 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         rig_root_matrix = pm.getAttr(rig_root + ".worldMatrix")
         set_mocap_ctrl_world_matrix(mocap_root_ctrl, rig_root_matrix)
 
-    def align_mocap_to_world_origin(self, mocap_namespace, root_name="root", alignment_name="root"):
+    def align_mocap_to_world_origin(self, mocap_namespace, alignment_name="root"):
         mocap_ctrl_name = "{}{}".format(mocap_namespace, k.SceneConstants.mocap_ctrl_name)
         mocap_ctrl_node = pm.PyNode(mocap_ctrl_name)
 
-        mocap_root = mocap_namespace + root_name
+        mocap_root = mocap_namespace + self.root_name
         alignment_node_name = mocap_namespace + alignment_name
 
         # align with rig joint
         alignment_matrix = pm.getAttr(alignment_node_name + ".worldMatrix")
 
+        # root world matrix
         target_matrix = pm.dt.Matrix([
             [1.0, 0.0, 0.0, 0.0],
             [0.0, 2.220446049250313e-16, -1.0000000000000002, 0.0],
@@ -306,14 +307,14 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
     def project_root_animation_from_hips(self, mocap_namespace):
         with pm.UndoChunk():
             project_new_root(
-                mocap_namespace + k.SceneConstants.skeleton_root,
-                mocap_namespace + "pelvis",
+                mocap_namespace + self.root_name,
+                mocap_namespace + self.pelvis_name,
             )
 
     def toggle_root_aim(self, mocap_namespace):
         mocap_aim_ctrl_name = "{}{}".format(mocap_namespace, "root_aim_ctrl")
         mocap_top_name = "{}{}".format(mocap_namespace, k.SceneConstants.mocap_top_node_name)
-        mocap_root_name = "{}{}".format(mocap_namespace, k.SceneConstants.skeleton_root)
+        mocap_root_name = "{}{}".format(mocap_namespace, self.root_name)
 
         if pm.objExists(mocap_aim_ctrl_name):
             top_rotate = pm.getAttr(mocap_top_name+".rotate")

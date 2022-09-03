@@ -10,7 +10,6 @@ class SceneConstants:
     mocap_top_node_name = "mocap_top_node"
     mocap_ctrl_name = "mocap_ctrl"
     mocap_ctrl_offset_name = "mocap_ctrl_reverse_offset"
-    skeleton_root = "root"
 
     mocap_clipper_data = "mocap_clipper_data"
 
