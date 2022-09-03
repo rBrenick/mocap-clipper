@@ -16,6 +16,8 @@ class MocapClipperCoreInterface(object):
         self.tool_window = None
         self.allow_ui = False
 
+        self.mocap_preview_available = False
+
         # noinspection PyUnreachableCode
         if 0:
             from . import mocap_clipper_ui
@@ -49,15 +51,15 @@ class MocapClipperCoreInterface(object):
     def apply_pose(self, pose_path, rig_name, on_frame=None, on_selected=False):
         self.log_missing_implementation(self.apply_pose)
 
+    ######################################################################################
+    # Optional Project/Studio implementations
+
     def connect_mocap_to_rig(self, mocap_ns, rig_name):
         self.log_missing_implementation(self.connect_mocap_to_rig)
         return []  # this return value gets sent to disconnect_mocap_from_rig
 
     def disconnect_mocap_from_rig(self, connect_result):
         self.log_missing_implementation(self.disconnect_mocap_from_rig)
-
-    ######################################################################################
-    # Optional Project/Studio implementations
 
     def pre_bake(self):
         pass  # method that runs before baking to the rig

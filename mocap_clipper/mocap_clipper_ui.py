@@ -62,6 +62,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         ui_utils.build_log_level_menu(menu_bar, log_cls=log)
         self.setMenuBar(menu_bar)
 
+        if not mcs.dcc.mocap_preview_available:
+            self.ui.connect_mocap_to_rig_BTN.hide()
+
     def set_ui_from_dcc_settings(self):
         # set icons
         mocap_icon = mcs.dcc.get_mocap_icon() or QtGui.QIcon()
