@@ -54,8 +54,9 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
 
             # fill data from attribute string if it exists, this will contain things like start and end pose
             mocap_clipper_data_string = self.get_attr(te_clip, k.SceneConstants.mocap_clipper_data, default="{}")
-            mocap_clipper_data = json.loads(mocap_clipper_data_string)
-            clip_data.from_dict(mocap_clipper_data)
+            if mocap_clipper_data_string is not None:
+                mocap_clipper_data = json.loads(mocap_clipper_data_string)
+                clip_data.from_dict(mocap_clipper_data)
 
             # stomp with data from the maya node
             clip_data.start_frame = te_clip.getAttr("clip[{}].clipStart".format(i)) + start_frame_offset
