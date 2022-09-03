@@ -22,6 +22,10 @@ class MocapClipperCoreInterface(object):
         self.root_name = "root"
         self.pelvis_name = "pelvis"
 
+        # unreal root orientation
+        self.root_world_rotation = (-90, 0, 0)
+        self.root_shape_normal = (0, 0, -1)
+
         # noinspection PyUnreachableCode
         if 0:
             from . import mocap_clipper_ui

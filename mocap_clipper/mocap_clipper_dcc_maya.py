@@ -270,7 +270,11 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             mocap_ctrl_node.setTranslation(diff_pos)
 
         # create new root that's aligned with the rig (since the mocap one might be a bit off)
-        mocap_root_ctrl = get_mocap_root_ctrl(mocap_root=pm.PyNode(root))
+        mocap_root_ctrl = get_mocap_root_ctrl(
+            pm.PyNode(root),
+            self.root_world_rotation,
+            self.root_shape_normal,
+        )
         rig_root_matrix = pm.getAttr(rig_root + ".worldMatrix")
         set_mocap_ctrl_world_matrix(mocap_root_ctrl, rig_root_matrix)
 
@@ -302,7 +306,11 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         mocap_ctrl_node.setMatrix(out_matrix, worldSpace=True)
 
         # remove rotation from mocap_ctrl attribute
-        mocap_root_ctrl = get_mocap_root_ctrl(mocap_root=pm.PyNode(mocap_root))
+        mocap_root_ctrl = get_mocap_root_ctrl(
+            pm.PyNode(mocap_root),
+            self.root_world_rotation,
+            self.root_shape_normal,
+        )
         mocap_root_ctrl.setAttr("worldRotateY", 0)
 
     def project_root_animation_from_hips(self, mocap_namespace):
@@ -310,6 +318,7 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             project_new_root(
                 mocap_namespace + self.root_name,
                 mocap_namespace + self.pelvis_name,
+                root_rotation=self.root_world_rotation,
             )
 
     def toggle_root_aim(self, mocap_namespace):
@@ -423,7 +432,7 @@ def create_time_editor_clip(nodes, clip_name="SpecialClip"):
     return cmds.timeEditorClip(clip_id, query=True, clipNode=True)
 
 
-def project_new_root(mocap_root, mocap_pelvis):
+def project_new_root(mocap_root, mocap_pelvis, root_rotation=None, shape_normal=None):
     mocap_root = pm.PyNode(mocap_root)
     mocap_pelvis = pm.PyNode(mocap_pelvis)
 
@@ -434,7 +443,7 @@ def project_new_root(mocap_root, mocap_pelvis):
         print("Key data not found on {}. Using scene time range instead.".format(mocap_pelvis))
         time_range = pm.playbackOptions(q=True, min=True), pm.playbackOptions(q=True, max=True)
 
-    new_root = get_mocap_root_ctrl(mocap_root)
+    new_root = get_mocap_root_ctrl(mocap_root, root_rotation, shape_normal)
 
     point_const = pm.pointConstraint(mocap_pelvis, new_root, skip=["y"])
 
@@ -487,7 +496,7 @@ def project_new_root(mocap_root, mocap_pelvis):
     pm.select(new_root)
 
 
-def get_mocap_root_ctrl(mocap_root):
+def get_mocap_root_ctrl(mocap_root, root_rotation=None, shape_normal=None):
     root_name = mocap_root.nodeName()  # includes namespace
 
     raw_import_name = root_name + "_RAW_IMPORT"
@@ -499,11 +508,14 @@ def get_mocap_root_ctrl(mocap_root):
 
         existing_root_parent = mocap_root.getParent()
         mocap_root.rename(raw_import_name)
-        root_ctrl = create_triangle_ctrl(root_name, shape_normal=(0, 0, -1), radius=25)
+        root_ctrl = create_triangle_ctrl(root_name, shape_normal, radius=25)
 
         root_ctrl.displayHandle.set(1)
         root_ctrl.visibility.set(keyable=False, channelBox=True)
-        root_ctrl.rotateX.set(-90)
+
+        if root_rotation:
+            root_ctrl.rotate.set(root_rotation)
+
         root_ctrl.rotateX.set(lock=True)
         root_ctrl.rotateZ.set(lock=True)
         root_ctrl.scaleX.set(lock=True, keyable=False)
@@ -533,7 +545,10 @@ def get_mocap_root_ctrl(mocap_root):
     return root_ctrl
 
 
-def create_triangle_ctrl(ctrl_name, shape_normal=(0, -1, 0), radius=50, sections=3):
+def create_triangle_ctrl(ctrl_name, shape_normal=None, radius=50, sections=3):
+    if shape_normal is None:
+        shape_normal = (0, -1, 0)
+
     ctrl_node, _ = pm.circle(sections=sections, degree=1, normal=shape_normal, radius=radius, name=ctrl_name)
     ctrl_node.overrideEnabled.set(True)
     ctrl_node.overrideColor.set(16)
