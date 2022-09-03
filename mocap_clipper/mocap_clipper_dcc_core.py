@@ -26,6 +26,14 @@ class MocapClipperCoreInterface(object):
         self.root_world_rotation = (-90, 0, 0)
         self.root_shape_normal = (0, 0, -1)
 
+        # unreal z-up matrix
+        self.root_world_matrix = [
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 2.220446049250313e-16, -1.0000000000000002, 0.0],
+            [0.0, 1.0000000000000002, 2.220446049250313e-16, 0.0],
+            [0.0, 0.0, 0.0, 1.0]
+        ]
+
         # noinspection PyUnreachableCode
         if 0:
             from . import mocap_clipper_ui

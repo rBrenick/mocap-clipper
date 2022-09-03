@@ -289,12 +289,7 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         alignment_matrix = pm.getAttr(alignment_node_name + ".worldMatrix")
 
         # root world matrix
-        target_matrix = pm.dt.Matrix([
-            [1.0, 0.0, 0.0, 0.0],
-            [0.0, 2.220446049250313e-16, -1.0000000000000002, 0.0],
-            [0.0, 1.0000000000000002, 2.220446049250313e-16, 0.0],
-            [0.0, 0.0, 0.0, 1.0]
-        ])
+        target_matrix = pm.dt.Matrix(self.root_world_matrix)
 
         # calculate relative matrix between controller and alignment joint
         reverse_alignment = mocap_ctrl_node.getMatrix(worldSpace=True) * alignment_matrix.inverse()
