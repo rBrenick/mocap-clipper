@@ -56,14 +56,14 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
 
         return all_clip_data
 
-    def get_clip_data(self, te_clip, refresh_hierarchy=False):
-        if refresh_hierarchy:
-            self.update_scene_clip_hierarchy()
+    def get_clip_data(self, te_clip):
 
         # not sure how to handle multiple clips in a clip
         i = te_clip.clip.getArrayIndices()[0]
 
         clip_name = te_clip.getAttr("clip[{}].clipName".format(i))
+
+        # scene_clip_hierarchy is set during the master refresh
         clip_parent = self.scene_clip_hierarchy.get(clip_name)
 
         start_frame_offset = 0

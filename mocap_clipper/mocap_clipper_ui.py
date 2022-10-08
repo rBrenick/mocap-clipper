@@ -530,7 +530,11 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             # run bake on all selected clips
             for clip_lw in self.ui.clips_LW.selectedItems():  # type: QtWidgets.QListWidgetItem
                 clip_name = clip_lw.text()
-                clip_data = self.scene_data.get(clip_name)  # type: k.ClipData
+                cached_clip_data = self.scene_data.get(clip_name)  # type: k.ClipData
+
+                # make sure to get fresh data from the scene node, so any updates to start/end frame are found
+                clip_data = mcs.dcc.get_clip_data(cached_clip_data.node)
+
                 mcs.dcc.main_bake_function(clip_data, bake_config)
 
             mcs.dcc.post_all_clips_bake()
