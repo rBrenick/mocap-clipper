@@ -1,8 +1,10 @@
 import os.path
 import json
+import traceback
 
 import pymel.core as pm
-from maya import cmds
+import maya.cmds as cmds
+import maya.OpenMaya as om
 from . import adjustment_blend_maya
 from . import mocap_clipper_constants as k
 from . import mocap_clipper_dcc_core
@@ -20,12 +22,14 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         self.auto_create_time_editor_clip_from_mocap = True
         self.auto_project_mocap_ctrl_under_hips = True
 
-    def get_scene_time_editor_data(self):
-        all_clip_data = dict()
+        self.callbacks = []
+
+        self.scene_clip_hierarchy = {}
+
+    def update_scene_clip_hierarchy(self):
         scene_clips = pm.ls(type="timeEditorClip")
 
-        # acquire grouping hierarchy
-        clip_hierarchy = {}
+        self.scene_clip_hierarchy = {}
         for te_clip in scene_clips:
             # not sure how to handle multiple clips in a clip
             i = te_clip.clip.getArrayIndices()[0]
@@ -34,46 +38,63 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             parent_attr = pm.listConnections("{}.clip[{}].clipParent".format(te_clip, i), plugs=True)
             if parent_attr:
                 parent_clip_node = parent_attr[0].node()
-                clip_hierarchy[clip_name] = parent_clip_node
+                self.scene_clip_hierarchy[clip_name] = parent_clip_node
+
+    def get_scene_time_editor_data(self):
+        all_clip_data = dict()
+        scene_clips = pm.ls(type="timeEditorClip")
+
+        self.update_scene_clip_hierarchy()
 
         for te_clip in scene_clips:
-            # not sure how to handle multiple clips in a clip
-            i = te_clip.clip.getArrayIndices()[0]
-
-            clip_name = te_clip.getAttr("clip[{}].clipName".format(i))
-            clip_parent = clip_hierarchy.get(clip_name)
-
-            start_frame_offset = 0
-            parent_clip_node = clip_parent
-            while parent_clip_node:
-                parent_i = parent_clip_node.clip.getArrayIndices()[0]
-                parent_clip_name = parent_clip_node.getAttr("clip[{}].clipName".format(parent_i))
-                start_frame_offset += parent_clip_node.getAttr("clip[{}].clipStart".format(parent_i))
-                parent_clip_node = clip_hierarchy.get(parent_clip_name)
-
-            clip_data = k.ClipData()
-
-            # fill data from attribute string if it exists, this will contain things like start and end pose
-            mocap_clipper_data_string = self.get_attr(te_clip, k.SceneConstants.mocap_clipper_data, default="{}")
-            if mocap_clipper_data_string is not None:
-                mocap_clipper_data = json.loads(mocap_clipper_data_string)
-                clip_data.from_dict(mocap_clipper_data)
-
-            # stomp with data from the maya node
-            clip_data.start_frame = te_clip.getAttr("clip[{}].clipStart".format(i)) + start_frame_offset
-            clip_data.frame_duration = te_clip.getAttr("clip[{}].clipDuration".format(i))
-            clip_data.end_frame = clip_data.start_frame + clip_data.frame_duration
-            clip_data.node = te_clip
-            clip_data.clip_parent = clip_parent
-            clip_data.namespace = get_namespace_from_time_clip(te_clip)
-            clip_data.clip_name = clip_name
-            clip_data.clip_color = te_clip.getAttr("clip[{}].clipColor".format(i))
-            if te_clip.hasAttr("source_path"):
-                clip_data.source_path = te_clip.getAttr("source_path")
-
-            all_clip_data[clip_name] = clip_data
+            try:
+                clip_data = self.get_clip_data(te_clip)
+                all_clip_data[clip_data.clip_name] = clip_data
+            except Exception as e:
+                log.warning("Failed to get ClipData from: {}".format(te_clip))
+                traceback.print_exc()
 
         return all_clip_data
+
+    def get_clip_data(self, te_clip, refresh_hierarchy=False):
+        if refresh_hierarchy:
+            self.update_scene_clip_hierarchy()
+
+        # not sure how to handle multiple clips in a clip
+        i = te_clip.clip.getArrayIndices()[0]
+
+        clip_name = te_clip.getAttr("clip[{}].clipName".format(i))
+        clip_parent = self.scene_clip_hierarchy.get(clip_name)
+
+        start_frame_offset = 0
+        parent_clip_node = clip_parent
+        while parent_clip_node:
+            parent_i = parent_clip_node.clip.getArrayIndices()[0]
+            parent_clip_name = parent_clip_node.getAttr("clip[{}].clipName".format(parent_i))
+            start_frame_offset += parent_clip_node.getAttr("clip[{}].clipStart".format(parent_i))
+            parent_clip_node = self.scene_clip_hierarchy.get(parent_clip_name)
+
+        clip_data = k.ClipData()
+
+        # fill data from attribute string if it exists, this will contain things like start and end pose
+        mocap_clipper_data_string = self.get_attr(te_clip, k.SceneConstants.mocap_clipper_data, default="{}")
+        if mocap_clipper_data_string is not None:
+            mocap_clipper_data = json.loads(mocap_clipper_data_string)
+            clip_data.from_dict(mocap_clipper_data)
+
+        # stomp with data from the maya node
+        clip_data.start_frame = te_clip.getAttr("clip[{}].clipStart".format(i)) + start_frame_offset
+        clip_data.frame_duration = te_clip.getAttr("clip[{}].clipDuration".format(i))
+        clip_data.end_frame = clip_data.start_frame + clip_data.frame_duration
+        clip_data.node = te_clip
+        clip_data.clip_parent = clip_parent
+        clip_data.namespace = get_namespace_from_time_clip(te_clip)
+        clip_data.clip_name = clip_name
+        clip_data.clip_color = te_clip.getAttr("clip[{}].clipColor".format(i))
+        if te_clip.hasAttr("source_path"):
+            clip_data.source_path = te_clip.getAttr("source_path")
+
+        return clip_data
 
     def select_node(self, node):
         pm.select(node)
@@ -95,6 +116,36 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         if not node.hasAttr(attr_name):
             node.addAttr(attr_name, dataType='string')
         node.setAttr(attr_name, value, type="string")
+
+    def register_callbacks(self, ui_refresh_func):
+        log.info("Creating timeEditorClip-NodeAdded callback")
+        node_add_cb = om.MDGMessage.addNodeAddedCallback(
+            ui_refresh_func,
+            "timeEditorClip",
+        )
+        self.callbacks.append(node_add_cb)
+
+        log.info("Creating timeEditorClip-NodeRemoved callback")
+        node_removed_cb = om.MDGMessage.addNodeRemovedCallback(
+            ui_refresh_func,
+            "timeEditorClip",
+        )
+        self.callbacks.append(node_removed_cb)
+
+    def unregister_callbacks(self):
+        log.info("Un-registering callbacks")
+
+        for i, callback in enumerate(self.callbacks):
+            log.info("Removing callback: {}".format(i))
+            try:
+                om.MMessage.removeCallback(callback)
+            except Exception as e:
+                traceback.print_exc()
+
+        self.callbacks = []
+
+    def call_deferred(self, func):
+        pm.evalDeferred(func)
 
     def import_mocap(self, file_path):
         clip_name = os.path.splitext(os.path.basename(file_path))[0]

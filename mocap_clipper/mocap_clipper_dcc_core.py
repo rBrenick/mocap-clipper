@@ -348,3 +348,12 @@ class MocapClipperCoreInterface(object):
 
         random_color = colorsys.hls_to_rgb(hue, light, saturation)
         return random_color
+
+    def register_callbacks(self, ui_refresh_func):
+        self.log_missing_implementation(self.register_callbacks)
+
+    def unregister_callbacks(self):
+        self.log_missing_implementation(self.unregister_callbacks)
+
+    def call_deferred(self, func):
+        self.log_missing_implementation(self.call_deferred)

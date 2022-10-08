@@ -65,6 +65,12 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         if not mcs.dcc.mocap_preview_available:
             self.ui.connect_mocap_to_rig_BTN.hide()
 
+        self.callbacks_suspended = False
+        mcs.dcc.register_callbacks(self.ui_refresh_callback_function)
+
+    def on_close(self):
+        mcs.dcc.unregister_callbacks()
+
     def set_ui_from_dcc_settings(self):
         # set icons
         mocap_icon = mcs.dcc.get_mocap_icon() or QtGui.QIcon()
@@ -185,6 +191,18 @@ class MocapClipperWindow(ui_utils.ToolWindow):
                 self.clip_data_refresh_is_active = False
         return inner
 
+    def deco_disable_callbacks(func):
+        """Decorator for disabling the scene node attribute setting while we're refreshing the UI"""
+
+        @wraps(func)
+        def inner(self, *args, **kwargs):
+            self.callbacks_suspended = True
+            try:
+                return func(self, *args, **kwargs)
+            finally:
+                self.callbacks_suspended = False
+        return inner
+
     def build_widget_ctx_menu(self, action_list, *args, **kwargs):
         return ui_utils.build_menu_from_action_list(action_list)
 
@@ -236,6 +254,14 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             pose_name = os.path.splitext(os.path.basename(pose_file))[0]
             self.ui.start_pose_CB.addItem(pose_icon, pose_name, pose_file)
             self.ui.end_pose_CB.addItem(pose_icon, pose_name, pose_file)
+
+    def ui_refresh_callback_function(self, *args, **kwargs):
+        if self.callbacks_suspended:
+            log.info("callbacks suspended, skipping update")
+            return
+
+        # call the refresh after the DCC has finished processing everything
+        mcs.dcc.call_deferred(self.ui_refresh_from_scene)
 
     def ui_refresh_from_scene(self):
         self.scene_data = mcs.dcc.get_scene_time_editor_data()
@@ -462,6 +488,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
     def disconnect_mocap_from_rig(self):
         mcs.dcc.disconnect_mocap_from_rig(self.mocap_connect_result)
 
+    @deco_disable_callbacks
     def import_mocap(self):
         file_paths, _ = QtWidgets.QFileDialog.getOpenFileNames(caption="Choose .FBX file(s)", filter="FBX (*.fbx)")
         if not file_paths:

@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'D:\git\mocap-clipper\mocap_clipper\ui\mocap_clipper_widget.ui',
 # licensing of 'D:\git\mocap-clipper\mocap_clipper\ui\mocap_clipper_widget.ui' applies.
 #
-# Created: Sat Oct  8 14:54:39 2022
+# Created: Sat Oct  8 15:31:37 2022
 #      by: pyside2-uic  running on PySide2 5.12.5
 #
 # WARNING! All changes made in this file will be lost!
