@@ -307,6 +307,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.frame_start.setText(str(active_cd.start_frame))
         self.ui.frame_end.setText(str(active_cd.end_frame))
         self.ui.frame_duration.setText(str(active_cd.frame_duration))
+        self.ui.source_path_LE.setText(active_cd.source_path)
 
         clip_node = active_cd.node
         if clip_node:

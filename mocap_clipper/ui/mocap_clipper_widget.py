@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'D:\git\mocap-clipper\mocap_clipper\ui\mocap_clipper_widget.ui',
 # licensing of 'D:\git\mocap-clipper\mocap_clipper\ui\mocap_clipper_widget.ui' applies.
 #
-# Created: Sat Oct  8 14:46:29 2022
+# Created: Sat Oct  8 14:54:39 2022
 #      by: pyside2-uic  running on PySide2 5.12.5
 #
 # WARNING! All changes made in this file will be lost!
@@ -69,6 +69,7 @@ class Ui_MocapClipperWidget(object):
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.clip_info_layout = QtWidgets.QVBoxLayout()
+        self.clip_info_layout.setSpacing(3)
         self.clip_info_layout.setContentsMargins(0, 0, 0, 0)
         self.clip_info_layout.setObjectName("clip_info_layout")
         self.horizontalLayout_8 = QtWidgets.QHBoxLayout()
@@ -97,6 +98,11 @@ class Ui_MocapClipperWidget(object):
         self.rename_clip_BTN.setObjectName("rename_clip_BTN")
         self.horizontalLayout_8.addWidget(self.rename_clip_BTN)
         self.clip_info_layout.addLayout(self.horizontalLayout_8)
+        self.source_path_LE = QtWidgets.QLineEdit(self.scrollAreaWidgetContents)
+        self.source_path_LE.setAlignment(QtCore.Qt.AlignJustify|QtCore.Qt.AlignVCenter)
+        self.source_path_LE.setReadOnly(True)
+        self.source_path_LE.setObjectName("source_path_LE")
+        self.clip_info_layout.addWidget(self.source_path_LE)
         self.horizontalLayout_7 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
         self.frame_start = QtWidgets.QLineEdit(self.scrollAreaWidgetContents)
@@ -423,6 +429,7 @@ class Ui_MocapClipperWidget(object):
         self.refresh_BTN.setText(QtWidgets.QApplication.translate("MocapClipperWidget", "Refresh Time Editor Clips", None, -1))
         self.clip_name_LE.setPlaceholderText(QtWidgets.QApplication.translate("MocapClipperWidget", "Clip Name", None, -1))
         self.rename_clip_BTN.setText(QtWidgets.QApplication.translate("MocapClipperWidget", "Rename", None, -1))
+        self.source_path_LE.setPlaceholderText(QtWidgets.QApplication.translate("MocapClipperWidget", "Source Path", None, -1))
         self.frame_start.setPlaceholderText(QtWidgets.QApplication.translate("MocapClipperWidget", "Start Frame", None, -1))
         self.frame_end.setPlaceholderText(QtWidgets.QApplication.translate("MocapClipperWidget", "End Frame", None, -1))
         self.frame_duration.setPlaceholderText(QtWidgets.QApplication.translate("MocapClipperWidget", "Duration", None, -1))
