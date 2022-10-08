@@ -18,6 +18,7 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
 
         self.assign_random_color_on_new_clip = True
         self.auto_create_time_editor_clip_from_mocap = True
+        self.auto_project_mocap_ctrl_under_hips = True
 
     def get_scene_time_editor_data(self):
         all_clip_data = dict()
@@ -67,6 +68,8 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             clip_data.namespace = get_namespace_from_time_clip(te_clip)
             clip_data.clip_name = clip_name
             clip_data.clip_color = te_clip.getAttr("clip[{}].clipColor".format(i))
+            if te_clip.hasAttr("source_path"):
+                clip_data.source_path = te_clip.getAttr("source_path")
 
             all_clip_data[clip_name] = clip_data
 
@@ -125,7 +128,8 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         mocap_ctrl_offset = pm.createNode("transform", name=mocap_ctrl_offset_name)
         mocap_ctrl_offset.setParent(mocap_ctrl_node)
 
-        self.project_mocap_ctrl_to_ground_under_hips(nspace + ":")
+        if self.auto_project_mocap_ctrl_under_hips:
+            self.project_mocap_ctrl_to_ground_under_hips(nspace + ":")
 
         pm.parent(mocap_top_nodes, mocap_ctrl_offset)
 
@@ -141,6 +145,9 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
 
             if self.assign_random_color_on_new_clip:
                 self.set_random_color_on_clip(new_clip)
+
+            pm.addAttr(new_clip, ln="source_path", dataType='string')
+            pm.setAttr(new_clip + ".source_path", file_path)
 
         return mocap_nodes
 

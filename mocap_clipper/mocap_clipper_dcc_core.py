@@ -41,6 +41,8 @@ class MocapClipperCoreInterface(object):
 
         self.match_via_pose_file = "Using Pose File"
         self.match_via_attributes = "Using Attribute Values"
+        self.match_end_to_start = "End pose to Start pose"
+        self.match_start_to_end = "Start pose to End pose"
 
     def log_missing_implementation(self, func):
         log.error("'{}.{}()' has not been implemented".format(self.__class__.__name__, func.__name__))
@@ -130,8 +132,8 @@ class MocapClipperCoreInterface(object):
 
         apply_start_pose = cd.start_pose_enabled
         apply_end_pose = cd.end_pose_enabled
-        end_pose_same_as_start = cd.end_pose_same_as_start
-        pose_layer_should_be_created = any([apply_start_pose, apply_end_pose, end_pose_same_as_start])
+        apply_pose_match = cd.pose_match
+        pose_layer_should_be_created = any([apply_start_pose, apply_end_pose, apply_pose_match])
 
         start_frame = cd.start_frame
         end_frame = cd.end_frame
@@ -208,10 +210,30 @@ class MocapClipperCoreInterface(object):
                 )
                 self.set_key_on_pose_layer(rig_controls)
 
-            if end_pose_same_as_start:
-                if not apply_end_pose:
-                    if cd.end_pose_match_method == self.match_via_pose_file:
-                        # save the first frame pose and re-apply it at the end
+            if apply_pose_match:
+
+                # save the last frame pose and apply it at the start
+                if cd.pose_match_type == self.match_start_to_end and not apply_start_pose:
+                    if cd.pose_match_method == self.match_via_pose_file:
+                        temp_pose_path = self.save_pose(
+                            rig_name=rig_name,
+                            on_frame=end_frame
+                        )
+                        self.apply_pose(
+                            pose_path=temp_pose_path,
+                            rig_name=rig_name,
+                            on_frame=start_frame,
+                        )
+
+                    if cd.pose_match_method == self.match_via_attributes:
+                        self.match_attribute_values_between_frames(rig_controls, end_frame, start_frame)
+
+                    # the current frame will be set by either method above
+                    self.set_key_on_pose_layer(rig_controls)
+
+                # or save the first frame pose and apply it at the end
+                if cd.pose_match_type == self.match_end_to_start and not apply_end_pose:
+                    if cd.pose_match_method == self.match_via_pose_file:
                         temp_pose_path = self.save_pose(
                             rig_name=rig_name,
                             on_frame=start_frame
@@ -222,9 +244,10 @@ class MocapClipperCoreInterface(object):
                             on_frame=end_frame,
                         )
 
-                    if cd.end_pose_match_method == self.match_via_attributes:
+                    if cd.pose_match_method == self.match_via_attributes:
                         self.match_attribute_values_between_frames(rig_controls, start_frame, end_frame)
 
+                    # the current frame will be set by either method above
                     self.set_key_on_pose_layer(rig_controls)
 
             if bake_config.run_adjustment_blend:
@@ -245,6 +268,9 @@ class MocapClipperCoreInterface(object):
 
     def get_pose_match_methods(self):
         return self.match_via_pose_file, self.match_via_attributes
+
+    def get_pose_match_types(self):
+        return self.match_end_to_start, self.match_start_to_end
 
     def get_clip_icon(self):
         return None  # qicon

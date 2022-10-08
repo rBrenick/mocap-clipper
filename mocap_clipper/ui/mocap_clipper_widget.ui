@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>806</width>
-    <height>783</height>
+    <width>1186</width>
+    <height>1122</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -111,30 +111,6 @@
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QComboBox" name="scene_actor_CB">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Name of the target rig</string>
-           </property>
-           <item>
-            <property name="text">
-             <string>actor0:Rig</string>
-            </property>
-           </item>
-          </widget>
-         </item>
         </layout>
        </item>
       </layout>
@@ -163,8 +139,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>464</width>
-            <height>775</height>
+            <width>807</width>
+            <height>1114</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
@@ -393,7 +369,7 @@
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_2">
                   <item>
-                   <widget class="QCheckBox" name="end_pose_same_CHK">
+                   <widget class="QCheckBox" name="pose_match_CHK">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
                       <horstretch>0</horstretch>
@@ -401,12 +377,19 @@
                      </sizepolicy>
                     </property>
                     <property name="text">
-                     <string>Match End Pose to Start</string>
+                     <string>Match</string>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QComboBox" name="end_pose_match_method_CB">
+                   <widget class="QComboBox" name="pose_match_type_CB">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="pose_match_method_CB">
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
@@ -435,7 +418,7 @@
                 <string notr="true">background-color:rgb(75, 75, 75); text-align:left;</string>
                </property>
                <property name="text">
-                <string>&gt; Pre-Process Mocap Actions</string>
+                <string>&gt; Pre-Process Mocap</string>
                </property>
                <property name="checkable">
                 <bool>true</bool>
@@ -556,7 +539,7 @@
                 <string notr="true">background-color:rgb(75, 75, 75); text-align:left;</string>
                </property>
                <property name="text">
-                <string>&gt; Bake Configuration</string>
+                <string>&gt; Bake</string>
                </property>
                <property name="checkable">
                 <bool>true</bool>
@@ -710,48 +693,35 @@
                   </item>
                  </layout>
                 </item>
-               </layout>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" name="bake_actions_root_layout">
-             <item>
-              <widget class="QPushButton" name="bake_actions_BTN">
-               <property name="font">
-                <font>
-                 <italic>true</italic>
-                </font>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">background-color:rgb(75, 75, 75); text-align:left;</string>
-               </property>
-               <property name="text">
-                <string>&gt; Bake Actions</string>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QWidget" name="bake_actions_widget" native="true">
-               <layout class="QVBoxLayout" name="verticalLayout_12">
-                <property name="spacing">
-                 <number>2</number>
-                </property>
-                <property name="topMargin">
-                 <number>0</number>
-                </property>
                 <item>
                  <layout class="QHBoxLayout" name="bake_actions_layout">
                   <property name="spacing">
                    <number>3</number>
                   </property>
+                  <item>
+                   <widget class="QComboBox" name="scene_actor_CB">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>Name of the target rig</string>
+                    </property>
+                    <item>
+                     <property name="text">
+                      <string>actor0:Rig</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
                   <item>
                    <widget class="QPushButton" name="connect_mocap_to_rig_BTN">
                     <property name="sizePolicy">
