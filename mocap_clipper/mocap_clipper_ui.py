@@ -62,6 +62,15 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         ui_utils.build_log_level_menu(menu_bar, log_cls=log)
         self.setMenuBar(menu_bar)
 
+        if not mcs.dcc.mocap_preview_available:
+            self.ui.connect_mocap_to_rig_BTN.hide()
+
+        self.callbacks_suspended = False
+        mcs.dcc.register_callbacks(self.ui_refresh_callback_function)
+
+    def on_close(self):
+        mcs.dcc.unregister_callbacks()
+
     def set_ui_from_dcc_settings(self):
         # set icons
         mocap_icon = mcs.dcc.get_mocap_icon() or QtGui.QIcon()
@@ -73,7 +82,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
         # add project options
         self.ui.align_mocap_CB.addItems(mcs.dcc.get_alignment_joint_names())
-        self.ui.end_pose_match_method_CB.addItems(mcs.dcc.get_pose_match_methods())
+        self.ui.pose_match_type_CB.addItems(mcs.dcc.get_pose_match_types())
+        self.ui.pose_match_method_CB.addItems(mcs.dcc.get_pose_match_methods())
 
         # set output folder
         self.ui.output_path_W.path_dialog.setFileMode(QtWidgets.QFileDialog.DirectoryOnly)
@@ -113,15 +123,17 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.start_pose_CHK.stateChanged.connect(self.set_active_clip_data)
         self.ui.start_pose_CHK.stateChanged.connect(self.ui.start_pose_CB.setEnabled)
         self.ui.start_pose_CB.currentIndexChanged.connect(self.set_active_clip_data)
-        self.ui.start_pose_CB.currentIndexChanged.connect(self.match_end_pose_to_start)
+        # self.ui.start_pose_CB.currentIndexChanged.connect(self.match_end_pose_to_start)
 
         self.ui.end_pose_CHK.stateChanged.connect(self.set_active_clip_data)
         self.ui.end_pose_CHK.stateChanged.connect(self.ui.end_pose_CB.setEnabled)
         self.ui.end_pose_CB.currentIndexChanged.connect(self.set_active_clip_data)
 
-        self.ui.end_pose_same_CHK.stateChanged.connect(self.set_active_clip_data)
-        self.ui.end_pose_same_CHK.stateChanged.connect(self.ui.end_pose_match_method_CB.setEnabled)
-        self.ui.end_pose_match_method_CB.currentIndexChanged.connect(self.set_active_clip_data)
+        self.ui.pose_match_CHK.stateChanged.connect(self.set_active_clip_data)
+        self.ui.pose_match_CHK.stateChanged.connect(self.ui.pose_match_type_CB.setEnabled)
+        self.ui.pose_match_CHK.stateChanged.connect(self.ui.pose_match_method_CB.setEnabled)
+        self.ui.pose_match_type_CB.currentIndexChanged.connect(self.set_active_clip_data)
+        self.ui.pose_match_method_CB.currentIndexChanged.connect(self.set_active_clip_data)
 
         # bake configuration
         self.ui.align_mocap_CHK.stateChanged.connect(self.ui.align_to_start_pose_RB.setEnabled)
@@ -136,7 +148,6 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.pose_configuration_BTN.toggled.connect(self.ui.pose_configuration_widget.setVisible)
         self.ui.preprocess_mocap_actions_BTN.toggled.connect(self.ui.preprocess_mocap_actions_widget.setVisible)
         self.ui.bake_configuration_BTN.toggled.connect(self.ui.bake_configuration_widget.setVisible)
-        self.ui.bake_actions_BTN.toggled.connect(self.ui.bake_actions_widget.setVisible)
         self.ui.project_widgets_BTN.toggled.connect(self.ui.project_widgets_widget.setVisible)
 
     def connect_marking_menus_and_shortcuts(self):
@@ -145,7 +156,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             self.ui.start_pose_CHK: self.apply_start_pose,
             self.ui.end_pose_CB: self.apply_end_pose,
             self.ui.end_pose_CHK: self.apply_end_pose,
-            self.ui.end_pose_same_CHK: self.apply_end_pose,
+            self.ui.pose_match_CHK: self.apply_end_pose,
             self.ui.align_mocap_CHK: self.align_mocap_with_rig,
             self.ui.align_to_start_pose_RB: self.align_mocap_with_rig,
             self.ui.align_to_end_pose_RB: self.align_mocap_with_rig,
@@ -178,6 +189,18 @@ class MocapClipperWindow(ui_utils.ToolWindow):
                 return func(self, *args, **kwargs)
             finally:
                 self.clip_data_refresh_is_active = False
+        return inner
+
+    def deco_disable_callbacks(func):
+        """Decorator for disabling the scene node attribute setting while we're refreshing the UI"""
+
+        @wraps(func)
+        def inner(self, *args, **kwargs):
+            self.callbacks_suspended = True
+            try:
+                return func(self, *args, **kwargs)
+            finally:
+                self.callbacks_suspended = False
         return inner
 
     def build_widget_ctx_menu(self, action_list, *args, **kwargs):
@@ -232,6 +255,14 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             self.ui.start_pose_CB.addItem(pose_icon, pose_name, pose_file)
             self.ui.end_pose_CB.addItem(pose_icon, pose_name, pose_file)
 
+    def ui_refresh_callback_function(self, *args, **kwargs):
+        if self.callbacks_suspended:
+            log.info("callbacks suspended, skipping update")
+            return
+
+        # call the refresh after the DCC has finished processing everything
+        mcs.dcc.call_deferred(self.ui_refresh_from_scene)
+
     def ui_refresh_from_scene(self):
         self.scene_data = mcs.dcc.get_scene_time_editor_data()
         log.debug("Scene data refresh: {}".format(self.scene_data))
@@ -271,6 +302,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
     def ui_update_clip_display_info(self):
         selected_clips = self.ui.clips_LW.selectedItems()
 
+        ui_configuration_allowed = True
         valid_selection = False
         if len(selected_clips) == 1:
             clip_lwi = selected_clips[0]  # type: QtWidgets.QListWidgetItem
@@ -282,22 +314,26 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             clip_name = "[Multiple Clips Selected]"
             active_cd = k.ClipData()
             valid_selection = True
+            ui_configuration_allowed = False
         else:
             clip_name = ""
             active_cd = k.ClipData()
             self.ui.start_pose_CHK.setChecked(False)
             self.ui.end_pose_CHK.setChecked(False)
-            self.ui.end_pose_same_CHK.setChecked(False)
+            self.ui.pose_match_CHK.setChecked(False)
             log.debug("No clips found in selection, resetting data")
 
         if not active_cd:
             log.warning("Clip data could not be extracted from UI, exiting UI update early")
             return
 
+        self.ui.pose_configuration_widget.setEnabled(ui_configuration_allowed)
+
         self.ui.clip_name_LE.setText(clip_name)
         self.ui.frame_start.setText(str(active_cd.start_frame))
         self.ui.frame_end.setText(str(active_cd.end_frame))
         self.ui.frame_duration.setText(str(active_cd.frame_duration))
+        self.ui.source_path_LE.setText(active_cd.source_path)
 
         clip_node = active_cd.node
         if clip_node:
@@ -307,7 +343,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
             self.ui.start_pose_CHK.setChecked(active_cd.start_pose_enabled)
             self.ui.end_pose_CHK.setChecked(active_cd.end_pose_enabled)
-            self.ui.end_pose_same_CHK.setChecked(active_cd.end_pose_same_as_start)
+            self.ui.pose_match_CHK.setChecked(active_cd.pose_match)
 
             if active_cd.start_pose_path:
                 ui_utils.set_combo_box_by_data(self.ui.start_pose_CB, active_cd.start_pose_path)
@@ -315,20 +351,25 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             if active_cd.end_pose_path:
                 ui_utils.set_combo_box_by_data(self.ui.end_pose_CB, active_cd.end_pose_path)
 
-            if active_cd.end_pose_match_method:
-                ui_utils.set_combo_box_by_text(self.ui.end_pose_match_method_CB, active_cd.end_pose_match_method)
+            if active_cd.pose_match_type:
+                ui_utils.set_combo_box_by_text(self.ui.pose_match_type_CB, active_cd.pose_match_type)
+
+            if active_cd.pose_match_method:
+                ui_utils.set_combo_box_by_text(self.ui.pose_match_method_CB, active_cd.pose_match_method)
 
         if valid_selection:
             self.ui.bake_BTN.setStyleSheet("background-color:rgb(80, 120, 80)")
 
             # hide all other mocap skeletons in the scene
+            selected_clip_names = [sel_clip.text() for sel_clip in selected_clips]
+
             namespaces_to_show = []
             for clip_lwi in ui_utils.get_list_widget_items(self.ui.clips_LW):
                 cd = self.scene_data.get(clip_lwi.text())  # type: k.ClipData
                 if not cd:
                     continue
 
-                if clip_lwi in selected_clips:
+                if clip_lwi.text() in selected_clip_names:
                     namespaces_to_show.append(cd.namespace)
 
                 mcs.dcc.set_mocap_visibility(cd.namespace, False)
@@ -393,12 +434,13 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         cd.start_pose_enabled = self.ui.start_pose_CHK.isChecked()
         cd.end_pose_path = self.ui.end_pose_CB.currentData(QtCore.Qt.UserRole)
         cd.end_pose_enabled = self.ui.end_pose_CHK.isChecked()
-        cd.end_pose_same_as_start = self.ui.end_pose_same_CHK.isChecked()
-        cd.end_pose_match_method = self.ui.end_pose_match_method_CB.currentText()
+        cd.pose_match = self.ui.pose_match_CHK.isChecked()
+        cd.pose_match_type = self.ui.pose_match_type_CB.currentText()
+        cd.pose_match_method = self.ui.pose_match_method_CB.currentText()
 
-        if cd.end_pose_enabled:
-            if cd.end_pose_same_as_start:
-                self.match_end_pose_to_start()
+        # if cd.end_pose_enabled:
+        #     if cd.pose_match:
+        #         self.match_end_pose_to_start()
 
         cd_dict = cd.to_dict()
         clip_data_str = json.dumps(cd_dict)
@@ -422,11 +464,11 @@ class MocapClipperWindow(ui_utils.ToolWindow):
                 self.ui.connect_mocap_to_rig_BTN.setStyleSheet("background-color:rgb(150, 100, 80)")
                 self.ui.bake_BTN.setEnabled(False)
 
-    def match_end_pose_to_start(self):
-        if not self.ui.end_pose_same_CHK.isChecked():
-            return
-        start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
-        ui_utils.set_combo_box_by_data(self.ui.end_pose_CB, start_pose_path)
+    # def match_end_pose_to_start(self):
+    #     if not self.ui.pose_match_CHK.isChecked():
+    #         return
+    #     start_pose_path = self.ui.start_pose_CB.currentData(QtCore.Qt.UserRole)
+    #     ui_utils.set_combo_box_by_data(self.ui.end_pose_CB, start_pose_path)
 
     def connect_mocap_to_rig(self):
         clip_data = self.get_active_clip_data()
@@ -446,6 +488,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
     def disconnect_mocap_from_rig(self):
         mcs.dcc.disconnect_mocap_from_rig(self.mocap_connect_result)
 
+    @deco_disable_callbacks
     def import_mocap(self):
         file_paths, _ = QtWidgets.QFileDialog.getOpenFileNames(caption="Choose .FBX file(s)", filter="FBX (*.fbx)")
         if not file_paths:
@@ -487,7 +530,11 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             # run bake on all selected clips
             for clip_lw in self.ui.clips_LW.selectedItems():  # type: QtWidgets.QListWidgetItem
                 clip_name = clip_lw.text()
-                clip_data = self.scene_data.get(clip_name)  # type: k.ClipData
+                cached_clip_data = self.scene_data.get(clip_name)  # type: k.ClipData
+
+                # make sure to get fresh data from the scene node, so any updates to start/end frame are found
+                clip_data = mcs.dcc.get_clip_data(cached_clip_data.node)
+
                 mcs.dcc.main_bake_function(clip_data, bake_config)
 
             mcs.dcc.post_all_clips_bake()

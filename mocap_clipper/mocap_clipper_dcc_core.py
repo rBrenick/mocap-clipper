@@ -16,6 +16,24 @@ class MocapClipperCoreInterface(object):
         self.tool_window = None
         self.allow_ui = False
 
+        self.mocap_preview_available = False
+
+        # assume unreal skeleton naming (can be overridden in your class)
+        self.root_name = "root"
+        self.pelvis_name = "pelvis"
+
+        # unreal root orientation
+        self.root_world_rotation = (-90, 0, 0)
+        self.root_shape_normal = (0, 0, -1)
+
+        # unreal z-up matrix
+        self.root_world_matrix = [
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 2.220446049250313e-16, -1.0000000000000002, 0.0],
+            [0.0, 1.0000000000000002, 2.220446049250313e-16, 0.0],
+            [0.0, 0.0, 0.0, 1.0]
+        ]
+
         # noinspection PyUnreachableCode
         if 0:
             from . import mocap_clipper_ui
@@ -23,6 +41,8 @@ class MocapClipperCoreInterface(object):
 
         self.match_via_pose_file = "Using Pose File"
         self.match_via_attributes = "Using Attribute Values"
+        self.match_end_to_start = "End pose to Start pose"
+        self.match_start_to_end = "Start pose to End pose"
 
     def log_missing_implementation(self, func):
         log.error("'{}.{}()' has not been implemented".format(self.__class__.__name__, func.__name__))
@@ -49,15 +69,15 @@ class MocapClipperCoreInterface(object):
     def apply_pose(self, pose_path, rig_name, on_frame=None, on_selected=False):
         self.log_missing_implementation(self.apply_pose)
 
+    ######################################################################################
+    # Optional Project/Studio implementations
+
     def connect_mocap_to_rig(self, mocap_ns, rig_name):
         self.log_missing_implementation(self.connect_mocap_to_rig)
         return []  # this return value gets sent to disconnect_mocap_from_rig
 
     def disconnect_mocap_from_rig(self, connect_result):
         self.log_missing_implementation(self.disconnect_mocap_from_rig)
-
-    ######################################################################################
-    # Optional Project/Studio implementations
 
     def pre_bake(self):
         pass  # method that runs before baking to the rig
@@ -112,8 +132,8 @@ class MocapClipperCoreInterface(object):
 
         apply_start_pose = cd.start_pose_enabled
         apply_end_pose = cd.end_pose_enabled
-        end_pose_same_as_start = cd.end_pose_same_as_start
-        pose_layer_should_be_created = any([apply_start_pose, apply_end_pose, end_pose_same_as_start])
+        apply_pose_match = cd.pose_match
+        pose_layer_should_be_created = any([apply_start_pose, apply_end_pose, apply_pose_match])
 
         start_frame = cd.start_frame
         end_frame = cd.end_frame
@@ -190,10 +210,30 @@ class MocapClipperCoreInterface(object):
                 )
                 self.set_key_on_pose_layer(rig_controls)
 
-            if end_pose_same_as_start:
-                if not apply_end_pose:
-                    if cd.end_pose_match_method == self.match_via_pose_file:
-                        # save the first frame pose and re-apply it at the end
+            if apply_pose_match:
+
+                # save the last frame pose and apply it at the start
+                if cd.pose_match_type == self.match_start_to_end and not apply_start_pose:
+                    if cd.pose_match_method == self.match_via_pose_file:
+                        temp_pose_path = self.save_pose(
+                            rig_name=rig_name,
+                            on_frame=end_frame
+                        )
+                        self.apply_pose(
+                            pose_path=temp_pose_path,
+                            rig_name=rig_name,
+                            on_frame=start_frame,
+                        )
+
+                    if cd.pose_match_method == self.match_via_attributes:
+                        self.match_attribute_values_between_frames(rig_controls, end_frame, start_frame)
+
+                    # the current frame will be set by either method above
+                    self.set_key_on_pose_layer(rig_controls)
+
+                # or save the first frame pose and apply it at the end
+                if cd.pose_match_type == self.match_end_to_start and not apply_end_pose:
+                    if cd.pose_match_method == self.match_via_pose_file:
                         temp_pose_path = self.save_pose(
                             rig_name=rig_name,
                             on_frame=start_frame
@@ -204,9 +244,10 @@ class MocapClipperCoreInterface(object):
                             on_frame=end_frame,
                         )
 
-                    if cd.end_pose_match_method == self.match_via_attributes:
+                    if cd.pose_match_method == self.match_via_attributes:
                         self.match_attribute_values_between_frames(rig_controls, start_frame, end_frame)
 
+                    # the current frame will be set by either method above
                     self.set_key_on_pose_layer(rig_controls)
 
             if bake_config.run_adjustment_blend:
@@ -223,10 +264,13 @@ class MocapClipperCoreInterface(object):
             self.save_clip(clip_data, bake_config)
 
     def get_alignment_joint_names(self):
-        return "root", "pelvis"
+        return self.root_name, self.pelvis_name
 
     def get_pose_match_methods(self):
         return self.match_via_pose_file, self.match_via_attributes
+
+    def get_pose_match_types(self):
+        return self.match_end_to_start, self.match_start_to_end
 
     def get_clip_icon(self):
         return None  # qicon
@@ -234,6 +278,9 @@ class MocapClipperCoreInterface(object):
     def get_scene_time_editor_data(self):
         self.log_missing_implementation(self.get_scene_time_editor_data)
         return {}  # {example in 'MocapClipperMaya'}
+
+    def get_clip_data(self, te_clip):
+        return k.ClipData()
 
     def set_mocap_visibility(self, mocap_namespace, state=True):
         self.log_missing_implementation(self.get_scene_time_editor_data)
@@ -251,11 +298,11 @@ class MocapClipperCoreInterface(object):
     def delete_clips(self, clip_data, namespace_usage):
         self.log_missing_implementation(self.delete_clips)
 
-    def align_mocap_to_rig(self, mocap_namespace, rig_name, root_name="root", alignment_name="pelvis", on_frame=None):
+    def align_mocap_to_rig(self, mocap_namespace, rig_name, alignment_name="pelvis", on_frame=None):
         self.log_missing_implementation(self.align_mocap_to_rig)
 
-    def align_mocap_to_world_origin(self, mocap_namespace, root_name="root", alignment_name="pelvis"):
-        self.log_missing_implementation(self.align_mocap_to_rig)
+    def align_mocap_to_world_origin(self, mocap_namespace, alignment_name="pelvis"):
+        self.log_missing_implementation(self.align_mocap_to_world_origin)
 
     def remove_pose_anim_layer(self):
         self.log_missing_implementation(self.remove_pose_anim_layer)
@@ -304,3 +351,12 @@ class MocapClipperCoreInterface(object):
 
         random_color = colorsys.hls_to_rgb(hue, light, saturation)
         return random_color
+
+    def register_callbacks(self, ui_refresh_func):
+        self.log_missing_implementation(self.register_callbacks)
+
+    def unregister_callbacks(self):
+        self.log_missing_implementation(self.unregister_callbacks)
+
+    def call_deferred(self, func):
+        self.log_missing_implementation(self.call_deferred)

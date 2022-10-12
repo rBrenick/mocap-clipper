@@ -48,6 +48,10 @@ class CoreToolWindow(QtWidgets.QMainWindow):
     def main(self, *args, **kwargs):
         self.show()
 
+    def on_close(self):
+        """for easy overloading with maya dockable windows"""
+        pass
+
     #########################################################
     # convenience functions to make a simple button layout
 
@@ -117,6 +121,12 @@ if active_dcc_is_maya:
 
             self.WORKSPACE_NAMES.append(self.parent().objectName())
             return self
+
+        def hideEvent(self, *args):
+            if not self.isVisible():
+                self.on_close()
+            super(ToolWindow, self).hideEvent(*args)
+
 
     def remove_workspace(workspace_control_name):
         if cmds.workspaceControl(workspace_control_name, q=True, exists=True):

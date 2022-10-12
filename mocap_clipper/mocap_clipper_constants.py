@@ -10,7 +10,6 @@ class SceneConstants:
     mocap_top_node_name = "mocap_top_node"
     mocap_ctrl_name = "mocap_ctrl"
     mocap_ctrl_offset_name = "mocap_ctrl_reverse_offset"
-    skeleton_root = "root"
 
     mocap_clipper_data = "mocap_clipper_data"
 
@@ -25,14 +24,16 @@ class ClipData(object):
         self.clip_parent = None
         self.clip_name = ""
         self.clip_color = (0, 0, 0)
+        self.source_path = ""
 
         # MocapClipper attributes
         self.start_pose_enabled = False
         self.start_pose_path = ""
         self.end_pose_enabled = False
         self.end_pose_path = ""
-        self.end_pose_same_as_start = False
-        self.end_pose_match_method = None
+        self.pose_match = False
+        self.pose_match_type = ""
+        self.pose_match_method = None
 
     def to_dict(self):
         out_dict = {}

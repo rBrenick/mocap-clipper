@@ -1,8 +1,10 @@
 import os.path
 import json
+import traceback
 
 import pymel.core as pm
-from maya import cmds
+import maya.cmds as cmds
+import maya.OpenMaya as om
 from . import adjustment_blend_maya
 from . import mocap_clipper_constants as k
 from . import mocap_clipper_dcc_core
@@ -18,58 +20,81 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
 
         self.assign_random_color_on_new_clip = True
         self.auto_create_time_editor_clip_from_mocap = True
+        self.auto_project_mocap_ctrl_under_hips = True
+
+        self.callbacks = []
+
+        self.scene_clip_hierarchy = {}
+
+    def update_scene_clip_hierarchy(self):
+        scene_clips = pm.ls(type="timeEditorClip")
+
+        self.scene_clip_hierarchy = {}
+        for te_clip in scene_clips:
+            # not sure how to handle multiple clips in a clip
+            i = te_clip.clip.getArrayIndices()[0]
+            clip_name = te_clip.getAttr("clip[{}].clipName".format(i))
+
+            parent_attr = pm.listConnections("{}.clip[{}].clipParent".format(te_clip, i), plugs=True)
+            if parent_attr:
+                parent_clip_node = parent_attr[0].node()
+                self.scene_clip_hierarchy[clip_name] = parent_clip_node
 
     def get_scene_time_editor_data(self):
         all_clip_data = dict()
         scene_clips = pm.ls(type="timeEditorClip")
 
-        # acquire grouping hierarchy
-        clip_hierarchy = {}
-        for te_clip in scene_clips:
-            # not sure how to handle multiple clips in a clip
-            i = te_clip.clip.getArrayIndices()[0]
-            clip_name = te_clip.getAttr(f"clip[{i}].clipName")
-
-            parent_attr = pm.listConnections(te_clip + f".clip[{i}].clipParent", plugs=True)
-            if parent_attr:
-                parent_clip_node = parent_attr[0].node()
-                clip_hierarchy[clip_name] = parent_clip_node
+        self.update_scene_clip_hierarchy()
 
         for te_clip in scene_clips:
-            # not sure how to handle multiple clips in a clip
-            i = te_clip.clip.getArrayIndices()[0]
+            try:
+                clip_data = self.get_clip_data(te_clip)
+                all_clip_data[clip_data.clip_name] = clip_data
+            except Exception as e:
+                log.warning("Failed to get ClipData from: {}".format(te_clip))
+                traceback.print_exc()
 
-            clip_name = te_clip.getAttr(f"clip[{i}].clipName")
-            clip_parent = clip_hierarchy.get(clip_name)
+        return all_clip_data
 
-            start_frame_offset = 0
-            parent_clip_node = clip_parent
-            while parent_clip_node:
-                parent_i = parent_clip_node.clip.getArrayIndices()[0]
-                parent_clip_name = parent_clip_node.getAttr(f"clip[{parent_i}].clipName")
-                start_frame_offset += parent_clip_node.getAttr(f"clip[{parent_i}].clipStart")
-                parent_clip_node = clip_hierarchy.get(parent_clip_name)
+    def get_clip_data(self, te_clip):
 
-            clip_data = k.ClipData()
+        # not sure how to handle multiple clips in a clip
+        i = te_clip.clip.getArrayIndices()[0]
 
-            # fill data from attribute string if it exists, this will contain things like start and end pose
-            mocap_clipper_data_string = self.get_attr(te_clip, k.SceneConstants.mocap_clipper_data, default="{}")
+        clip_name = te_clip.getAttr("clip[{}].clipName".format(i))
+
+        # scene_clip_hierarchy is set during the master refresh
+        clip_parent = self.scene_clip_hierarchy.get(clip_name)
+
+        start_frame_offset = 0
+        parent_clip_node = clip_parent
+        while parent_clip_node:
+            parent_i = parent_clip_node.clip.getArrayIndices()[0]
+            parent_clip_name = parent_clip_node.getAttr("clip[{}].clipName".format(parent_i))
+            start_frame_offset += parent_clip_node.getAttr("clip[{}].clipStart".format(parent_i))
+            parent_clip_node = self.scene_clip_hierarchy.get(parent_clip_name)
+
+        clip_data = k.ClipData()
+
+        # fill data from attribute string if it exists, this will contain things like start and end pose
+        mocap_clipper_data_string = self.get_attr(te_clip, k.SceneConstants.mocap_clipper_data, default="{}")
+        if mocap_clipper_data_string is not None:
             mocap_clipper_data = json.loads(mocap_clipper_data_string)
             clip_data.from_dict(mocap_clipper_data)
 
-            # stomp with data from the maya node
-            clip_data.start_frame = te_clip.getAttr(f"clip[{i}].clipStart") + start_frame_offset
-            clip_data.frame_duration = te_clip.getAttr(f"clip[{i}].clipDuration")
-            clip_data.end_frame = clip_data.start_frame + clip_data.frame_duration
-            clip_data.node = te_clip
-            clip_data.clip_parent = clip_parent
-            clip_data.namespace = get_namespace_from_time_clip(te_clip)
-            clip_data.clip_name = clip_name
-            clip_data.clip_color = te_clip.getAttr(f"clip[{i}].clipColor")
+        # stomp with data from the maya node
+        clip_data.start_frame = te_clip.getAttr("clip[{}].clipStart".format(i)) + start_frame_offset
+        clip_data.frame_duration = te_clip.getAttr("clip[{}].clipDuration".format(i))
+        clip_data.end_frame = clip_data.start_frame + clip_data.frame_duration
+        clip_data.node = te_clip
+        clip_data.clip_parent = clip_parent
+        clip_data.namespace = get_namespace_from_time_clip(te_clip)
+        clip_data.clip_name = clip_name
+        clip_data.clip_color = te_clip.getAttr("clip[{}].clipColor".format(i))
+        if te_clip.hasAttr("source_path"):
+            clip_data.source_path = te_clip.getAttr("source_path")
 
-            all_clip_data[clip_name] = clip_data
-
-        return all_clip_data
+        return clip_data
 
     def select_node(self, node):
         pm.select(node)
@@ -91,6 +116,36 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         if not node.hasAttr(attr_name):
             node.addAttr(attr_name, dataType='string')
         node.setAttr(attr_name, value, type="string")
+
+    def register_callbacks(self, ui_refresh_func):
+        log.info("Creating timeEditorClip-NodeAdded callback")
+        node_add_cb = om.MDGMessage.addNodeAddedCallback(
+            ui_refresh_func,
+            "timeEditorClip",
+        )
+        self.callbacks.append(node_add_cb)
+
+        log.info("Creating timeEditorClip-NodeRemoved callback")
+        node_removed_cb = om.MDGMessage.addNodeRemovedCallback(
+            ui_refresh_func,
+            "timeEditorClip",
+        )
+        self.callbacks.append(node_removed_cb)
+
+    def unregister_callbacks(self):
+        log.info("Un-registering callbacks")
+
+        for i, callback in enumerate(self.callbacks):
+            log.info("Removing callback: {}".format(i))
+            try:
+                om.MMessage.removeCallback(callback)
+            except Exception as e:
+                traceback.print_exc()
+
+        self.callbacks = []
+
+    def call_deferred(self, func):
+        pm.evalDeferred(func)
 
     def import_mocap(self, file_path):
         clip_name = os.path.splitext(os.path.basename(file_path))[0]
@@ -124,7 +179,8 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         mocap_ctrl_offset = pm.createNode("transform", name=mocap_ctrl_offset_name)
         mocap_ctrl_offset.setParent(mocap_ctrl_node)
 
-        self.project_mocap_ctrl_to_ground_under_hips(nspace + ":")
+        if self.auto_project_mocap_ctrl_under_hips:
+            self.project_mocap_ctrl_to_ground_under_hips(nspace + ":")
 
         pm.parent(mocap_top_nodes, mocap_ctrl_offset)
 
@@ -141,6 +197,9 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             if self.assign_random_color_on_new_clip:
                 self.set_random_color_on_clip(new_clip)
 
+            pm.addAttr(new_clip, ln="source_path", dataType='string')
+            pm.setAttr(new_clip + ".source_path", file_path)
+
         return mocap_nodes
 
     def project_mocap_ctrl_to_ground_under_hips(self, namespace):
@@ -151,7 +210,7 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         mocap_top_node = pm.PyNode(mocap_top_name)
         mocap_ctrl_node = pm.PyNode(mocap_ctrl_name)
         mocap_ctrl_offset_node = pm.PyNode(mocap_ctrl_offset_name)
-        mocap_pelvis = pm.PyNode(namespace + ":pelvis")
+        mocap_pelvis = pm.PyNode("{}:{}".format(namespace, self.pelvis_name))
 
         offset_world_matrix = mocap_ctrl_offset_node.getMatrix(worldSpace=True)
 
@@ -233,16 +292,16 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         if pm.objExists(k.SceneConstants.pose_anim_layer_name):
             pm.delete(k.SceneConstants.pose_anim_layer_name)
 
-    def align_mocap_to_rig(self, mocap_namespace, rig_name, root_name="root", alignment_name="root", on_frame=None, match_transform=True):
+    def align_mocap_to_rig(self, mocap_namespace, rig_name, alignment_name="root", on_frame=None, match_transform=True):
         mocap_ctrl_name = "{}{}".format(mocap_namespace, k.SceneConstants.mocap_ctrl_name)
         mocap_ctrl_node = pm.PyNode(mocap_ctrl_name)
 
         target_rig = self.get_rigs_in_scene().get(rig_name)
         rig_ns = target_rig.namespace()
 
-        root = mocap_namespace + root_name
+        root = mocap_namespace + self.root_name
         alignment_node_name = mocap_namespace + alignment_name
-        rig_root = rig_ns + root_name
+        rig_root = rig_ns + self.root_name
         rig_alignment = rig_ns + alignment_name
 
         # align with rig joint
@@ -269,26 +328,26 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             mocap_ctrl_node.setTranslation(diff_pos)
 
         # create new root that's aligned with the rig (since the mocap one might be a bit off)
-        mocap_root_ctrl = get_mocap_root_ctrl(mocap_root=pm.PyNode(root))
+        mocap_root_ctrl = get_mocap_root_ctrl(
+            pm.PyNode(root),
+            self.root_world_rotation,
+            self.root_shape_normal,
+        )
         rig_root_matrix = pm.getAttr(rig_root + ".worldMatrix")
         set_mocap_ctrl_world_matrix(mocap_root_ctrl, rig_root_matrix)
 
-    def align_mocap_to_world_origin(self, mocap_namespace, root_name="root", alignment_name="root"):
+    def align_mocap_to_world_origin(self, mocap_namespace, alignment_name="root"):
         mocap_ctrl_name = "{}{}".format(mocap_namespace, k.SceneConstants.mocap_ctrl_name)
         mocap_ctrl_node = pm.PyNode(mocap_ctrl_name)
 
-        mocap_root = mocap_namespace + root_name
+        mocap_root = mocap_namespace + self.root_name
         alignment_node_name = mocap_namespace + alignment_name
 
         # align with rig joint
         alignment_matrix = pm.getAttr(alignment_node_name + ".worldMatrix")
 
-        target_matrix = pm.dt.Matrix([
-            [1.0, 0.0, 0.0, 0.0],
-            [0.0, 2.220446049250313e-16, -1.0000000000000002, 0.0],
-            [0.0, 1.0000000000000002, 2.220446049250313e-16, 0.0],
-            [0.0, 0.0, 0.0, 1.0]
-        ])
+        # root world matrix
+        target_matrix = pm.dt.Matrix(self.root_world_matrix)
 
         # calculate relative matrix between controller and alignment joint
         reverse_alignment = mocap_ctrl_node.getMatrix(worldSpace=True) * alignment_matrix.inverse()
@@ -300,20 +359,26 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         mocap_ctrl_node.setMatrix(out_matrix, worldSpace=True)
 
         # remove rotation from mocap_ctrl attribute
-        mocap_root_ctrl = get_mocap_root_ctrl(mocap_root=pm.PyNode(mocap_root))
+        mocap_root_ctrl = get_mocap_root_ctrl(
+            pm.PyNode(mocap_root),
+            self.root_world_rotation,
+            self.root_shape_normal,
+        )
         mocap_root_ctrl.setAttr("worldRotateY", 0)
 
     def project_root_animation_from_hips(self, mocap_namespace):
         with pm.UndoChunk():
             project_new_root(
-                mocap_namespace + k.SceneConstants.skeleton_root,
-                mocap_namespace + "pelvis",
+                mocap_namespace + self.root_name,
+                mocap_namespace + self.pelvis_name,
+                root_rotation=self.root_world_rotation,
+                shape_normal=self.root_shape_normal,
             )
 
     def toggle_root_aim(self, mocap_namespace):
         mocap_aim_ctrl_name = "{}{}".format(mocap_namespace, "root_aim_ctrl")
         mocap_top_name = "{}{}".format(mocap_namespace, k.SceneConstants.mocap_top_node_name)
-        mocap_root_name = "{}{}".format(mocap_namespace, k.SceneConstants.skeleton_root)
+        mocap_root_name = "{}{}".format(mocap_namespace, self.root_name)
 
         if pm.objExists(mocap_aim_ctrl_name):
             top_rotate = pm.getAttr(mocap_top_name+".rotate")
@@ -378,7 +443,7 @@ def set_mocap_ctrl_world_matrix(mocap_ctrl, world_matrix):
 
 def get_namespace_from_time_clip(te_clip):
     i = te_clip.clip.getArrayIndices()[0]
-    clip_id = te_clip.getAttr(f"clip[{i}].clipid")
+    clip_id = te_clip.getAttr("clip[{}].clipid".format(i))
 
     namespaces = set()
     for driven_node in pm.timeEditorClip(clip_id, q=True, drivenObjects=True):  # type: str
@@ -421,7 +486,7 @@ def create_time_editor_clip(nodes, clip_name="SpecialClip"):
     return cmds.timeEditorClip(clip_id, query=True, clipNode=True)
 
 
-def project_new_root(mocap_root, mocap_pelvis):
+def project_new_root(mocap_root, mocap_pelvis, root_rotation=None, shape_normal=None):
     mocap_root = pm.PyNode(mocap_root)
     mocap_pelvis = pm.PyNode(mocap_pelvis)
 
@@ -432,7 +497,7 @@ def project_new_root(mocap_root, mocap_pelvis):
         print("Key data not found on {}. Using scene time range instead.".format(mocap_pelvis))
         time_range = pm.playbackOptions(q=True, min=True), pm.playbackOptions(q=True, max=True)
 
-    new_root = get_mocap_root_ctrl(mocap_root)
+    new_root = get_mocap_root_ctrl(mocap_root, root_rotation, shape_normal)
 
     point_const = pm.pointConstraint(mocap_pelvis, new_root, skip=["y"])
 
@@ -485,7 +550,7 @@ def project_new_root(mocap_root, mocap_pelvis):
     pm.select(new_root)
 
 
-def get_mocap_root_ctrl(mocap_root):
+def get_mocap_root_ctrl(mocap_root, root_rotation=None, shape_normal=None):
     root_name = mocap_root.nodeName()  # includes namespace
 
     raw_import_name = root_name + "_RAW_IMPORT"
@@ -497,11 +562,14 @@ def get_mocap_root_ctrl(mocap_root):
 
         existing_root_parent = mocap_root.getParent()
         mocap_root.rename(raw_import_name)
-        root_ctrl = create_triangle_ctrl(root_name, shape_normal=(0, 0, -1), radius=25)
+        root_ctrl = create_triangle_ctrl(root_name, shape_normal, radius=25)
 
         root_ctrl.displayHandle.set(1)
         root_ctrl.visibility.set(keyable=False, channelBox=True)
-        root_ctrl.rotateX.set(-90)
+
+        if root_rotation:
+            root_ctrl.rotate.set(root_rotation)
+
         root_ctrl.rotateX.set(lock=True)
         root_ctrl.rotateZ.set(lock=True)
         root_ctrl.scaleX.set(lock=True, keyable=False)
@@ -531,7 +599,10 @@ def get_mocap_root_ctrl(mocap_root):
     return root_ctrl
 
 
-def create_triangle_ctrl(ctrl_name, shape_normal=(0, -1, 0), radius=50, sections=3):
+def create_triangle_ctrl(ctrl_name, shape_normal=None, radius=50, sections=3):
+    if shape_normal is None:
+        shape_normal = (0, -1, 0)
+
     ctrl_node, _ = pm.circle(sections=sections, degree=1, normal=shape_normal, radius=radius, name=ctrl_name)
     ctrl_node.overrideEnabled.set(True)
     ctrl_node.overrideColor.set(16)

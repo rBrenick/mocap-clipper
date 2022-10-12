@@ -30,13 +30,19 @@ def get_time_ranges(anim_curve):
     return time_ranges
 
 
-def adjustment_blend(layer_name="AnimLayer1", allow_ui=False):
+def adjustment_blend(layer_name="AnimLayer1", allow_ui=False, change_threshold_multiplier=4.0):
+    """
+
+    Args:
+        layer_name:
+        allow_ui:
+        change_threshold_multiplier:
+
+    Returns:
+
+    """
     anim_layer = pm.PyNode(layer_name)
 
-    affected_attrs = [
-        a.attrName(longName=True, includeNode=True) for a in anim_layer.getAttributes()
-        if a.type() != "bool"
-    ]
     first_curve = anim_layer.getAnimCurves()[0]
 
     time_ranges = get_time_ranges(first_curve)
@@ -71,6 +77,8 @@ def adjustment_blend(layer_name="AnimLayer1", allow_ui=False):
                 anim_curve.getValue(key_index + 1)
             )
 
+    curves_to_modify = anim_layer.getAnimCurves()
+
     for key_index, time_range in enumerate(time_ranges):
         frames_to_modify = range(time_range[0] + 1, time_range[1])
 
@@ -78,14 +86,23 @@ def adjustment_blend(layer_name="AnimLayer1", allow_ui=False):
         anim_layer.setMute(True)
 
         percentage_values = {}
-        for a in affected_attrs:
+        for anim_curve in curves_to_modify:
+
+            a = curve_attr_map.get(anim_curve)  # affected attribute
+
             if allow_ui:
                 ProgressBar(
                     "AdjustmentBlend - calculating attribute deltas",
-                    total=len(affected_attrs),
+                    total=len(curves_to_modify),
                     status="Attribute: {}".format(a),
                     wide=True,
                 )
+
+            start_value, end_value = start_and_end_values[key_index][anim_curve]
+
+            # if the pose doesn't affect this attribute, skip over it
+            if start_value == end_value:
+                continue
 
             # get base animation values
             base_anim_values = {}
@@ -108,6 +125,12 @@ def adjustment_blend(layer_name="AnimLayer1", allow_ui=False):
             if total_base_change == 0:
                 continue
 
+            # if the pose layer change is way bigger than base animation, skip creating adjustment keys
+            pose_layer_change = end_value - start_value
+            if pose_layer_change > (total_base_change * change_threshold_multiplier):
+                print("skipping", a, pose_layer_change, total_base_change)
+                continue
+
             # calculate value changes as percentages
             a_percentage_values = {}
             for frame, change_value in change_values.items():
@@ -118,7 +141,6 @@ def adjustment_blend(layer_name="AnimLayer1", allow_ui=False):
         anim_layer.setMute(False)
 
         # create final attribute setting on curves
-        curves_to_modify = anim_layer.getAnimCurves()
         for anim_curve in curves_to_modify:
             if allow_ui:
                 ProgressBar(
@@ -203,21 +225,27 @@ def run_adjustment_blend(layer_name=None, allow_ui=False):
 
     """
     if layer_name is None:
-        anim_layers = pm.ls(type="animLayer")
-        anim_layers = [a for a in anim_layers if a.name() != "BaseAnimation"]
-        if not anim_layers:
-            cmds.warning("No AnimLayers found")
-            return
-
-        selected_anim_layers = [a for a in anim_layers if a.getSelected()]
-        if selected_anim_layers:
-            layer_name = selected_anim_layers[0]
-        else:
-            cmds.warning("No selected anim layers found, using first one: {}".format(anim_layers[0]))
-            layer_name = anim_layers[0]
+        layer_name = get_selected_anim_layer()
 
     with pm.UndoChunk():
         adjustment_blend(layer_name, allow_ui)
+
+
+def get_selected_anim_layer():
+    anim_layers = pm.ls(type="animLayer")
+    anim_layers = [a for a in anim_layers if a.name() != "BaseAnimation"]
+    if not anim_layers:
+        cmds.warning("No AnimLayers found")
+        return
+
+    selected_anim_layers = [a for a in anim_layers if a.getSelected()]
+    if selected_anim_layers:
+        layer_name = selected_anim_layers[0]
+    else:
+        cmds.warning("No selected anim layers found, using first one: {}".format(anim_layers[0]))
+        layer_name = anim_layers[0]
+
+    return layer_name
 
 
 class ProgressBar(object):
