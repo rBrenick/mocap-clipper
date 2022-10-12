@@ -372,6 +372,7 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
                 mocap_namespace + self.root_name,
                 mocap_namespace + self.pelvis_name,
                 root_rotation=self.root_world_rotation,
+                shape_normal=self.root_shape_normal,
             )
 
     def toggle_root_aim(self, mocap_namespace):
