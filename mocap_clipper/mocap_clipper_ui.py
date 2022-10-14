@@ -298,6 +298,14 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         for rig_name in rig_names:
             self.ui.scene_actor_CB.addItem(rig_icon, rig_name)
 
+        # only allow certain actions when a rig can be found
+        rig_exists_in_scene = len(rig_names) > 0
+        if not rig_exists_in_scene:
+            self.ui.scene_actor_CB.addItem("No Rigs Found")
+        self.ui.scene_actor_CB.setEnabled(rig_exists_in_scene)
+        self.ui.connect_mocap_to_rig_BTN.setEnabled(rig_exists_in_scene)
+        self.ui.bake_BTN.setEnabled(rig_exists_in_scene)
+
     @deco_disable_clip_data_set_signals
     def ui_update_clip_display_info(self):
         selected_clips = self.ui.clips_LW.selectedItems()
@@ -450,6 +458,10 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         return self.ui.scene_actor_CB.currentText()
 
     def toggle_mocap_constraint(self):
+        if not self.get_active_rig():
+            log.warning("Could not find rig to attach mocap to")
+            return
+
         if self.mocap_connect_result:
             self.disconnect_mocap_from_rig()
             self.mocap_connect_result = None
@@ -499,6 +511,10 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui_refresh_from_scene()
 
     def bake_to_rig(self):
+        if not self.get_active_rig():
+            log.warning("Could not find rig in scene")
+            return
+
         active_clip_data = self.get_active_clip_data()
         if not active_clip_data:
             log.warning("Clip not found in selection")
