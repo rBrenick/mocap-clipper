@@ -301,7 +301,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         # only allow certain actions when a rig can be found
         rig_exists_in_scene = len(rig_names) > 0
         if not rig_exists_in_scene:
-            self.ui.scene_actor_CB.addItem("No Rigs Found")
+            self.ui.scene_actor_CB.addItem(k.SceneConstants.missing_rig_text)
         self.ui.scene_actor_CB.setEnabled(rig_exists_in_scene)
         self.ui.connect_mocap_to_rig_BTN.setEnabled(rig_exists_in_scene)
         self.ui.bake_BTN.setEnabled(rig_exists_in_scene)
@@ -455,7 +455,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         mcs.dcc.set_attr(cd.node, k.SceneConstants.mocap_clipper_data, clip_data_str)
 
     def get_active_rig(self):
-        return self.ui.scene_actor_CB.currentText()
+        active_rig_name = self.ui.scene_actor_CB.currentText()
+        if active_rig_name != k.SceneConstants.missing_rig_text:
+            return active_rig_name
 
     def toggle_mocap_constraint(self):
         if not self.get_active_rig():

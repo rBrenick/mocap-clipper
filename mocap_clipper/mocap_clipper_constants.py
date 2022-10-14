@@ -13,6 +13,8 @@ class SceneConstants:
 
     mocap_clipper_data = "mocap_clipper_data"
 
+    missing_rig_text = "No Rig Found"
+
 
 class ClipData(object):
     def __init__(self):
