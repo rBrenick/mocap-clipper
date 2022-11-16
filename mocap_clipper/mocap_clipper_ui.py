@@ -68,8 +68,26 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.callbacks_suspended = False
         mcs.dcc.register_callbacks(self.ui_refresh_callback_function)
 
+        self.setAcceptDrops(True)
+
     def on_close(self):
         mcs.dcc.unregister_callbacks()
+
+    def dragEnterEvent(self, e):
+        if e.mimeData().hasText():
+            e.accept()
+        else:
+            e.ignore()
+
+    def dropEvent(self, event):
+        if event.mimeData().hasUrls():  # if file or link is dropped
+            url = event.mimeData().urls()[0]  # get first url
+            local_path = url.toLocalFile()
+
+            if local_path.lower().endswith(".fbx"):
+                if not self.get_active_rig():
+                    return
+                mcs.dcc.import_mocap(local_path)
 
     def set_ui_from_dcc_settings(self):
         # set icons
