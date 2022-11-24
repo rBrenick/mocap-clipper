@@ -147,6 +147,9 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
     def call_deferred(self, func):
         pm.evalDeferred(func)
 
+    def open_time_editor(self):
+        pm.mel.TimeEditorWindow()
+
     def import_mocap(self, file_path):
         clip_name = os.path.splitext(os.path.basename(file_path))[0]
 

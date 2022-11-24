@@ -83,7 +83,43 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="refresh_BTN">
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <widget class="QPushButton" name="refresh_BTN">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Refresh Time Editor Clips</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="open_time_editor_BTN">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Open Time Editor</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="set_time_range_from_selection_CHK">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -91,14 +127,17 @@
             </size>
            </property>
            <property name="text">
-            <string>Refresh Time Editor Clips</string>
+            <string>Set time range from selection</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QListWidget" name="clips_LW">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+            <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -139,7 +178,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>807</width>
+            <width>689</width>
             <height>1114</height>
            </rect>
           </property>

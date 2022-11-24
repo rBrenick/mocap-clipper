@@ -121,6 +121,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.import_mocap_BTN.clicked.connect(self.import_mocap)
         self.ui.refresh_BTN.clicked.connect(self.ui_refresh_from_scene)
         self.ui.refresh_project_BTN.clicked.connect(self.ui_refresh_from_project)
+        self.ui.open_time_editor_BTN.clicked.connect(mcs.dcc.open_time_editor)
 
         # clip list
         self.ui.clips_LW.itemSelectionChanged.connect(self.ui_update_clip_display_info)
@@ -389,6 +390,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             # hide all other mocap skeletons in the scene
             selected_clip_names = [sel_clip.text() for sel_clip in selected_clips]
 
+            start_frames = []
+            end_frames = []
             namespaces_to_show = []
             for clip_lwi in ui_utils.get_list_widget_items(self.ui.clips_LW):
                 cd = self.scene_data.get(clip_lwi.text())  # type: k.ClipData
@@ -397,11 +400,18 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
                 if clip_lwi.text() in selected_clip_names:
                     namespaces_to_show.append(cd.namespace)
+                    start_frames.append(cd.start_frame)
+                    end_frames.append(cd.end_frame)
 
                 mcs.dcc.set_mocap_visibility(cd.namespace, False)
 
             # re-enable the selected mocap
             [mcs.dcc.set_mocap_visibility(ns, True) for ns in namespaces_to_show]
+
+            if self.ui.set_time_range_from_selection_CHK.isChecked():
+                start_frame = min(*start_frames) if len(start_frames) > 1 else start_frames[0]
+                end_frame = max(*end_frames) if len(end_frames) > 1 else end_frames[0]
+                mcs.dcc.set_time_range((start_frame, end_frame))
 
         else:
             self.ui.bake_BTN.setStyleSheet("background-color:rgb(80, 80, 80)")

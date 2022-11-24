@@ -360,3 +360,6 @@ class MocapClipperCoreInterface(object):
 
     def call_deferred(self, func):
         self.log_missing_implementation(self.call_deferred)
+
+    def open_time_editor(self):
+        self.log_missing_implementation(self.open_time_editor)
