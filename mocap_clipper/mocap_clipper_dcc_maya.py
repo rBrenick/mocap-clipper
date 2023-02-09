@@ -255,6 +255,9 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
             log.warning("Unable to find clipName attribute on node: {}".format(node))
             return
 
+        if new_clip_name[0].isdigit():
+            new_clip_name = f"_{new_clip_name}"
+
         node.setAttr("clip[0].clipName", new_clip_name, type="string")
         return True
 
