@@ -150,6 +150,20 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
     def open_time_editor(self):
         pm.mel.TimeEditorWindow()
 
+    @staticmethod
+    def remove_child_namespaces(namespace):
+        """ Remove all child namespaces under a given namespace.
+        :param namespace: The namespace to remove child namespaces from.
+        """
+        # Skip if the namespace doesn't exist
+        if not pm.namespace(exists=namespace):
+            return
+
+        child_namespace = pm.namespaceInfo(namespace, listOnlyNamespaces=True, recurse=True)
+        child_namespace.reverse()
+        for child in child_namespace:
+            pm.namespace(removeNamespace=child, mergeNamespaceWithParent=True)
+
     def import_mocap(self, file_path):
         clip_name = os.path.splitext(os.path.basename(file_path))[0]
 
@@ -164,6 +178,9 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
         pm.mel.eval('FBXImportSetTake -ti -1')
         pm.mel.file(file_path, i=True, type='FBX', ra=True, namespace=nspace, options='fbx', importTimeRange='override')
         mocap_top_nodes = pm.ls(pm.namespaceInfo(nspace, listNamespace=True, recurse=True), assemblies=True)
+
+        # Remove all imported namespaces
+        self.remove_child_namespaces(nspace)
 
         # parent nodes under two controllers
         mocap_top_name = "{}:{}".format(nspace, k.SceneConstants.mocap_top_node_name)
