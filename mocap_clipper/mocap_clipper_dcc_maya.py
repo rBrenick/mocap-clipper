@@ -99,6 +99,15 @@ class MocapClipperMaya(mocap_clipper_dcc_core.MocapClipperCoreInterface):
     def select_node(self, node):
         pm.select(node)
 
+    def select_mocap_top_nodes(self, namespaces):
+        select_nodes = []
+        for namespace in namespaces:
+            mocap_top_name = "{}:{}".format(namespace, k.SceneConstants.mocap_top_node_name)
+            if pm.objExists(mocap_top_name):
+                select_nodes.append(mocap_top_name)
+
+        pm.select(select_nodes, replace=True)
+
     def get_attr(self, node, attr_name, default=None):
         if node.hasAttr(attr_name):
             attr_val = node.getAttr(attr_name)

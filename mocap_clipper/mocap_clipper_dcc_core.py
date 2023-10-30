@@ -334,6 +334,10 @@ class MocapClipperCoreInterface(object):
     def select_node(self, node):
         self.log_missing_implementation(self.select_node)
 
+    def select_mocap_top_nodes(self, namespaces):
+        self.log_missing_implementation(self.select_mocap_top_nodes)
+
+
     def set_attr(self, node, attr_name, value):
         self.log_missing_implementation(self.set_attr)
 

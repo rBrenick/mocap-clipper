@@ -366,8 +366,6 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         if clip_node:
             log.debug("Parsing data from: {}".format(clip_node))
 
-            mcs.dcc.select_node(clip_node)
-
             self.ui.start_pose_CHK.setChecked(active_cd.start_pose_enabled)
             self.ui.end_pose_CHK.setChecked(active_cd.end_pose_enabled)
             self.ui.pose_match_CHK.setChecked(active_cd.pose_match)
@@ -407,6 +405,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
 
             # re-enable the selected mocap
             [mcs.dcc.set_mocap_visibility(ns, True) for ns in namespaces_to_show]
+            mcs.dcc.select_mocap_top_nodes(namespaces_to_show)
 
             if self.ui.set_time_range_from_selection_CHK.isChecked():
                 start_frame = min(*start_frames) if len(start_frames) > 1 else start_frames[0]
