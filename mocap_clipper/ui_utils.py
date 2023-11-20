@@ -344,11 +344,12 @@ class QtPathWidget(QtWidgets.QWidget):
         main_layout.setContentsMargins(0,0,0,0)
 
         # surprise, it's a QComboBox for the path display
-        self.path_CB = QtWidgets.QComboBox()
+        self.path_CB = NonScrollableComboBox()
         self.path_CB.addItems(self._settings.get_recent_paths())
         self.path_CB.setEditable(True)
         self.path_CB.setCurrentText("")
         self.path_CB.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Fixed)
+        self.path_CB.setFocusPolicy(QtCore.Qt.StrongFocus)
 
         main_layout.addWidget(self.path_CB)
 
@@ -436,6 +437,11 @@ class QtPathWidget(QtWidgets.QWidget):
 
     def setText(self, value):
         self.set_path(value)
+
+
+class NonScrollableComboBox(QtWidgets.QComboBox):
+    def wheelEvent(*args, **kwargs):
+        pass
 
 
 class QtPathWidgetSettings(QtCore.QSettings):
