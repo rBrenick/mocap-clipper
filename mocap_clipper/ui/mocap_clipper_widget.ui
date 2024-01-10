@@ -702,6 +702,16 @@
                    </widget>
                   </item>
                   <item>
+                   <widget class="QCheckBox" name="bake_on_selected_ctrl_CHK">
+                    <property name="toolTip">
+                     <string>Bake only selected controls</string>
+                    </property>
+                    <property name="text">
+                     <string>Bake On Selected Controls</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_6">
                     <property name="spacing">
                      <number>2</number>

@@ -418,6 +418,11 @@ class Ui_MocapClipperWidget(object):
 
         self.bake_configs.addWidget(self.adjustment_blend_CHK)
 
+        self.bake_on_selected_ctrl_CHK = QCheckBox(self.bake_configuration_widget)
+        self.bake_on_selected_ctrl_CHK.setObjectName(u"bake_on_selected_ctrl_CHK")
+
+        self.bake_configs.addWidget(self.bake_on_selected_ctrl_CHK)
+
         self.horizontalLayout_6 = QHBoxLayout()
         self.horizontalLayout_6.setSpacing(2)
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
@@ -575,6 +580,10 @@ class Ui_MocapClipperWidget(object):
         self.adjustment_blend_CHK.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Blend the Start and End pose layer using the intensity of the base animation", None))
 #endif // QT_CONFIG(tooltip)
         self.adjustment_blend_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Run Adjustment Blend", None))
+#if QT_CONFIG(tooltip)
+        self.bake_on_selected_ctrl_CHK.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Bake only selected controls", None))
+#endif // QT_CONFIG(tooltip)
+        self.bake_on_selected_ctrl_CHK.setText(QCoreApplication.translate("MocapClipperWidget", u"Bake On Selected Controls", None))
 #if QT_CONFIG(tooltip)
         self.save_clip_CHK.setToolTip(QCoreApplication.translate("MocapClipperWidget", u"Enable this to automatically save the clip into the selected folder", None))
 #endif // QT_CONFIG(tooltip)

@@ -58,7 +58,7 @@ class MocapClipperCoreInterface(object):
         self.log_missing_implementation(self.get_pose_files)
         return FAKE_DATA.get("pose_files")  # list of paths
 
-    def bake_to_rig(self, mocap_ns, rig_name, start_frame, end_frame):
+    def bake_to_rig(self, mocap_ns, rig_name, start_frame, end_frame, bake_selected=False):
         self.log_missing_implementation(self.bake_to_rig)
         return []  # rig controls, gets sent to rebuild_pose_anim_layer
 
@@ -176,6 +176,7 @@ class MocapClipperCoreInterface(object):
             rig_name=rig_name,
             start_frame=start_frame,
             end_frame=end_frame,
+            bake_selected=bake_config.bake_selected,
         )
 
         if bake_config.run_euler_filter:
