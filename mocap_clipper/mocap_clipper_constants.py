@@ -61,6 +61,7 @@ class BakeConfig(object):
         self.run_euler_filter = False
         self.set_time_range = False
         self.run_adjustment_blend = False
+        self.bake_selected = False
         self.save_clip = False
 
         self.target_rig = None

@@ -563,6 +563,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         bake_config.run_euler_filter = self.ui.euler_filter_CHK.isChecked()
         bake_config.set_time_range = self.ui.set_time_range_CHK.isChecked()
         bake_config.run_adjustment_blend = self.ui.adjustment_blend_CHK.isChecked()
+        bake_config.bake_selected = self.ui.bake_on_selected_ctrl_CHK.isChecked()
         bake_config.save_clip = self.ui.save_clip_CHK.isChecked()
 
         bake_config.target_rig = self.get_active_rig()
