@@ -10,7 +10,7 @@ from . import mocap_clipper_system as mcs
 from . import resources
 from . import ui_utils
 from .ui import mocap_clipper_widget
-from .ui_utils import QtCore, QtWidgets, QtGui
+from .ui_utils import QtCore, QtWidgets, QtGui, QShortcut
 
 standalone_app = None
 if not QtWidgets.QApplication.instance():
@@ -104,7 +104,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.ui.pose_match_method_CB.addItems(mcs.dcc.get_pose_match_methods())
 
         # set output folder
-        self.ui.output_path_W.path_dialog.setFileMode(QtWidgets.QFileDialog.DirectoryOnly)
+        self.ui.output_path_W.path_dialog.setFileMode(QtWidgets.QFileDialog.Directory)
+        self.ui.output_path_W.path_dialog.setOption(QtWidgets.QFileDialog.ShowDirsOnly, True)
         default_project_folder = mcs.dcc.get_default_output_folder()
         if not self.ui.output_path_W.path() and default_project_folder:
             self.ui.output_path_W.set_path(default_project_folder)
@@ -191,7 +192,7 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             widget.customContextMenuRequested.connect(widget_ctx_menu)
 
         # shortcuts
-        del_hotkey = QtWidgets.QShortcut(
+        del_hotkey = QShortcut(
             QtGui.QKeySequence("DEL"),
             self.ui.clips_LW,
             self.delete_selected_clips,
@@ -286,7 +287,9 @@ class MocapClipperWindow(ui_utils.ToolWindow):
         self.scene_data = mcs.dcc.get_scene_time_editor_data()
         log.debug("Scene data refresh: {}".format(self.scene_data))
 
-        clip_icon = mcs.dcc.get_clip_icon() or None
+        # a null QIcon is falsy, so "or None" here would hand setIcon a None and raise --
+        # matches how the other icons in this file are defaulted
+        clip_icon = mcs.dcc.get_clip_icon() or QtGui.QIcon()
 
         # update clip list
         self.ui.clips_LW.clear()
@@ -298,7 +301,8 @@ class MocapClipperWindow(ui_utils.ToolWindow):
             # background color
             if clip_data.clip_color:
                 rgb_color = QtGui.QColor(*[x * 256 for x in clip_data.clip_color])
-                lw.setBackgroundColor(rgb_color)
+                # setBackgroundColor was removed in Qt6; setBackground exists in both
+                lw.setBackground(QtGui.QBrush(rgb_color))
 
             # text color
             lw.setForeground(QtGui.QColor(0, 0, 0))

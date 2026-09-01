@@ -1,4 +1,6 @@
-PySide2
+# PySide2 also works and is still supported, but it has no wheels for
+# Python 3.11+, so a fresh venv on a modern interpreter needs PySide6.
+PySide6
 
 
 

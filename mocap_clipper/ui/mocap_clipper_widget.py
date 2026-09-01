@@ -8,9 +8,14 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide2.QtCore import *
-from PySide2.QtGui import *
-from PySide2.QtWidgets import *
+try:  # Qt6 / PySide6 (Maya 2025 and newer)
+    from PySide6.QtCore import *
+    from PySide6.QtGui import *
+    from PySide6.QtWidgets import *
+except ImportError:  # Qt5 / PySide2 (Maya 2024 and older)
+    from PySide2.QtCore import *
+    from PySide2.QtGui import *
+    from PySide2.QtWidgets import *
 
 from mocap_clipper.ui_utils import QtPathWidget
 

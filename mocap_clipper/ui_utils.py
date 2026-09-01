@@ -4,8 +4,18 @@ import traceback
 from functools import partial
 import logging
 
-from PySide2 import QtCore, QtWidgets, QtGui
-from shiboken2 import wrapInstance
+try:  # Qt6 / PySide6 (Maya 2025 and newer)
+    from PySide6 import QtCore, QtWidgets, QtGui
+    from PySide6.QtGui import QAction, QActionGroup, QShortcut
+    from shiboken6 import wrapInstance
+
+    QT_BINDING = "PySide6"
+except ImportError:  # Qt5 / PySide2 (Maya 2024 and older)
+    from PySide2 import QtCore, QtWidgets, QtGui
+    from PySide2.QtWidgets import QAction, QActionGroup, QShortcut
+    from shiboken2 import wrapInstance
+
+    QT_BINDING = "PySide2"
 
 if sys.version_info.major >= 3:
     long = int
@@ -162,9 +172,9 @@ def build_menu_from_action_list(actions, menu=None, is_sub_menu=False):
                 if not item_to_check:
                     item_to_check = default_choice
 
-                grp = QtWidgets.QActionGroup(menu)
+                grp = QActionGroup(menu)
                 for choice_key in choices:
-                    action = QtWidgets.QAction(choice_key, menu)
+                    action = QAction(choice_key, menu)
                     action.setCheckable(True)
 
                     if choice_key == item_to_check:
@@ -204,18 +214,81 @@ def set_settings_value(settings_obj, key, value, post_set_command=None):
         post_set_command()
 
 
+# uic writes the imports of whichever binding it came from, so they get swapped
+# for this block after compiling. The star imports cover the same names.
+QT_BINDING_IMPORTS = """try:  # Qt6 / PySide6 (Maya 2025 and newer)
+    from PySide6.QtCore import *
+    from PySide6.QtGui import *
+    from PySide6.QtWidgets import *
+except ImportError:  # Qt5 / PySide2 (Maya 2024 and older)
+    from PySide2.QtCore import *
+    from PySide2.QtGui import *
+    from PySide2.QtWidgets import *
+"""
+
+PYSIDE_IMPORT_PREFIXES = ("from PySide2", "from PySide6")
+
+
+def make_compiled_ui_binding_agnostic(out_py_path):
+    """
+    Replace the binding-specific imports uic wrote with a Qt6-then-Qt5 fallback,
+    so a recompile in one Maya version leaves the file importable in the others.
+
+    Args:
+        out_py_path (str): compiled .py file, rewritten in place
+    """
+    with open(out_py_path) as filehandle:
+        compiled_lines = filehandle.readlines()
+
+    out_lines = []
+    unclosed_parens = 0
+    swapped_imports = False
+
+    for line in compiled_lines:
+        if unclosed_parens:  # continuation of a multi-line import being dropped
+            unclosed_parens += line.count("(") - line.count(")")
+            continue
+
+        if line.startswith(PYSIDE_IMPORT_PREFIXES):
+            unclosed_parens = line.count("(") - line.count(")")
+            if not swapped_imports:
+                out_lines.append(QT_BINDING_IMPORTS)
+                swapped_imports = True
+            continue
+
+        out_lines.append(line)
+
+    if not swapped_imports:
+        logging.warning("Found no PySide imports to swap in %s", out_py_path)
+        return
+
+    with open(out_py_path, "w") as filehandle:
+        filehandle.writelines(out_lines)
+
+
 def compile_ui(src_ui_path):
     out_py_path = src_ui_path.replace(".ui", ".py")
 
     if sys.version_info.major > 2:
         import subprocess
-        uic_exe = os.path.join(os.path.dirname(os.path.dirname(sys.executable)), "bin3", "pyside2-uic.exe")
-        command = '"%s" %s > %s' % (uic_exe, src_ui_path, out_py_path)
-        subprocess.Popen(command, shell=True)
+        dcc_root = os.path.dirname(os.path.dirname(sys.executable))
+
+        if QT_BINDING == "PySide6":
+            # Maya 2025+ ships Qt6's uic, which emits C++ unless told otherwise
+            uic_exe = os.path.join(dcc_root, "bin", "uic.exe")
+            command = '"%s" -g python %s > %s' % (uic_exe, src_ui_path, out_py_path)
+        else:
+            uic_exe = os.path.join(dcc_root, "bin3", "pyside2-uic.exe")
+            command = '"%s" %s > %s' % (uic_exe, src_ui_path, out_py_path)
+
+        # wait for uic, the post-process below reads the file it writes
+        subprocess.Popen(command, shell=True).wait()
     else:
         import pyside2uic
         with open(out_py_path, 'w') as filehandle:
             pyside2uic.compileUi(src_ui_path, filehandle, indent=4)
+
+    make_compiled_ui_binding_agnostic(out_py_path)
 
 
 def set_combo_box_by_data(cb, data):
@@ -281,10 +354,10 @@ def build_log_level_menu(menu_bar, log_cls):
     }
 
     log_menu = menu_bar.addMenu("Log Level")  # type: QtWidgets.QMenu
-    ag = QtWidgets.QActionGroup(log_menu, exclusive=True)
+    ag = QActionGroup(log_menu, exclusive=True)
 
     for level_name, log_level in log_levels.items():
-        action = QtWidgets.QAction(level_name, log_menu, checkable=True)
+        action = QAction(level_name, log_menu, checkable=True)
 
         if log_level == log_cls.level:
             action.setChecked(True)
@@ -367,7 +440,9 @@ class QtPathWidget(QtWidgets.QWidget):
         self.path_dialog = QtWidgets.QFileDialog()
 
         if self.use_directory_dialog:
-            self.path_dialog.setFileMode(QtWidgets.QFileDialog.DirectoryOnly)
+            # DirectoryOnly was removed in Qt6, this is the documented replacement
+            self.path_dialog.setFileMode(QtWidgets.QFileDialog.Directory)
+            self.path_dialog.setOption(QtWidgets.QFileDialog.ShowDirsOnly, True)
 
         self.path_dialog.setNameFilter(file_filter)
 
